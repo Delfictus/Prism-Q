@@ -573,17 +573,22 @@ fn evidence_not_found(message: impl Into<String>) -> PcError {
     PcError::Provenance(format!("EVIDENCE_NOT_FOUND:{}", message.into()))
 }
 
-/// The retired Prism4D-bio development root (`$HOME/Desktop/Prism4D-bio`).
-/// Fails closed when `$HOME` cannot bound it.
-fn old_prism_root() -> PcResult<String> {
-    crate::host_roots::under_home(&["Desktop/Prism4D-bio"])
-        .and_then(|roots| roots.into_iter().next())
-        .ok_or_else(|| evidence_not_found("HOME is unset or relative; the old Prism4D-bio root cannot be bounded"))
+/// Text that identifies the retired Prism4D-bio development tree. The match is
+/// HOME-independent (`/Desktop/Prism4D-bio`) and also covers the operator's
+/// configured development roots, so it never depends on the caller's `$HOME`.
+fn old_prism_root_needles() -> Vec<String> {
+    let mut needles = vec!["/Desktop/Prism4D-bio".to_string()];
+    if let Some(roots) = crate::host_roots::dev_source_roots() {
+        needles.extend(roots.into_iter().filter(|root| root.ends_with("Prism4D-bio")));
+    }
+    needles
 }
 
 fn reject_old_root_text(value: &str, label: &str) -> PcResult<()> {
-    let old_root = old_prism_root()?;
-    if value.contains(&old_root) {
+    if let Some(old_root) = old_prism_root_needles()
+        .into_iter()
+        .find(|needle| value.contains(needle.as_str()))
+    {
         return Err(evidence_not_found(format!(
             "{} resolves under forbidden old root {}",
             label, old_root

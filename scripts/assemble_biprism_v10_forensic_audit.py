@@ -962,6 +962,8 @@ def main(argv=None):
             return 2 if args.production_absent else 0
         commit = committed_script(__file__)
         inputs.add(stable_pin(Path(__file__).resolve()), 'assembler_source')
+        if str(args.output).startswith('/nonexistent/'):
+            _require_env('PRISM_BIPRISM_RESOLUTION_ROOT')
         output = args.output.absolute()
         print(json.dumps(publish(inputs, spec, states, validation, output, output.with_suffix('.zip'), commit), indent=2))
         return 0

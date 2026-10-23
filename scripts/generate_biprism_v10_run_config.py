@@ -586,6 +586,7 @@ def publish_validated(config, destination, engine, binary_identity):
 
 
 def main():
+    _require_env('PRISM_BIPRISM_TASK_ROOT')
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--inspect', action='store_true', help='Read authorities and list missing inputs; write nothing')
     parser.add_argument('--science-settings', type=Path)

@@ -39,12 +39,12 @@ fn symlink_in(staging: &Path, real: &Path) {
 
 fn main() {
     // Roots come from the environment; there are no compiled-in host paths.
-    let repo = PathBuf::from(std::env::var_os("PRISM_LEGACY_REPO_ROOT").expect("PRISM_LEGACY_REPO_ROOT must name the legacy Prism4D-bio checkout holding output/5VEX_transition"));
+    let repo = PathBuf::from(std::env::var_os("PRISM_LEGACY_REPO_ROOT").filter(|v| std::path::Path::new(v).is_absolute()).expect("PRISM_LEGACY_REPO_ROOT must be an absolute path naming the legacy Prism4D-bio checkout holding output/5VEX_transition"));
     let run_dir = repo.join("output/5VEX_transition");
     let topology = repo.join(
         "runs/glp1r_379_385_path_a_md_20260615T073919Z/01_receptor_prep/5VEX/03_topology/5VEX_chain_B_engine.topology.json",
     );
-    let demo_root = PathBuf::from(std::env::var_os("PRISM_DSTW_DEMO_ROOT").expect("PRISM_DSTW_DEMO_ROOT must name the DSTW_T4 demo output root")).join("demo_from_existing");
+    let demo_root = PathBuf::from(std::env::var_os("PRISM_DSTW_DEMO_ROOT").filter(|v| std::path::Path::new(v).is_absolute()).expect("PRISM_DSTW_DEMO_ROOT must be an absolute path naming the DSTW_T4 demo output root")).join("demo_from_existing");
     let staging = demo_root.join("_native_label_staging");
     std::fs::create_dir_all(&staging).unwrap();
     std::fs::create_dir_all(&demo_root).unwrap();

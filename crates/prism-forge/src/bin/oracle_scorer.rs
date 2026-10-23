@@ -486,7 +486,7 @@ fn parse_args() -> Result<Config> {
     }
     if config.batch.as_os_str().is_empty() || config.rewards.as_os_str().is_empty() {
         return Err(anyhow!(
-            "--batch and --rewards are required when PRISM_SCRATCH_ROOT is unset (no compiled-in host default)"
+            "--batch and --rewards are required when PRISM_SCRATCH_ROOT is unset or not an absolute path (no compiled-in host default)"
         ));
     }
     Ok(config)

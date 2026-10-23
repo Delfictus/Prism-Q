@@ -182,6 +182,7 @@ def verify_binding(pin, target_pin):
 
 
 def main():
+    _require_env('PRISM_SINGLE_CHAIN10_ROOT')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()

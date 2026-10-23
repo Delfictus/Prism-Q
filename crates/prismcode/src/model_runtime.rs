@@ -452,7 +452,7 @@ fn reject_forbidden_model_path(path: &Path, policy: &ModelRuntimePolicy) -> PcRe
             home_policy_roots(
                 !policy.host_cache_allowed,
                 &[".cache", ".config", ".local/share"],
-            )?,
+            ),
         ),
         (
             !policy.hf_cache_allowed,
@@ -460,12 +460,12 @@ fn reject_forbidden_model_path(path: &Path, policy: &ModelRuntimePolicy) -> PcRe
             home_policy_roots(
                 !policy.hf_cache_allowed,
                 &[".huggingface", ".cache/huggingface"],
-            )?,
+            ),
         ),
         (
             !policy.ollama_cache_allowed,
             "PC_ERR_MODEL_ARTIFACT_NAS_DEPENDENT",
-            home_policy_roots(!policy.ollama_cache_allowed, &[".ollama"])?,
+            home_policy_roots(!policy.ollama_cache_allowed, &[".ollama"]),
         ),
         (
             !policy.source_tree_allowed,
@@ -473,22 +473,36 @@ fn reject_forbidden_model_path(path: &Path, policy: &ModelRuntimePolicy) -> PcRe
             if policy.source_tree_allowed {
                 Vec::new()
             } else {
-                crate::host_roots::dev_source_roots().ok_or_else(|| {
-                    PcError::Security(
-                        "PC_ERR_MODEL_PATH_ESCAPE:development source roots cannot be bounded (HOME and PRISM_DEV_SOURCE_ROOTS unset or relative)"
-                            .to_string(),
-                    )
-                })?
+                crate::host_roots::dev_source_roots().unwrap_or_default()
             },
         ),
         (
             !policy.cargo_allowed,
             "PC_ERR_MODEL_PATH_ESCAPE",
-            home_policy_roots(!policy.cargo_allowed, &[".cargo", ".rustup"])?,
+            home_policy_roots(!policy.cargo_allowed, &[".cargo", ".rustup"]),
         ),
     ];
     for (enabled, code, prefixes) in forbidden {
         if enabled && prefixes.iter().any(|prefix| text.starts_with(prefix.as_str())) {
+            return Err(PcError::Security(format!(
+                "{code}:portable model artifact path is forbidden by policy: {}",
+                path.display()
+            )));
+        }
+    }
+    // HOME-independent component check: the same per-user cache/toolchain
+    // directories and development trees are refused wherever they appear, so
+    // the policy still holds when HOME is unset (e.g. under a service manager)
+    // or belongs to a different user.
+    let components: [(bool, &str, &[&str]); 5] = [
+        (!policy.host_cache_allowed, "PC_ERR_MODEL_ARTIFACT_NAS_DEPENDENT", &["/.cache/", "/.config/", "/.local/share/"]),
+        (!policy.hf_cache_allowed, "PC_ERR_MODEL_ARTIFACT_NAS_DEPENDENT", &["/.huggingface/"]),
+        (!policy.ollama_cache_allowed, "PC_ERR_MODEL_ARTIFACT_NAS_DEPENDENT", &["/.ollama/"]),
+        (!policy.source_tree_allowed, "PC_ERR_MODEL_PATH_ESCAPE", &["/Desktop/Prism4D-bio/", "/Desktop/PrismOS/"]),
+        (!policy.cargo_allowed, "PC_ERR_MODEL_PATH_ESCAPE", &["/.cargo/", "/.rustup/"]),
+    ];
+    for (enabled, code, needles) in components {
+        if enabled && needles.iter().any(|needle| text.contains(needle)) {
             return Err(PcError::Security(format!(
                 "{code}:portable model artifact path is forbidden by policy: {}",
                 path.display()
@@ -504,18 +518,13 @@ fn reject_forbidden_model_path(path: &Path, policy: &ModelRuntimePolicy) -> PcRe
     Ok(())
 }
 
-/// `$HOME`-relative roots for an enabled policy check. Fails closed when the
-/// check is enabled and `$HOME` cannot bound it.
-fn home_policy_roots(enabled: bool, rels: &[&str]) -> PcResult<Vec<String>> {
+/// `$HOME`-relative roots for an enabled policy check; empty when the check is
+/// disabled or `$HOME` is unusable (the component check below still applies).
+fn home_policy_roots(enabled: bool, rels: &[&str]) -> Vec<String> {
     if !enabled {
-        return Ok(Vec::new());
+        return Vec::new();
     }
-    crate::host_roots::under_home(rels).ok_or_else(|| {
-        PcError::Security(
-            "PC_ERR_MODEL_PATH_ESCAPE:HOME is unset or relative; per-user roots cannot be bounded"
-                .to_string(),
-        )
-    })
+    crate::host_roots::under_home(rels).unwrap_or_default()
 }
 
 fn load_safetensors_header(path: &Path) -> PcResult<(bool, Option<usize>)> {

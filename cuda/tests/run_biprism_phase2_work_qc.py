@@ -19,24 +19,30 @@ import struct
 import subprocess
 import sys
 
-def _require_root(name):
-    """Absolute root from the environment; there is no compiled-in host default."""
+def _env_root(name):
+    """Absolute root from the environment; there is no compiled-in host default.
+    When unset, a non-existent sentinel naming the variable is returned (this
+    module is imported by tests); main() refuses to run on a sentinel."""
     value = os.environ.get(name, '')
-    if not os.path.isabs(value):
-        raise SystemExit(f'{name} must name an absolute path (no compiled-in host default)')
-    return Path(value)
+    return Path(value) if os.path.isabs(value) else Path('/nonexistent') / (name + '_UNSET')
+
+
+def _refuse_unset(*pairs):
+    for path, name in pairs:
+        if str(path).startswith('/nonexistent/'):
+            raise SystemExit(f'{name} must name an absolute path (no compiled-in host default)')
 
 
 
 ROLE = Path(__file__).resolve().parents[2]
-OUTPUT = _require_root("PRISM_BIPRISM_RESOLUTION_ROOT")
-TASK = _require_root("PRISM_BIPRISM_TASK_ROOT")
+OUTPUT = _env_root("PRISM_BIPRISM_RESOLUTION_ROOT")
+TASK = _env_root("PRISM_BIPRISM_TASK_ROOT")
 SOURCE = ROLE / "cuda/tests/biprism_phase2_work_native_qc.cu"
 CHECKER = ROLE / "cuda/tests/check_biprism_phase2_work_native.py"
 MESH_CHECKER = ROLE / "cuda/tests/check_biprism_mesh_sensitivity.py"
 KERNELS = ROLE / "crates/prism-gpu/src/kernels"
 XTB = KERNELS / "nhs_biprism_xtb_lut.cuh"
-PYTHON = _require_root("PRISM_REFERENCE_PYTHON")
+PYTHON = _env_root("PRISM_REFERENCE_PYTHON")
 CASE = TASK / "INTERNAL_QC/v10_multiplicity_revision/native/host_controls/KRAS_INPUT.bpqc"
 SEED = TASK / "INTERNAL_QC/v10_engine_integration/reduction_synchronization/native_qualification_001/state.seed_tiles.bin"
 INPUTS = {
@@ -369,6 +375,9 @@ def main():
     if args.mesh_budgets is not None and not (0 < args.mesh_budgets[0] < 960
             and args.mesh_budgets[1] == 960 < args.mesh_budgets[2] <= 1024):
         parser.error("mesh budgets must bracket960 within the native1..1024 capacity")
+    _refuse_unset((args.output, "PRISM_BIPRISM_RESOLUTION_ROOT (or --output)"),
+                  (args.python, "PRISM_REFERENCE_PYTHON (or --python)"),
+                  (TASK, "PRISM_BIPRISM_TASK_ROOT"))
     args.output = args.output.resolve()
     args.python = args.python.absolute()
     args.output.mkdir(parents=True, exist_ok=True)

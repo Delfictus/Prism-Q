@@ -149,13 +149,13 @@ fn post_md_spike_sha(staging: &Path) -> String {
 
 fn main() {
     // Roots come from the environment; there are no compiled-in host paths.
-    let repo = PathBuf::from(std::env::var_os("PRISM_LEGACY_REPO_ROOT").expect("PRISM_LEGACY_REPO_ROOT must name the legacy Prism4D-bio checkout holding output/5VEX_transition"));
+    let repo = PathBuf::from(std::env::var_os("PRISM_LEGACY_REPO_ROOT").filter(|v| std::path::Path::new(v).is_absolute()).expect("PRISM_LEGACY_REPO_ROOT must be an absolute path naming the legacy Prism4D-bio checkout holding output/5VEX_transition"));
     let run_dir = repo.join("output/5VEX_transition");
     let topology = repo.join(
         "runs/glp1r_379_385_path_a_md_20260615T073919Z/01_receptor_prep/5VEX/03_topology/5VEX_chain_B_engine.topology.json",
     );
     let engine_path = repo.join("target/release/nhs_rt_full");
-    let demo_root = PathBuf::from(std::env::var_os("PRISM_DSTW_DEMO_ROOT").expect("PRISM_DSTW_DEMO_ROOT must name the DSTW_T4 demo output root")).join("demo_v2");
+    let demo_root = PathBuf::from(std::env::var_os("PRISM_DSTW_DEMO_ROOT").filter(|v| std::path::Path::new(v).is_absolute()).expect("PRISM_DSTW_DEMO_ROOT must be an absolute path naming the DSTW_T4 demo output root")).join("demo_v2");
     let _ = std::fs::remove_dir_all(&demo_root);
     std::fs::create_dir_all(&demo_root).unwrap();
     let stage_a = demo_root.join("_staging_stream0");

@@ -24,15 +24,10 @@ import check_biprism_norm_refusal as OLD
 def _env_root(name):
     """Absolute root from the environment; there is no compiled-in host default.
     When unset, a non-existent sentinel naming the variable is returned so every
-    read fails closed; entry points call _require_env() first."""
+    read of host data fails closed."""
     value = os.environ.get(name, '')
     return Path(value) if os.path.isabs(value) else Path('/nonexistent') / (name + '_UNSET')
 
-
-def _require_env(*names):
-    for name in names:
-        if not os.path.isabs(os.environ.get(name, '')):
-            raise SystemExit(f'{name} must name an absolute path (no compiled-in host default)')
 
 
 ROOT = Path(__file__).resolve().parents[2]

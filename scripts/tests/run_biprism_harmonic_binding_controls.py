@@ -188,6 +188,8 @@ def main():
     parser.add_argument('--binding-sha256', default=DEFAULT_BINDING_SHA)
     parser.add_argument('--prism-rlib', type=Path, default=ROLE / 'target/release/deps/libprism_nhs-a1611f191df22bfc.rlib')
     args = parser.parse_args()
+    if str(args.binding).startswith('/nonexistent/'):
+        _require_env('PRISM_BIPRISM_RESOLUTION_ROOT')
     prefix = args.output_prefix
     if not prefix.is_absolute() or not prefix.parent.is_dir():
         parser.error('output prefix requires an existing absolute parent')
