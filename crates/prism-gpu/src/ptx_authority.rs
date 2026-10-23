@@ -10,7 +10,7 @@
 //!    existing directory, or resolution fails closed. If both are set, they must
 //!    name the same directory.
 //! 2. Executable-relative layouts, never the current directory:
-//!    `<exe_dir>/ptx` (immutable engine store `/mnt/storage/prism-engines/<sha8>/`),
+//!    `<exe_dir>/ptx` (immutable engine store layout `<engine store>/<sha8>/`),
 //!    `<exe_dir>/../ptx` (cargo `<target>/release/<bin>` next to `<target>/ptx`),
 //!    `<exe_dir>/../assets/ptx` (release bundle).
 //! 3. The governed build output of this exact build (`OUT_DIR/ptx`, baked in
