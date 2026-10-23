@@ -1,0 +1,47 @@
+Prism-Q
+Copyright (c) 2026 Delfictus. All rights reserved. See LICENSE.
+
+This repository contains or derives from the third-party components listed
+below. Each remains under its own license. The machine-readable inventory, with
+sha256 hashes and redistribution verdicts, is manifests/THIRD_PARTY.json.
+
+1. JetBrains Mono (font)
+   Files:     crates/prismos-ui/assets/fonts/JetBrainsMono-Regular.ttf,
+              crates/prismos-ui/assets/fonts/JetBrainsMono-Bold.ttf
+   Copyright: Copyright 2020 The JetBrains Mono Project Authors
+              (https://github.com/JetBrains/JetBrainsMono)
+   License:   SIL Open Font License 1.1
+              (crates/prismos-ui/assets/fonts/JetBrainsMono-OFL.txt)
+
+2. IBM Plex Sans (font)
+   Files:     crates/prismos-ui/assets/fonts/IBMPlexSans-Regular.otf,
+              crates/prismos-ui/assets/fonts/IBMPlexSans-Bold.otf
+   Copyright: Copyright (c) 2017 IBM Corp. with Reserved Font Name "Plex"
+              (https://github.com/IBM/plex)
+   License:   SIL Open Font License 1.1
+              (crates/prismos-ui/assets/fonts/IBMPlexSans-OFL.txt)
+
+3. AMBER ff14SB force-field parameter values
+   Where:     Parameter values transcribed into engine source as constants
+              (for example .archive/crates/prism-physics/src/amber_ff14sb.rs,
+              crates/prism-gpu/src/amber_mega_fused.rs,
+              crates/prism-nhs/src/dstw_dispatch/sidechain_tables.rs).
+              No AMBER parameter files (.dat/.frcmod/.lib) are distributed
+              here. At run time, topologies are prepared from the user's own
+              AmberTools installation.
+   Source:    AmberTools 24.8, dat/leap/parm/parm10.dat + dat/leap/parm/frcmod.ff14SB
+   Reference: Maier, J. A. et al. "ff14SB: Improving the Accuracy of Protein
+              Side Chain and Backbone Parameters from ff99SB."
+              J. Chem. Theory Comput. 11, 3696-3713 (2015).
+   Terms:     The AmberTools LICENSE states: "The force field parameter files
+              in the "../dat/leap" subdirectory have been placed in the public
+              domain by their authors."
+
+4. Rust crate dependencies
+   The crates.io dependencies pinned in Cargo.lock are not included in this
+   repository. Cargo fetches them, and each remains under the license
+   declared in its own package metadata.
+
+5. NVIDIA CUDA Toolkit
+   Not included. Building the GPU kernels requires a separately installed
+   CUDA Toolkit, which is subject to the NVIDIA CUDA EULA.

@@ -3,8 +3,9 @@ name = "prism-tokenizer"
 version = "0.1.0"
 edition = "2021"
 description = "Decode-before-tokenize structured-artifact modality tokenizer for PRISM sealed streams"
-license = "UNLICENSED"
-publish = false
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
 
 [lib]
 name = "prism_tokenizer"

@@ -3,7 +3,9 @@ name = "sdst"
 version = "0.1.0"
 edition = "2021"
 description = "SDST – Spike-Driven Sparse Temporal Hash for PRISM-Therm thermodynamic analysis"
-license = "MIT"
+license = "LicenseRef-Proprietary"
+publish = false
+repository = "https://github.com/Delfictus/Prism-Q"
 
 # lib.rs is the crate root (Cargo default: src/lib.rs).
 # sdst_ffi.rs is the original documentation/integration guide file — kept intact

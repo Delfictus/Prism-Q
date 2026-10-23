@@ -4,10 +4,11 @@ version = "0.3.0"
 edition = "2021"
 authors = ["PRISM-Zero Team <noreply@prism-zero.org>"]
 description = "Revolutionary I/O architecture with holographic binary format and async streaming"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/Delfictus/Prism4D-bio"
+license = "LicenseRef-Proprietary"
+repository = "https://github.com/Delfictus/Prism-Q"
 keywords = ["bioinformatics", "protein", "io", "async", "gpu"]
 categories = ["science", "asynchronous", "hardware-support"]
+publish = false
 
 [dependencies]
 # Prism-Stream Core Dependencies

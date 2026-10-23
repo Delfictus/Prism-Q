@@ -3,7 +3,9 @@ name = "prism-core"
 version = "0.3.0"
 edition = "2021"
 authors = ["PRISM-AI Research Team"]
-license = "MIT"
+license = "LicenseRef-Proprietary"
+publish = false
+repository = "https://github.com/Delfictus/Prism-Q"
 
 [dependencies]
 # Error handling

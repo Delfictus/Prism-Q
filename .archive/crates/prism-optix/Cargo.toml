@@ -3,9 +3,10 @@ name = "prism-optix"
 version = "0.1.0"
 edition = "2021"
 authors = ["PRISM-AI Research Team"]
-license = "MIT"
-repository = "https://github.com/prism-ai/prism"
+license = "LicenseRef-Proprietary"
+repository = "https://github.com/Delfictus/Prism-Q"
 description = "Safe Rust wrapper for NVIDIA OptiX 9.1.0 ray tracing API"
+publish = false
 
 # Safe, ergonomic wrapper over optix-sys
 # Provides RAII resource management, error handling, and safe abstractions

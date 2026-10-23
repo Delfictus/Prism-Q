@@ -6,6 +6,8 @@ authors = ["PRISM-4D Engineering Team"]
 description = "Neuromorphic Holographic Stream (NHS) for real-time cryptic site detection with UV bias perturbation"
 license.workspace = true
 readme = "README.md"
+publish.workspace = true
+repository.workspace = true
 
 [features]
 # `diagnostic` is in `default` so the bin's `--m1-typed-producer`

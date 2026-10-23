@@ -5,6 +5,8 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "PRISMCODE workspace automation"
+publish.workspace = true
+repository.workspace = true
 
 [dependencies]
 blake3 = "1.5"

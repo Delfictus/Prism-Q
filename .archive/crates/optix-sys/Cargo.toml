@@ -3,9 +3,10 @@ name = "optix-sys"
 version = "9.1.0"  # Match OptiX SDK version
 edition = "2021"
 authors = ["PRISM-AI Research Team"]
-license = "MIT"
-repository = "https://github.com/prism-ai/prism"
+license = "LicenseRef-Proprietary"
+repository = "https://github.com/Delfictus/Prism-Q"
 description = "Low-level FFI bindings to NVIDIA OptiX 9.1.0 ray tracing API"
+publish = false
 
 # This is a low-level unsafe FFI crate
 # For safe Rust wrapper, use prism-optix instead

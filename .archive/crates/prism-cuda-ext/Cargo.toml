@@ -3,7 +3,9 @@ name = "prism-cuda-ext"
 version = "0.1.0"
 edition = "2021"
 description = "PRISM-TWIN advanced CUDA extensions: device-side spike compaction (CUB), conditional CUDA graphs, device-updated parameters"
-license = "MIT"
+license = "LicenseRef-Proprietary"
+publish = false
+repository = "https://github.com/Delfictus/Prism-Q"
 
 [features]
 default = ["cuda"]

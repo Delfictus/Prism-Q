@@ -5,6 +5,8 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "PrismOS Beta2.0 native GTK4 desktop application (operator + scientific surface)"
+publish.workspace = true
+repository.workspace = true
 
 # This crate is an ADDITIVE workspace member. It is intentionally NOT in the
 # workspace `default-members`, so a plain `cargo build` / `cargo build -p prismcode`

@@ -3,7 +3,9 @@ name = "prism-learning"
 version = "0.1.0"
 edition = "2021"
 description = "PRISM-Zero v3.1: Self-calibrating engine with swappable RL training datasets"
-license = "MIT"
+license = "LicenseRef-Proprietary"
+publish = false
+repository = "https://github.com/Delfictus/Prism-Q"
 
 [dependencies]
 # Core Utilities
