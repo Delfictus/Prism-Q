@@ -1,0 +1,51 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "tiny_cse_state",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {"id": "unit_ps", "quantity_kind": "time", "unit": "ps"},
+    {"id": "unit_energy", "quantity_kind": "energy", "unit": "kcal/mol"}
+  ],
+  "provenance": [
+    {"id": "prov_tiny", "source_uri": "synthetic://prism-cse-hd/tiny", "source_hash": "tiny_raw_evidence_hash", "classification": "SYNTHETIC", "synthetic": true}
+  ],
+  "timebases": [
+    {"id": "time_tiny", "timebase_hash": "timebase_hash_tiny", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 2}
+  ],
+  "molecules": [
+    {"id": "mol_tiny", "topology_hash": "topology_hash_mol_tiny", "provenance_ref": "prov_tiny", "atoms": [{"id": "mol_tiny_c1", "element": "C", "atom_type": "C_sp3"}], "bonds": []}
+  ],
+  "proteins": [
+    {"id": "protein_tiny", "topology_hash": "topology_hash_protein_tiny", "provenance_ref": "prov_tiny", "chains": [{"id": "chain_tiny", "residues": [{"id": "res_tiny_1", "name": "GLY", "sequence_index": 1, "atom_site_ids": ["site_tiny_ca"]}]}], "atom_sites": [{"id": "site_tiny_ca", "atom_name": "CA", "atom_type": "C_alpha", "chain_ref": "chain_tiny", "residue_ref": "res_tiny_1"}]}
+  ],
+  "water_sites": [
+    {"id": "water_tiny", "gate_kind": "hydration_gate_open", "event_bound": true, "time_ref": "time_tiny", "provenance_ref": "prov_tiny"}
+  ],
+  "variants": [
+    {"id": "variant_tiny", "reference_state_ref": "mol_tiny", "alternate_state_ref": "protein_tiny", "delta_hash": "variant_delta_hash_tiny", "provenance_ref": "prov_tiny"}
+  ],
+  "events": [
+    {"id": "event_tiny_contact", "kind": "contact_on", "source_ref": "mol_tiny", "target_ref": "protein_tiny", "time_ref": "time_tiny", "order_index": 0, "motif": "tiny_contact", "provenance_ref": "prov_tiny"}
+  ],
+  "uncertainties": [
+    {"id": "unc_tiny", "target_ref": "mol_tiny", "model": "bounded_beta", "calibration_hash": "calibration_hash_tiny", "provenance_ref": "prov_tiny"}
+  ],
+  "thermo": [
+    {"id": "thermo_tiny", "target_ref": "mol_tiny", "quantity_kind": "energy", "unit_ref": "unit_energy", "value_payload_ref": "payload_energy_tiny", "uncertainty_ref": "unc_tiny", "provenance_ref": "prov_tiny"}
+  ],
+  "teacher_outputs": [
+    {"id": "teacher_tiny", "target_ref": "mol_tiny", "model_ref": "synthetic_teacher_tiny", "label": "tiny_positive", "confidence": 0.7, "airlock_state": "MODEL_GENERATED_UNVERIFIED", "provenance_ref": "prov_tiny"}
+  ],
+  "gflownet_traces": [
+    {"id": "gfn_tiny", "state_ref": "mol_tiny", "action": "PROPOSE_CONTACT", "reward_payload_ref": "payload_reward_tiny", "lineage_hash": "gfn_lineage_tiny", "provenance_ref": "prov_tiny"}
+  ],
+  "nanl_symbols": ["ENTITY:mol_tiny", "EVENT:contact_on", "DRF:resonance"],
+  "nrf_frames": [
+    {"id": "nrf_tiny", "timebase_ref": "time_tiny", "tile_kind": "phase_tile", "source_event_refs": ["event_tiny_contact"]}
+  ],
+  "drf_states": [
+    {"id": "drf_tiny", "source_nrf_ref": "nrf_tiny", "source_cse_ref": "tiny_cse_state", "channel_kind": "resonance", "tensor_shape": [1, 2], "provenance_ref": "prov_tiny", "canonical_or_derived": "DRF_CANONICAL"}
+  ]
+}
+

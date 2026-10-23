@@ -1,0 +1,34 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "cse_hd_malformed_untyped_domain_v0_1",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "domain_objects": [
+    {
+      "type": "molecule",
+      "payload": {
+        "id": "loose_molecule",
+        "raw_json": {
+          "atoms": []
+        }
+      }
+    }
+  ],
+  "unit_registry": [],
+  "provenance": [],
+  "timebases": [],
+  "molecules": [],
+  "proteins": [],
+  "water_sites": [],
+  "variants": [],
+  "events": [],
+  "uncertainties": [],
+  "thermo": [],
+  "teacher_outputs": [],
+  "gflownet_traces": [],
+  "nanl_symbols": [
+    "ENTITY:loose_molecule"
+  ],
+  "nrf_frames": [],
+  "drf_states": []
+}

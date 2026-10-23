@@ -1,0 +1,130 @@
+{
+ "schema": "prism.engine.fixture_import_provenance.v1",
+ "authorization": "Operator-authorized targeted import from Prism4D-bio (2026-10-23, relayed by the platform lead), per PrismOS CLAUDE.md targeted-import rule",
+ "purpose": "compile-time test fixtures (include_str!) for prismcode tests release_vault, release_vault_negative, manifest_signature, key_rotation, cse_hd, cse_hd_tables, cse_hd_negative_validation, cse_dictionaries, cse_scientific_tokenization, cse_opcodes",
+ "classification": "first-party PRISM test data; no host paths, credentials or personal data (checked)",
+ "copied_utc": "2026-10-23T17:33:18.554225+00:00",
+ "method": "git show <commit>:<path> (read-only on Prism4D-bio), byte-identical",
+ "files": [
+  {
+   "path": "engine/configs/security/release_key_policy.toml",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "configs/security/release_key_policy.toml",
+   "sha256": "b54e6bd23256d6aa49e5b594ac6200e458e73d408f816952d71d4ae4ad4ce37c",
+   "bytes": 583
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/compression_heavy_nanl_bin.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/compression_heavy_nanl_bin.pcsrc.json",
+   "sha256": "87ea5238035437bab928e057a19b65e7bbd99191d7cbefd3b200af2863dabdca",
+   "bytes": 3817
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/compression_heavy_nanl_q4.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/compression_heavy_nanl_q4.pcsrc.json",
+   "sha256": "4e52495510b05193f7e4780a84508dfa65cde81d3b45ad8ee9d4c3b9fc7ded47",
+   "bytes": 3392
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/derived_drf_reconstruction.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/derived_drf_reconstruction.pcsrc.json",
+   "sha256": "b64e8feacad305d56e916be616f22388d89e4448c8fe89b2a7061059b9d7ea6a",
+   "bytes": 3368
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/drf_graph.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/drf_graph.pcsrc.json",
+   "sha256": "eade1479728c8af495e987cd70193563055b616ef9faa75d606e1efb8b814a46",
+   "bytes": 4809
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/malformed_drf_tensor.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/malformed_drf_tensor.pcsrc.json",
+   "sha256": "6c4360ac8109730bad40b83713154bf35c8d2ebc606909659b58b89a751acad6",
+   "bytes": 1904
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/malformed_nanl_q4.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/malformed_nanl_q4.pcsrc.json",
+   "sha256": "d84c4e3a9e78b6f14f36cf596040117617f8fbe947fcac74000bb2fed9976a0c",
+   "bytes": 751
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/malformed_nrf_frame.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/malformed_nrf_frame.pcsrc.json",
+   "sha256": "7b98d1bb283a8fb0282cb8428b1cfee6074813415d16aba46259d2686fee736b",
+   "bytes": 1668
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/malformed_untyped_domain.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/malformed_untyped_domain.pcsrc.json",
+   "sha256": "1ba2213ed204a1f8bdc5a49514726ffa2cba5d7d1fe63ab4a865b10c48ac23d6",
+   "bytes": 670
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/nrf_event_frames.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/nrf_event_frames.pcsrc.json",
+   "sha256": "f8f8440b21ea3af885a5a170970397accaa6f85fea6cdea8dcfe3f8d02f77016",
+   "bytes": 5646
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/protein_water_variant.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/protein_water_variant.pcsrc.json",
+   "sha256": "37a6bf1b2d2e26e0b541d8d01d6f4911a66440b10433e58c4a72bdabba019b95",
+   "bytes": 5201
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/reference.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/reference.pcsrc.json",
+   "sha256": "3c9b0608e5fc81dc2c0cde12ef3964e4a25b6550e683ec4e27cdea5d93f8151a",
+   "bytes": 6066
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/reference_expected.pcasm",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/reference_expected.pcasm",
+   "sha256": "bad3376995206ecdc8b019fa10cb40edbaca4793851897814cf0de3f9f8bfe4d",
+   "bytes": 2602
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/replay_heavy_canonical.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/replay_heavy_canonical.pcsrc.json",
+   "sha256": "e8971fa798a07d28987dcd4a4b9fc039592669c7c52067ae1efde66ca652895e",
+   "bytes": 4050
+  },
+  {
+   "path": "engine/examples/corpus/cse_hd/tiny_cse_state.pcsrc.json",
+   "source_repo": "Prism4D-bio",
+   "source_commit": "7d58ae8a368c9a9f4028e63a3e26277a33efc51e",
+   "source_path": "examples/corpus/cse_hd/tiny_cse_state.pcsrc.json",
+   "sha256": "84b55abe3a87a9fe3b02ae0626b72c6005613fcea1105da41829da56cdb505d9",
+   "bytes": 3145
+  }
+ ]
+}

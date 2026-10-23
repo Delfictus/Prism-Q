@@ -1,0 +1,26 @@
+PRISMCODE ISA v0.1 packet_hash=f48c4e0b0591471a4a96e68dee04ecfb56b8f89bbc0f767db6086d9527098aad
+sections=14 instructions=24 states=3 timebases=1 events=2 nanl_tokens=206
+0000 0x0001 ABI.DECLARE              class=0x00 flags=0x11 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0
+0001 0x0003 PACKET.BEGIN             class=0x00 flags=0x11 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0
+0002 0x0100 STATE.DEF                class=0x01 flags=0x13 dst_kind=4 dst=0 src0_kind=16 src0=0 aux=0
+0003 0x0100 STATE.DEF                class=0x01 flags=0x13 dst_kind=4 dst=1 src0_kind=16 src0=0 aux=0
+0004 0x0100 STATE.DEF                class=0x01 flags=0x13 dst_kind=4 dst=2 src0_kind=16 src0=0 aux=0
+0005 0x0200 TIME.BIND                class=0x02 flags=0x13 dst_kind=5 dst=0 src0_kind=4 src0=0 aux=0
+0006 0x0300 NANL.PACK                class=0x03 flags=0x13 dst_kind=6 dst=0 src0_kind=12 src0=0 aux=0
+0007 0x0400 EVENT.EMIT               class=0x04 flags=0x13 dst_kind=7 dst=0 src0_kind=5 src0=0 aux=0
+0008 0x0400 EVENT.EMIT               class=0x04 flags=0x13 dst_kind=7 dst=1 src0_kind=5 src0=0 aux=0
+0009 0x0403 EVENT.SORT               class=0x04 flags=0x13 dst_kind=7 dst=0 src0_kind=0 src0=0 aux=0
+0010 0x0406 EVENT.INTEGRATE          class=0x04 flags=0x13 dst_kind=4 dst=0 src0_kind=7 src0=0 aux=0
+0011 0x0500 DRF.MAP                  class=0x05 flags=0x1b dst_kind=8 dst=0 src0_kind=7 src0=0 aux=0
+0012 0x0501 DRF.FIRE                 class=0x05 flags=0x1b dst_kind=8 dst=0 src0_kind=8 src0=0 aux=0
+0013 0x0502 DRF.RESONATE             class=0x05 flags=0x1b dst_kind=8 dst=0 src0_kind=8 src0=0 aux=0
+0014 0x0601 THERMO.ENERGY            class=0x06 flags=0x13 dst_kind=4 dst=0 src0_kind=12 src0=0 aux=0
+0015 0x0c04 ASSERT.TIMEBASE          class=0x0c flags=0x11 dst_kind=5 dst=0 src0_kind=0 src0=0 aux=0
+0016 0x0c05 ASSERT.DETERMINISTIC     class=0x0c flags=0x11 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0
+0017 0x0105 STATE.HASH               class=0x01 flags=0x11 dst_kind=4 dst=0 src0_kind=0 src0=0 aux=0
+0018 0x0a04 REPLAY.BEGIN             class=0x0a flags=0x11 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0
+0019 0x0a05 REPLAY.CHECKPOINT        class=0x0a flags=0x31 dst_kind=17 dst=0 src0_kind=4 src0=0 aux=0
+0020 0x0a06 REPLAY.END               class=0x0a flags=0x31 dst_kind=17 dst=0 src0_kind=0 src0=0 aux=0
+0021 0x0b05 AUDIT.SEAL               class=0x0b flags=0x31 dst_kind=17 dst=0 src0_kind=4 src0=0 aux=0
+0022 0x0004 PACKET.END               class=0x00 flags=0x31 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0
+0023 0x0005 HALT                     class=0x00 flags=0x11 dst_kind=0 dst=0 src0_kind=0 src0=0 aux=0

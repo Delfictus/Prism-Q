@@ -15077,6 +15077,9 @@ fn require_durable_bootstrap_population(control: &Path) -> PcResult<()> {
     Ok(())
 }
 
+// Retained for the durable-experiment lane; unused while that lane fails closed
+// on missing native checkpoint plumbing (see DURABLE_EXPERIMENT_NATIVE_CHECKPOINT_UNSUPPORTED).
+#[allow(dead_code)]
 fn preserve_or_recover_durable_request(request: &HyperRuntimeRequestV1, canonical: &[u8]) -> PcResult<()> {
     let output = &request.request.output;
     require_existing_real_directory(output.parent().ok_or_else(|| PcError::Security("durable output parent missing".into()))?, "durable parent")?;
@@ -15174,11 +15177,21 @@ fn run_hyper_runtime(args: HyperRuntimeCliArgs) -> PcResult<()> {
     // client. It cannot replace packet, ACTIVE, graph or downstream admission.
     if let Some(policy) = &request.request.experiment {
         prismcode::durable_experiment::validate_policy(policy)?;
-        preserve_or_recover_durable_request(&request, canonical.as_bytes())?;
-        admit_canonical_execution_lane_before_launch(&request)?;
-        return prismcode::durable_experiment::execute(&request, policy, || {
-            run_canonical_hyper_runtime_md(canonical_hyper_runtime_md_invocation(&request)?)
-        });
+        // FAIL CLOSED before any durable journal or request-evidence write.
+        // durable_experiment::execute hands its native stage a scientific
+        // checkpoint contract (native_context: checkpoint_every_chunks = 100,
+        // resume after a journaled start/failure). The canonical hyper-runtime MD
+        // invocation does not pass --scientific-checkpoint-root/-every-chunks/
+        // -max-bytes or --resume-scientific-checkpoint to nhs_rt_full, so that
+        // contract cannot be honoured. This lane never compiled before
+        // (E0593: the closure took no context), so refusing here is not a
+        // regression; the plumbing belongs to the restart work (P2).
+        return Err(PcError::Security(
+            "DURABLE_EXPERIMENT_NATIVE_CHECKPOINT_UNSUPPORTED: the durable-experiment native \
+             stage requires scientific-checkpoint/resume plumbing that the canonical \
+             hyper-runtime MD invocation does not implement; refused before any journal write"
+                .into(),
+        ));
     }
     preserve_hyper_runtime_request_evidence(&request.request.output, canonical.as_bytes())?;
     admit_canonical_execution_lane_before_launch(&request)?;

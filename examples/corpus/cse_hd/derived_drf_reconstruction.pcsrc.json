@@ -1,0 +1,51 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "derived_drf_reconstruction",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {"id": "unit_ps", "quantity_kind": "time", "unit": "ps"},
+    {"id": "unit_energy", "quantity_kind": "energy", "unit": "kcal/mol"}
+  ],
+  "provenance": [
+    {"id": "prov_derived", "source_uri": "synthetic://prism-cse-hd/derived-drf", "source_hash": "raw_hash_derived_drf", "classification": "SYNTHETIC", "synthetic": true}
+  ],
+  "timebases": [
+    {"id": "time_derived", "timebase_hash": "timebase_hash_derived_drf", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 4}
+  ],
+  "molecules": [
+    {"id": "mol_derived", "topology_hash": "topology_hash_mol_derived", "provenance_ref": "prov_derived", "atoms": [{"id": "mol_derived_o1", "element": "O", "atom_type": "O_carbonyl"}], "bonds": []}
+  ],
+  "proteins": [
+    {"id": "protein_derived", "topology_hash": "topology_hash_protein_derived", "provenance_ref": "prov_derived", "chains": [{"id": "chain_derived", "residues": [{"id": "res_derived_1", "name": "ASP", "sequence_index": 1, "atom_site_ids": ["site_derived_od1"]}]}], "atom_sites": [{"id": "site_derived_od1", "atom_name": "OD1", "atom_type": "O_carboxyl", "chain_ref": "chain_derived", "residue_ref": "res_derived_1"}]}
+  ],
+  "water_sites": [
+    {"id": "water_derived", "gate_kind": "hydration_gate_open", "event_bound": true, "time_ref": "time_derived", "provenance_ref": "prov_derived"}
+  ],
+  "variants": [
+    {"id": "variant_derived", "reference_state_ref": "mol_derived", "alternate_state_ref": "protein_derived", "delta_hash": "variant_delta_hash_derived", "provenance_ref": "prov_derived"}
+  ],
+  "events": [
+    {"id": "event_derived_0", "kind": "phase_tile", "source_ref": "mol_derived", "target_ref": "protein_derived", "time_ref": "time_derived", "order_index": 0, "motif": "derived_resonance", "provenance_ref": "prov_derived"}
+  ],
+  "uncertainties": [
+    {"id": "unc_derived", "target_ref": "mol_derived", "model": "bounded_beta", "calibration_hash": "calibration_hash_derived", "provenance_ref": "prov_derived"}
+  ],
+  "thermo": [
+    {"id": "thermo_derived", "target_ref": "mol_derived", "quantity_kind": "energy", "unit_ref": "unit_energy", "value_payload_ref": "payload_energy_derived", "uncertainty_ref": "unc_derived", "provenance_ref": "prov_derived"}
+  ],
+  "teacher_outputs": [
+    {"id": "teacher_derived", "target_ref": "mol_derived", "model_ref": "synthetic_teacher_derived", "label": "derived_positive", "confidence": 0.8, "airlock_state": "MODEL_GENERATED_UNVERIFIED", "provenance_ref": "prov_derived"}
+  ],
+  "gflownet_traces": [
+    {"id": "gfn_derived", "state_ref": "mol_derived", "action": "RECONSTRUCT_DRF", "reward_payload_ref": "payload_reward_derived", "lineage_hash": "gfn_lineage_derived", "provenance_ref": "prov_derived"}
+  ],
+  "nanl_symbols": ["ENTITY:mol_derived", "EVENT:phase_tile", "DRF:derived", "RECONSTRUCT:bounded"],
+  "nrf_frames": [
+    {"id": "nrf_derived", "timebase_ref": "time_derived", "tile_kind": "phase_tile", "source_event_refs": ["event_derived_0"]}
+  ],
+  "drf_states": [
+    {"id": "drf_derived", "source_nrf_ref": "nrf_derived", "source_cse_ref": "derived_drf_reconstruction", "channel_kind": "uncertainty", "tensor_shape": [1, 8], "provenance_ref": "prov_derived", "canonical_or_derived": "DRF_DERIVED"}
+  ]
+}
+

@@ -1,0 +1,52 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "compression_heavy_nanl_q4",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {"id": "unit_ps", "quantity_kind": "time", "unit": "ps"},
+    {"id": "unit_energy", "quantity_kind": "energy", "unit": "kcal/mol"}
+  ],
+  "provenance": [
+    {"id": "prov_q4", "source_uri": "synthetic://prism-cse-hd/compression-heavy-q4", "source_hash": "raw_hash_compression_heavy_q4", "classification": "SYNTHETIC", "synthetic": true}
+  ],
+  "timebases": [
+    {"id": "time_q4", "timebase_hash": "timebase_hash_compression_heavy_q4", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 8}
+  ],
+  "molecules": [
+    {"id": "mol_q4", "topology_hash": "topology_hash_mol_q4", "provenance_ref": "prov_q4", "atoms": [{"id": "mol_q4_n1", "element": "N", "atom_type": "N_amide"}], "bonds": []}
+  ],
+  "proteins": [
+    {"id": "protein_q4", "topology_hash": "topology_hash_protein_q4", "provenance_ref": "prov_q4", "chains": [{"id": "chain_q4", "residues": [{"id": "res_q4_1", "name": "TYR", "sequence_index": 1, "atom_site_ids": ["site_q4_oh"]}]}], "atom_sites": [{"id": "site_q4_oh", "atom_name": "OH", "atom_type": "O_phenol", "chain_ref": "chain_q4", "residue_ref": "res_q4_1"}]}
+  ],
+  "water_sites": [
+    {"id": "water_q4", "gate_kind": "hydration_gate_closed", "event_bound": true, "time_ref": "time_q4", "provenance_ref": "prov_q4"}
+  ],
+  "variants": [
+    {"id": "variant_q4", "reference_state_ref": "mol_q4", "alternate_state_ref": "protein_q4", "delta_hash": "variant_delta_hash_q4", "provenance_ref": "prov_q4"}
+  ],
+  "events": [
+    {"id": "event_q4_0", "kind": "water_gate", "source_ref": "water_q4", "target_ref": "mol_q4", "time_ref": "time_q4", "order_index": 0, "motif": "hydration_gate_closed", "provenance_ref": "prov_q4"},
+    {"id": "event_q4_1", "kind": "water_gate", "source_ref": "water_q4", "target_ref": "protein_q4", "time_ref": "time_q4", "order_index": 1, "motif": "hydration_gate_closed", "provenance_ref": "prov_q4"}
+  ],
+  "uncertainties": [
+    {"id": "unc_q4", "target_ref": "mol_q4", "model": "bounded_beta", "calibration_hash": "calibration_hash_q4", "provenance_ref": "prov_q4"}
+  ],
+  "thermo": [
+    {"id": "thermo_q4", "target_ref": "mol_q4", "quantity_kind": "energy", "unit_ref": "unit_energy", "value_payload_ref": "payload_energy_q4", "uncertainty_ref": "unc_q4", "provenance_ref": "prov_q4"}
+  ],
+  "teacher_outputs": [
+    {"id": "teacher_q4", "target_ref": "mol_q4", "model_ref": "synthetic_teacher_q4", "label": "compression_q4_positive", "confidence": 0.8, "airlock_state": "MODEL_GENERATED_UNVERIFIED", "provenance_ref": "prov_q4"}
+  ],
+  "gflownet_traces": [
+    {"id": "gfn_q4", "state_ref": "mol_q4", "action": "CONSTRAIN_Q4_STREAM", "reward_payload_ref": "payload_reward_q4", "lineage_hash": "gfn_lineage_q4", "provenance_ref": "prov_q4"}
+  ],
+  "nanl_symbols": ["ENTITY:mol_q4", "EVENT:water_gate", "MOTIF:hydration_gate_closed", "Q4:constraint", "Q4:ecc", "DRF:resonance"],
+  "nrf_frames": [
+    {"id": "nrf_q4", "timebase_ref": "time_q4", "tile_kind": "water_gate", "source_event_refs": ["event_q4_0", "event_q4_1"]}
+  ],
+  "drf_states": [
+    {"id": "drf_q4", "source_nrf_ref": "nrf_q4", "source_cse_ref": "compression_heavy_nanl_q4", "channel_kind": "resonance", "tensor_shape": [2, 4], "provenance_ref": "prov_q4", "canonical_or_derived": "DRF_CANONICAL"}
+  ]
+}
+

@@ -1,0 +1,24 @@
+[policy]
+name = "PRISMCODE_RELEASE_KEY_POLICY_V0_1"
+market_release_allowed = true
+dev_file_keyring_allowed = false
+test_fixture_allowed = false
+raw_key_export_allowed = false
+rotation_required = true
+audit_log_required = true
+
+[provider]
+required_state = "LOCAL_RELEASE_VAULT_BOUND"
+
+[operations]
+wrap_dek_required = true
+unwrap_dek_required = true
+sign_required = true
+verify_required = true
+rotate_required = true
+
+[artifacts]
+cuda_manifest_signing_required = true
+release_manifest_signing_required = true
+evidence_ledger_signing_required = true
+seal_chain_binding_required = true

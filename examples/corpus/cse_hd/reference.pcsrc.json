@@ -1,0 +1,239 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "cse_hd_reference_v0_1",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {
+      "id": "unit_ps",
+      "quantity_kind": "time",
+      "unit": "ps"
+    },
+    {
+      "id": "unit_kcal_mol",
+      "quantity_kind": "energy",
+      "unit": "kcal/mol"
+    },
+    {
+      "id": "unit_unitless",
+      "quantity_kind": "dimensionless",
+      "unit": "unitless"
+    }
+  ],
+  "provenance": [
+    {
+      "id": "prov_reference_synthetic",
+      "source_uri": "synthetic://prism-cse-hd/reference/v0.1",
+      "source_hash": "blake3_reference_synthetic_source_hash_v0",
+      "classification": "SYNTHETIC",
+      "synthetic": true
+    }
+  ],
+  "timebases": [
+    {
+      "id": "timebase_reference",
+      "timebase_hash": "canonical_timebase_hash_csehd_reference_v0",
+      "unit_ref": "unit_ps",
+      "frame_start": 0,
+      "frame_end": 4
+    }
+  ],
+  "molecules": [
+    {
+      "id": "ligand_alpha",
+      "topology_hash": "csehd_topology_ligand_alpha_hash_v0",
+      "provenance_ref": "prov_reference_synthetic",
+      "atoms": [
+        {
+          "id": "ligand_alpha_c1",
+          "element": "C",
+          "atom_type": "C_sp3"
+        },
+        {
+          "id": "ligand_alpha_n1",
+          "element": "N",
+          "atom_type": "N_amide"
+        },
+        {
+          "id": "ligand_alpha_o1",
+          "element": "O",
+          "atom_type": "O_carbonyl"
+        }
+      ],
+      "bonds": [
+        {
+          "id": "ligand_alpha_b1",
+          "source_atom": "ligand_alpha_c1",
+          "target_atom": "ligand_alpha_n1",
+          "order": 1
+        },
+        {
+          "id": "ligand_alpha_b2",
+          "source_atom": "ligand_alpha_n1",
+          "target_atom": "ligand_alpha_o1",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "proteins": [
+    {
+      "id": "receptor_beta",
+      "topology_hash": "csehd_topology_receptor_beta_hash_v0",
+      "provenance_ref": "prov_reference_synthetic",
+      "chains": [
+        {
+          "id": "chain_A",
+          "residues": [
+            {
+              "id": "res_ser_10",
+              "name": "SER",
+              "sequence_index": 10,
+              "atom_site_ids": [
+                "site_ser_og"
+              ]
+            },
+            {
+              "id": "res_tyr_11",
+              "name": "TYR",
+              "sequence_index": 11,
+              "atom_site_ids": [
+                "site_tyr_oh"
+              ]
+            }
+          ]
+        }
+      ],
+      "atom_sites": [
+        {
+          "id": "site_ser_og",
+          "atom_name": "OG",
+          "atom_type": "O_hydroxyl",
+          "chain_ref": "chain_A",
+          "residue_ref": "res_ser_10"
+        },
+        {
+          "id": "site_tyr_oh",
+          "atom_name": "OH",
+          "atom_type": "O_phenol",
+          "chain_ref": "chain_A",
+          "residue_ref": "res_tyr_11"
+        }
+      ]
+    }
+  ],
+  "water_sites": [
+    {
+      "id": "water_gate_1",
+      "gate_kind": "hydration_gate_open",
+      "event_bound": true,
+      "time_ref": "timebase_reference",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "variants": [
+    {
+      "id": "variant_pose_delta_1",
+      "reference_state_ref": "ligand_alpha",
+      "alternate_state_ref": "receptor_beta",
+      "delta_hash": "variant_delta_hash_reference_v0",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "events": [
+    {
+      "id": "event_contact_on",
+      "kind": "contact_on",
+      "source_ref": "ligand_alpha",
+      "target_ref": "receptor_beta",
+      "time_ref": "timebase_reference",
+      "order_index": 0,
+      "motif": "ligand_receptor_contact",
+      "provenance_ref": "prov_reference_synthetic"
+    },
+    {
+      "id": "event_water_gate",
+      "kind": "water_gate",
+      "source_ref": "water_gate_1",
+      "target_ref": "ligand_alpha",
+      "time_ref": "timebase_reference",
+      "order_index": 1,
+      "motif": "hydration_gate_open",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "uncertainties": [
+    {
+      "id": "unc_reference_beta",
+      "target_ref": "ligand_alpha",
+      "model": "bounded_beta",
+      "calibration_hash": "synthetic_calibration_hash_reference_v0",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "thermo": [
+    {
+      "id": "thermo_energy_reference",
+      "target_ref": "ligand_alpha",
+      "quantity_kind": "energy",
+      "unit_ref": "unit_kcal_mol",
+      "value_payload_ref": "payload_energy_reference",
+      "uncertainty_ref": "unc_reference_beta",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "teacher_outputs": [
+    {
+      "id": "teacher_reference_1",
+      "target_ref": "ligand_alpha",
+      "model_ref": "synthetic_teacher_v0",
+      "label": "mechanism_positive",
+      "confidence": 0.8,
+      "airlock_state": "MODEL_GENERATED_UNVERIFIED",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "gflownet_traces": [
+    {
+      "id": "gfn_reference_1",
+      "state_ref": "ligand_alpha",
+      "action": "stabilize_water_gate",
+      "reward_payload_ref": "payload_reward_reference",
+      "lineage_hash": "gflownet_lineage_hash_reference_v0",
+      "provenance_ref": "prov_reference_synthetic"
+    }
+  ],
+  "nanl_symbols": [
+    "ENTITY:ligand_alpha",
+    "ENTITY:receptor_beta",
+    "EVENT:contact_on",
+    "EVENT:water_gate",
+    "THERMO:energy",
+    "DRF:resonance"
+  ],
+  "nrf_frames": [
+    {
+      "id": "nrf_frame_reference_0",
+      "timebase_ref": "timebase_reference",
+      "tile_kind": "phase_tile_contact_water",
+      "source_event_refs": [
+        "event_contact_on",
+        "event_water_gate"
+      ]
+    }
+  ],
+  "drf_states": [
+    {
+      "id": "drf_state_reference_0",
+      "source_nrf_ref": "nrf_frame_reference_0",
+      "source_cse_ref": "cse_hd_reference_v0_1",
+      "channel_kind": "resonance_contact_water",
+      "tensor_shape": [
+        2,
+        4
+      ],
+      "provenance_ref": "prov_reference_synthetic",
+      "canonical_or_derived": "DRF_CANONICAL"
+    }
+  ]
+}

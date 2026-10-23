@@ -28,6 +28,12 @@ fn create_test_topology(n_atoms: usize) -> PrismPrepTopology {
     }
 
     PrismPrepTopology {
+        // Fields added to PrismPrepTopology after this example was written; the
+        // values are the serde defaults (absent producer metadata).
+        aromatic_targets: Vec::new(),
+        hmr_applied: None,
+        recommended_timestep_fs: None,
+        npt_frozen_cell_contract: None,
         source_pdb: "test.pdb".to_string(),
         n_atoms,
         n_residues: n_atoms,

@@ -1,0 +1,53 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "compression_heavy_nanl_bin",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {"id": "unit_ps", "quantity_kind": "time", "unit": "ps"},
+    {"id": "unit_energy", "quantity_kind": "energy", "unit": "kcal/mol"}
+  ],
+  "provenance": [
+    {"id": "prov_bin", "source_uri": "synthetic://prism-cse-hd/compression-heavy-bin", "source_hash": "raw_hash_compression_heavy_bin", "classification": "SYNTHETIC", "synthetic": true}
+  ],
+  "timebases": [
+    {"id": "time_bin", "timebase_hash": "timebase_hash_compression_heavy_bin", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 8}
+  ],
+  "molecules": [
+    {"id": "mol_bin", "topology_hash": "topology_hash_mol_bin", "provenance_ref": "prov_bin", "atoms": [{"id": "mol_bin_c1", "element": "C", "atom_type": "C_sp3"}, {"id": "mol_bin_c2", "element": "C", "atom_type": "C_sp3"}], "bonds": [{"id": "bond_bin_1", "source_atom": "mol_bin_c1", "target_atom": "mol_bin_c2", "order": 1}]}
+  ],
+  "proteins": [
+    {"id": "protein_bin", "topology_hash": "topology_hash_protein_bin", "provenance_ref": "prov_bin", "chains": [{"id": "chain_bin", "residues": [{"id": "res_bin_1", "name": "SER", "sequence_index": 1, "atom_site_ids": ["site_bin_og"]}]}], "atom_sites": [{"id": "site_bin_og", "atom_name": "OG", "atom_type": "O_hydroxyl", "chain_ref": "chain_bin", "residue_ref": "res_bin_1"}]}
+  ],
+  "water_sites": [
+    {"id": "water_bin", "gate_kind": "hydration_gate_open", "event_bound": true, "time_ref": "time_bin", "provenance_ref": "prov_bin"}
+  ],
+  "variants": [
+    {"id": "variant_bin", "reference_state_ref": "mol_bin", "alternate_state_ref": "protein_bin", "delta_hash": "variant_delta_hash_bin", "provenance_ref": "prov_bin"}
+  ],
+  "events": [
+    {"id": "event_bin_0", "kind": "contact_on", "source_ref": "mol_bin", "target_ref": "protein_bin", "time_ref": "time_bin", "order_index": 0, "motif": "repeated_contact", "provenance_ref": "prov_bin"},
+    {"id": "event_bin_1", "kind": "contact_on", "source_ref": "mol_bin", "target_ref": "protein_bin", "time_ref": "time_bin", "order_index": 1, "motif": "repeated_contact", "provenance_ref": "prov_bin"},
+    {"id": "event_bin_2", "kind": "contact_on", "source_ref": "mol_bin", "target_ref": "protein_bin", "time_ref": "time_bin", "order_index": 2, "motif": "repeated_contact", "provenance_ref": "prov_bin"}
+  ],
+  "uncertainties": [
+    {"id": "unc_bin", "target_ref": "mol_bin", "model": "bounded_beta", "calibration_hash": "calibration_hash_bin", "provenance_ref": "prov_bin"}
+  ],
+  "thermo": [
+    {"id": "thermo_bin", "target_ref": "mol_bin", "quantity_kind": "energy", "unit_ref": "unit_energy", "value_payload_ref": "payload_energy_bin", "uncertainty_ref": "unc_bin", "provenance_ref": "prov_bin"}
+  ],
+  "teacher_outputs": [
+    {"id": "teacher_bin", "target_ref": "mol_bin", "model_ref": "synthetic_teacher_bin", "label": "compression_bin_positive", "confidence": 0.8, "airlock_state": "MODEL_GENERATED_UNVERIFIED", "provenance_ref": "prov_bin"}
+  ],
+  "gflownet_traces": [
+    {"id": "gfn_bin", "state_ref": "mol_bin", "action": "REPEAT_CONTACT", "reward_payload_ref": "payload_reward_bin", "lineage_hash": "gfn_lineage_bin", "provenance_ref": "prov_bin"}
+  ],
+  "nanl_symbols": ["ENTITY:mol_bin", "EVENT:contact_on", "EVENT:contact_on", "EVENT:contact_on", "MOTIF:repeated_contact", "DRF:resonance"],
+  "nrf_frames": [
+    {"id": "nrf_bin", "timebase_ref": "time_bin", "tile_kind": "phase_tile", "source_event_refs": ["event_bin_0", "event_bin_1", "event_bin_2"]}
+  ],
+  "drf_states": [
+    {"id": "drf_bin", "source_nrf_ref": "nrf_bin", "source_cse_ref": "compression_heavy_nanl_bin", "channel_kind": "resonance", "tensor_shape": [3, 4], "provenance_ref": "prov_bin", "canonical_or_derived": "DRF_CANONICAL"}
+  ]
+}
+

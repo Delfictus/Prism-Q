@@ -186,6 +186,8 @@ fn create_realistic_protein() -> PrismPrepTopology {
     let ca_indices = vec![1, 6, 11, 15, 20, 25, 30, 35, 39, 44];
 
     PrismPrepTopology {
+        // Added to PrismPrepTopology later; serde default (no producer aromatic targets).
+        aromatic_targets: Vec::new(),
         source_pdb: "test_protein.pdb".to_string(),
         n_atoms: atom_idx,
         n_residues: residues.len(),

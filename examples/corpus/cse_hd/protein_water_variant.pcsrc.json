@@ -1,0 +1,210 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "cse_hd_protein_water_variant_v0_1",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {
+      "id": "unit_ps",
+      "quantity_kind": "time",
+      "unit": "ps"
+    },
+    {
+      "id": "unit_kj_mol",
+      "quantity_kind": "free_energy",
+      "unit": "kJ/mol"
+    }
+  ],
+  "provenance": [
+    {
+      "id": "prov_pwv_synthetic",
+      "source_uri": "synthetic://prism-cse-hd/protein-water-variant/v0.1",
+      "source_hash": "blake3_pwv_synthetic_source_hash_v0",
+      "classification": "SYNTHETIC",
+      "synthetic": true
+    }
+  ],
+  "timebases": [
+    {
+      "id": "timebase_pwv",
+      "timebase_hash": "canonical_timebase_hash_pwv_v0",
+      "unit_ref": "unit_ps",
+      "frame_start": 0,
+      "frame_end": 8
+    }
+  ],
+  "molecules": [
+    {
+      "id": "ligand_delta",
+      "topology_hash": "topology_hash_ligand_delta_v0",
+      "provenance_ref": "prov_pwv_synthetic",
+      "atoms": [
+        {
+          "id": "ligand_delta_c1",
+          "element": "C",
+          "atom_type": "C_aromatic"
+        },
+        {
+          "id": "ligand_delta_o1",
+          "element": "O",
+          "atom_type": "O_acceptor"
+        }
+      ],
+      "bonds": [
+        {
+          "id": "ligand_delta_b1",
+          "source_atom": "ligand_delta_c1",
+          "target_atom": "ligand_delta_o1",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "proteins": [
+    {
+      "id": "protein_gamma",
+      "topology_hash": "topology_hash_protein_gamma_v0",
+      "provenance_ref": "prov_pwv_synthetic",
+      "chains": [
+        {
+          "id": "chain_B",
+          "residues": [
+            {
+              "id": "res_lys_42",
+              "name": "LYS",
+              "sequence_index": 42,
+              "atom_site_ids": [
+                "site_lys_nz"
+              ]
+            },
+            {
+              "id": "res_asp_43",
+              "name": "ASP",
+              "sequence_index": 43,
+              "atom_site_ids": [
+                "site_asp_od1"
+              ]
+            }
+          ]
+        }
+      ],
+      "atom_sites": [
+        {
+          "id": "site_lys_nz",
+          "atom_name": "NZ",
+          "atom_type": "N_cationic",
+          "chain_ref": "chain_B",
+          "residue_ref": "res_lys_42"
+        },
+        {
+          "id": "site_asp_od1",
+          "atom_name": "OD1",
+          "atom_type": "O_anionic",
+          "chain_ref": "chain_B",
+          "residue_ref": "res_asp_43"
+        }
+      ]
+    }
+  ],
+  "water_sites": [
+    {
+      "id": "water_gate_bridge",
+      "gate_kind": "bridge_water_stable",
+      "event_bound": true,
+      "time_ref": "timebase_pwv",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "variants": [
+    {
+      "id": "variant_charge_flip",
+      "reference_state_ref": "ligand_delta",
+      "alternate_state_ref": "protein_gamma",
+      "delta_hash": "variant_delta_hash_charge_flip_v0",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "events": [
+    {
+      "id": "event_salt_bridge",
+      "kind": "salt_bridge_on",
+      "source_ref": "ligand_delta",
+      "target_ref": "protein_gamma",
+      "time_ref": "timebase_pwv",
+      "order_index": 0,
+      "motif": "charged_pair_contact",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "uncertainties": [
+    {
+      "id": "unc_pwv",
+      "target_ref": "variant_charge_flip",
+      "model": "synthetic_interval",
+      "calibration_hash": "calibration_hash_pwv_v0",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "thermo": [
+    {
+      "id": "thermo_free_energy_pwv",
+      "target_ref": "variant_charge_flip",
+      "quantity_kind": "free_energy",
+      "unit_ref": "unit_kj_mol",
+      "value_payload_ref": "payload_free_energy_pwv",
+      "uncertainty_ref": "unc_pwv",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "teacher_outputs": [
+    {
+      "id": "teacher_pwv",
+      "target_ref": "variant_charge_flip",
+      "model_ref": "synthetic_teacher_v0",
+      "label": "variant_review_required",
+      "confidence": 0.7,
+      "airlock_state": "MODEL_GENERATED_UNVERIFIED",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "gflownet_traces": [
+    {
+      "id": "gfn_pwv",
+      "state_ref": "variant_charge_flip",
+      "action": "sample_charge_flip",
+      "reward_payload_ref": "payload_reward_pwv",
+      "lineage_hash": "gflownet_lineage_hash_pwv_v0",
+      "provenance_ref": "prov_pwv_synthetic"
+    }
+  ],
+  "nanl_symbols": [
+    "ENTITY:ligand_delta",
+    "ENTITY:protein_gamma",
+    "VARIANT:charge_flip",
+    "EVENT:salt_bridge_on"
+  ],
+  "nrf_frames": [
+    {
+      "id": "nrf_frame_pwv_0",
+      "timebase_ref": "timebase_pwv",
+      "tile_kind": "phase_tile_salt_bridge",
+      "source_event_refs": [
+        "event_salt_bridge"
+      ]
+    }
+  ],
+  "drf_states": [
+    {
+      "id": "drf_state_pwv_0",
+      "source_nrf_ref": "nrf_frame_pwv_0",
+      "source_cse_ref": "cse_hd_protein_water_variant_v0_1",
+      "channel_kind": "resonance_salt_bridge",
+      "tensor_shape": [
+        1,
+        4
+      ],
+      "provenance_ref": "prov_pwv_synthetic",
+      "canonical_or_derived": "DRF_DERIVED"
+    }
+  ]
+}

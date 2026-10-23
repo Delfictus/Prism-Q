@@ -1,0 +1,22 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "malformed_nrf_frame",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [{"id": "unit_ps", "quantity_kind": "time", "unit": "ps"}],
+  "provenance": [{"id": "prov_bad_nrf", "source_uri": "synthetic://bad/nrf", "source_hash": "bad_nrf_hash", "classification": "SYNTHETIC", "synthetic": true}],
+  "timebases": [{"id": "time_bad_nrf", "timebase_hash": "time_bad_nrf_hash", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 1}],
+  "molecules": [{"id": "mol_bad_nrf", "topology_hash": "topology_hash_bad_nrf", "provenance_ref": "prov_bad_nrf", "atoms": [{"id": "mol_bad_nrf_c1", "element": "C", "atom_type": "C_sp3"}], "bonds": []}],
+  "proteins": [{"id": "protein_bad_nrf", "topology_hash": "topology_hash_bad_nrf_protein", "provenance_ref": "prov_bad_nrf", "chains": [{"id": "chain_bad_nrf", "residues": [{"id": "res_bad_nrf", "name": "GLY", "sequence_index": 1, "atom_site_ids": ["site_bad_nrf"]}]}], "atom_sites": [{"id": "site_bad_nrf", "atom_name": "CA", "atom_type": "C_alpha", "chain_ref": "chain_bad_nrf", "residue_ref": "res_bad_nrf"}]}],
+  "water_sites": [],
+  "variants": [],
+  "events": [{"id": "event_bad_nrf", "kind": "contact_on", "source_ref": "mol_bad_nrf", "target_ref": "protein_bad_nrf", "time_ref": "time_bad_nrf", "order_index": 0, "motif": "bad_nrf", "provenance_ref": "prov_bad_nrf"}],
+  "uncertainties": [],
+  "thermo": [],
+  "teacher_outputs": [],
+  "gflownet_traces": [],
+  "nanl_symbols": ["ENTITY:mol_bad_nrf"],
+  "nrf_frames": [{"id": "nrf_bad", "timebase_ref": "time_bad_nrf", "tile_kind": "phase_tile", "source_event_refs": []}],
+  "drf_states": []
+}
+

@@ -1,0 +1,22 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "malformed_nanl_q4",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [{"id": "unit_ps", "quantity_kind": "time", "unit": "ps"}],
+  "provenance": [{"id": "prov_bad_q4", "source_uri": "synthetic://bad/q4", "source_hash": "bad_q4_hash", "classification": "SYNTHETIC", "synthetic": true}],
+  "timebases": [{"id": "time_bad_q4", "timebase_hash": "time_bad_q4_hash", "unit_ref": "unit_ps", "frame_start": 0, "frame_end": 1}],
+  "molecules": [],
+  "proteins": [],
+  "water_sites": [],
+  "variants": [],
+  "events": [],
+  "uncertainties": [],
+  "thermo": [],
+  "teacher_outputs": [],
+  "gflownet_traces": [],
+  "nanl_symbols": [],
+  "nrf_frames": [],
+  "drf_states": []
+}
+

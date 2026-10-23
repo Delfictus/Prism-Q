@@ -1,0 +1,225 @@
+{
+  "schema_version": "PRISM-CSE/HD ABI v0.1",
+  "state_id": "cse_hd_nrf_event_frames_v0_1",
+  "classification": "SYNTHETIC",
+  "synthetic": true,
+  "unit_registry": [
+    {
+      "id": "unit_ps",
+      "quantity_kind": "time",
+      "unit": "ps"
+    },
+    {
+      "id": "unit_unitless",
+      "quantity_kind": "dimensionless",
+      "unit": "unitless"
+    }
+  ],
+  "provenance": [
+    {
+      "id": "prov_nrf_synthetic",
+      "source_uri": "synthetic://prism-cse-hd/nrf-event-frames/v0.1",
+      "source_hash": "blake3_nrf_synthetic_source_hash_v0",
+      "classification": "SYNTHETIC",
+      "synthetic": true
+    }
+  ],
+  "timebases": [
+    {
+      "id": "timebase_nrf",
+      "timebase_hash": "canonical_timebase_hash_nrf_v0",
+      "unit_ref": "unit_ps",
+      "frame_start": 0,
+      "frame_end": 16
+    }
+  ],
+  "molecules": [
+    {
+      "id": "ligand_nrf",
+      "topology_hash": "topology_hash_ligand_nrf_v0",
+      "provenance_ref": "prov_nrf_synthetic",
+      "atoms": [
+        {
+          "id": "ligand_nrf_c1",
+          "element": "C",
+          "atom_type": "C_sp2"
+        },
+        {
+          "id": "ligand_nrf_n1",
+          "element": "N",
+          "atom_type": "N_donor"
+        }
+      ],
+      "bonds": [
+        {
+          "id": "ligand_nrf_b1",
+          "source_atom": "ligand_nrf_c1",
+          "target_atom": "ligand_nrf_n1",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "proteins": [
+    {
+      "id": "protein_nrf",
+      "topology_hash": "topology_hash_protein_nrf_v0",
+      "provenance_ref": "prov_nrf_synthetic",
+      "chains": [
+        {
+          "id": "chain_N",
+          "residues": [
+            {
+              "id": "res_his_20",
+              "name": "HIS",
+              "sequence_index": 20,
+              "atom_site_ids": ["site_his_ne2"]
+            },
+            {
+              "id": "res_ser_24",
+              "name": "SER",
+              "sequence_index": 24,
+              "atom_site_ids": ["site_ser_og"]
+            }
+          ]
+        }
+      ],
+      "atom_sites": [
+        {
+          "id": "site_his_ne2",
+          "atom_name": "NE2",
+          "atom_type": "N_aromatic",
+          "chain_ref": "chain_N",
+          "residue_ref": "res_his_20"
+        },
+        {
+          "id": "site_ser_og",
+          "atom_name": "OG",
+          "atom_type": "O_hydroxyl",
+          "chain_ref": "chain_N",
+          "residue_ref": "res_ser_24"
+        }
+      ]
+    }
+  ],
+  "water_sites": [
+    {
+      "id": "water_gate_nrf",
+      "gate_kind": "hydration_shell_open",
+      "event_bound": true,
+      "time_ref": "timebase_nrf",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "variants": [
+    {
+      "id": "variant_binding_nrf",
+      "reference_state_ref": "ligand_nrf",
+      "alternate_state_ref": "protein_nrf",
+      "delta_hash": "delta_hash_binding_nrf_v0",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "events": [
+    {
+      "id": "event_gate_nrf",
+      "kind": "WATER_GATE",
+      "source_ref": "water_gate_nrf",
+      "target_ref": "protein_nrf",
+      "time_ref": "timebase_nrf",
+      "order_index": 0,
+      "motif": "hydration_gate_open",
+      "provenance_ref": "prov_nrf_synthetic"
+    },
+    {
+      "id": "event_contact_nrf",
+      "kind": "TRANSITION_EDGE",
+      "source_ref": "ligand_nrf",
+      "target_ref": "protein_nrf",
+      "time_ref": "timebase_nrf",
+      "order_index": 2,
+      "motif": "ligand_receptor_contact",
+      "provenance_ref": "prov_nrf_synthetic"
+    },
+    {
+      "id": "event_thermo_nrf",
+      "kind": "THERMO_PULSE",
+      "source_ref": "protein_nrf",
+      "target_ref": "ligand_nrf",
+      "time_ref": "timebase_nrf",
+      "order_index": 4,
+      "motif": "enthalpy_like_synthetic_pulse",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "uncertainties": [
+    {
+      "id": "uncertainty_nrf",
+      "target_ref": "event_contact_nrf",
+      "model": "bounded_synthetic",
+      "calibration_hash": "calibration_hash_nrf_seed_1337",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "thermo": [
+    {
+      "id": "thermo_nrf",
+      "target_ref": "event_thermo_nrf",
+      "quantity_kind": "synthetic_dimensionless_signal",
+      "unit_ref": "unit_unitless",
+      "value_payload_ref": "payload_thermo_nrf",
+      "uncertainty_ref": "uncertainty_nrf",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "teacher_outputs": [
+    {
+      "id": "teacher_nrf",
+      "target_ref": "event_contact_nrf",
+      "model_ref": "synthetic_teacher_v0",
+      "label": "NRF_EVENT_FIXTURE",
+      "confidence": 0.9,
+      "airlock_state": "AIRLOCK_ACCEPTED",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "gflownet_traces": [
+    {
+      "id": "gflownet_nrf",
+      "state_ref": "ligand_nrf",
+      "action": "PROPOSE_CONTACT",
+      "reward_payload_ref": "payload_reward_nrf",
+      "lineage_hash": "lineage_hash_gflownet_nrf_v0",
+      "provenance_ref": "prov_nrf_synthetic"
+    }
+  ],
+  "nanl_symbols": [
+    "ENTITY_TOKEN",
+    "EVENT_KIND_TOKEN",
+    "NRF_FRAME_TOKEN",
+    "DRF_CHANNEL_TOKEN"
+  ],
+  "nrf_frames": [
+    {
+      "id": "nrf_frame_nrf",
+      "timebase_ref": "timebase_nrf",
+      "tile_kind": "phase_tile",
+      "source_event_refs": [
+        "event_gate_nrf",
+        "event_contact_nrf",
+        "event_thermo_nrf"
+      ]
+    }
+  ],
+  "drf_states": [
+    {
+      "id": "drf_from_nrf",
+      "source_nrf_ref": "nrf_frame_nrf",
+      "source_cse_ref": "cse_hd_nrf_event_frames_v0_1",
+      "channel_kind": "resonance",
+      "tensor_shape": [3],
+      "provenance_ref": "prov_nrf_synthetic",
+      "canonical_or_derived": "DRF_CANONICAL"
+    }
+  ]
+}

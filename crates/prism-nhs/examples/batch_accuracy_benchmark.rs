@@ -116,6 +116,8 @@ fn main() -> Result<()> {
         temperature: 310.0,
         cryo_temp: 77.0,
         cryo_hold: 1000,
+        // Production default (exact V2 nonbonded path); see PersistentBatchConfig::default().
+        nonbonded_execution_policy: prism_nhs::input::NonbondedExecutionPolicy::RequireExactV2,
     };
 
     println!("Initializing persistent engine...");
