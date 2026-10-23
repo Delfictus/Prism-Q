@@ -1,10 +1,10 @@
 """Neighbour list: engine cell scheme vs brute-force O(N^2) reference.
 
 Engine: CELL_SIZE = 10 A (nhs_amber_fused.cu:167), grid origin = initial
-bounding-box min - 10 A, n = ceil((extent+20)/10) (fused_engine.rs:12355-12388),
+bounding-box min - 10 A, n = ceil((extent+20)/10) (fused_engine.rs:12272-12305 at engine 78a2482+; was 12355-12388),
 cell index by truncation with clamping (build_cell_list, nhs_amber_fused.cu
 ~11704-11717), 27-cell stencil (nhs_neighbor_warp.cuh:42-51 base, 172-181 compensated), list cutoff
-r^2 <= (10 A)^2 * 1.44 = (12 A)^2 (fused_engine.rs:16743). The potential cuts at
+r^2 <= (10 A)^2 * 1.44 = (12 A)^2 (fused_engine.rs:16673). The potential cuts at
 10 A (NB_CUTOFF); the 10-12 A buffer exists so the list can be reused for
 20 steps. A pair with r in (10,12] whose atoms sit two cells apart along any
 axis is never examined by the 27-cell stencil, so it is missed.
@@ -39,9 +39,9 @@ def _anchors(engine_root):
         C.anchor(engine_root, NW, 42, 51, ["for (int dz=-1; dz<=1; ++dz) {", "if (z<0 || z>=nz) continue;",
                                            "for (int dx=-1; dx<=1; ++dx) {"]),
         C.anchor(engine_root, NW, 172, 181, ["for (int dz=-1; dz<=1; ++dz) {", "for (int dx=-1; dx<=1; ++dx) {"]),
-        C.anchor(engine_root, FE, 12355, 12388, ["const CELL_SIZE: f32 = 10.0;", "let cell_padding = CELL_SIZE;",
+        C.anchor(engine_root, FE, 12272, 12305, ["const CELL_SIZE: f32 = 10.0;", "let cell_padding = CELL_SIZE;",
                                                  "let value = ((extent[axis] / CELL_SIZE).ceil() as i64).max(1);"]),
-        C.anchor(engine_root, FE, 16741, 16744, ["let cutoff_sq_with_buffer = self.cutoff * self.cutoff * 1.44;"]),
+        C.anchor(engine_root, FE, 16671, 16674, ["let cutoff_sq_with_buffer = self.cutoff * self.cutoff * 1.44;"]),
     ]
 
 

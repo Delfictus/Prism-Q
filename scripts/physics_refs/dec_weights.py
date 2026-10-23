@@ -3,15 +3,25 @@
 Continuous law: for a linear (P1) element with barycentric functions l_i, the
 element stiffness is K_ij = V grad(l_i).grad(l_j). With N_i the area-weighted
 normal (|N_i| = 2 * area) of the face OPPOSITE vertex i, all oriented
-consistently, grad(l_i) = -N_i_out/(6V), so the positive DEC edge weight
+consistently, grad(l_i) = -N_i_out/(6V), so the DEC edge weight
 (dual-area / primal-length, star1) is
 
     w_ij = -K_ij = -N_i.N_j / (36 V) = l_kl cot(theta_kl) / 6
 
-where kl is the edge opposite ij. The engine evaluator
-(nhs_biprism_simplicial_tile.cuh:268-273 float, 334-339 compensated FP64)
-assigns w01 <- N2.N3, w02 <- N1.N3, w03 <- N1.N2, w12 <- N0.N3, w13 <- N0.N2,
-w23 <- N0.N1, i.e. the weight of the OPPOSITE edge.
+where kl is the edge opposite ij (weights are legitimately negative for obtuse
+dihedrals; the element matrix is PSD regardless).
+
+Two engine source variants are recognised by their text and transcribed:
+  legacy_opposite_edge (canonical engine before P3-DEC, nhs_biprism_simplicial_tile.cuh
+      268-273/334-339 pre-fix): w01 <- N2.N3 ... w23 <- N0.N1 (opposite edge),
+      per-tet floor fmax(w, 1e-3 l_rms), Tikhonov guard V/(V^2 + s0^2 l_rms^6),
+      assembled floor fmax(star1, 1e-4).
+  p3_signed (lane/p3-dec-20261023): w_ij <- k_ij = -N_i.N_j, no floor unless
+      -DBIPRISM_DEC_LEGACY_POSITIVE_FLOOR=1 (deprecated, reachable), guard
+      V/max(V^2, s0^2 l_rms^6), signed assembled star1 (bp_dec_assembled_star1).
+Any other text gives TRANSCRIPTION_STALE. The transcription keeps the source's
+float32 literals (double(1.0f/6.0f), double(1e-5f), ...) and rounds outputs to
+FP32 as the compensated evaluator does.
 
 Three independent references are used: barycentric gradients from the inverse
 Jacobian, the dihedral cotangent formula, and exact rational arithmetic
@@ -36,36 +46,84 @@ EDGES = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
 SWAP = {(0, 1): (2, 3), (0, 2): (1, 3), (0, 3): (1, 2), (1, 2): (0, 3), (1, 3): (0, 2), (2, 3): (0, 1)}
 TILE = C.KERNELS / "nhs_biprism_simplicial_tile.cuh"
 BW = C.KERNELS / "nhs_biprism_bowyer_watson_seed.cuh"
+_f = lambda v: float(np.float32(v))  # value of a C float literal promoted to double
+
+VARIANTS = {
+    "legacy_opposite_edge": {"mapping": "swap", "floor": True, "guard": "tikhonov", "assembled_floor": True},
+    "p3_signed": {"mapping": "own", "floor": False, "guard": "max", "assembled_floor": False},
+}
 
 
-def _anchors(engine_root):
+def _common_anchors(engine_root):
     return [
-        C.anchor(engine_root, TILE, 268, 273, [
-            "out_w01 = fmaxf(dot_N2_N3 * inv_36V_reg, spd_floor);",
-            "out_w23 = fmaxf(dot_N0_N1 * inv_36V_reg, spd_floor);"]),
-        C.anchor(engine_root, TILE, 334, 339, [
-            "out_w01 = fmax(dot_N2_N3 * inv_36V_reg, spd_floor);",
-            "out_w23 = fmax(dot_N0_N1 * inv_36V_reg, spd_floor);"]),
-        C.anchor(engine_root, TILE, 236, 239, [
-            "const float3 N3 = {e01.y * e02.z - e01.z * e02.y",
-            "const float3 N0 = {e13.y * e12.z - e13.z * e12.y"]),
-        C.anchor(engine_root, TILE, 688, 689, [
-            "const uint8_t eu[6] = {v0, v0, v0, v1, v1, v2};",
-            "const uint8_t ev[6] = {v1, v2, v3, v2, v3, v3};"]),
         C.anchor(engine_root, BW, 440, 440, [
             "for(uint32_t a=0;a<4;++a)for(uint32_t b=a+1;b<4;++b)tile.tet_edges[t][k++]"]),
     ]
 
 
-# ---------------------------------------------------------------- engine transcription
-def engine_weights(x, X=None, sigma0=1e-4, mapping="engine", floor=True, reg=True):
-    """Transcription of evaluate_diagonal_dec_tet_weights_compensated (FP64).
+def _variant_anchors(engine_root, variant):
+    if variant == "legacy_opposite_edge":
+        return [
+            C.anchor(engine_root, TILE, 268, 273, ["out_w01 = fmaxf(dot_N2_N3 * inv_36V_reg, spd_floor);",
+                                                   "out_w23 = fmaxf(dot_N0_N1 * inv_36V_reg, spd_floor);"]),
+            C.anchor(engine_root, TILE, 334, 339, ["out_w01 = fmax(dot_N2_N3 * inv_36V_reg, spd_floor);",
+                                                   "out_w23 = fmax(dot_N0_N1 * inv_36V_reg, spd_floor);"]),
+            C.anchor(engine_root, TILE, 320, 320, ["const double reg_denom = __fma_rn(V_T, V_T, (sigma_0 * sigma_0) * (l_rms2 * l_rms2 * l_rms2));"]),
+            C.anchor(engine_root, TILE, 236, 239, ["const float3 N3 = {e01.y * e02.z - e01.z * e02.y",
+                                                   "const float3 N0 = {e13.y * e12.z - e13.z * e12.y"]),
+            C.anchor(engine_root, TILE, 688, 689, ["const uint8_t eu[6] = {v0, v0, v0, v1, v1, v2};",
+                                                   "const uint8_t ev[6] = {v1, v2, v3, v2, v3, v3};"]),
+            C.anchor(engine_root, TILE, 1022, 1022, ["smem.tet_terms[0][tid]=0.25f*warped_vol;"]),
+            C.anchor(engine_root, TILE, 1060, 1060, ["const float star1_base=fmaxf(smem.star1[e],1e-4f);"]),
+        ]
+    return [
+        C.anchor(engine_root, TILE, 233, 236, ["#define BIPRISM_DEC_LEGACY_POSITIVE_FLOOR 0", "#define BIPRISM_DEC_SIGMA0 1e-4f"]),
+        C.anchor(engine_root, TILE, 245, 251, ["return fmax(w, double(1e-3f) * sqrt(l_rms2));", "(void)l_rms2; return w;"]),
+        C.anchor(engine_root, TILE, 253, 259, ["return fmaxf(star1, 1e-4f);", "return star1;"]),
+        C.anchor(engine_root, TILE, 365, 368, ["const BiprismCoordinate3F64 N3 = {e01.y * e02.z - e01.z * e02.y",
+                                               "const BiprismCoordinate3F64 N0 = {e13.y * e12.z - e13.z * e12.y"]),
+        C.anchor(engine_root, TILE, 383, 387, ["const double guard2    = (sigma_0 * sigma_0) * (l_rms2 * l_rms2 * l_rms2);",
+                                               "const double reg_denom = fmax(V_T * V_T, guard2);",
+                                               "const double inv_36V_reg = (V_T / fmax(reg_denom, double(1e-16f))) * double(1.0f / 36.0f) * J_piola;"]),
+        C.anchor(engine_root, TILE, 390, 402, ["const double k01 = -(N0.x * N1.x + N0.y * N1.y + N0.z * N1.z);",
+                                               "const double k23 = -(N2.x * N3.x + N2.y * N3.y + N2.z * N3.z);",
+                                               "out_w01 = bp_dec_edge_weight_policy(k01 * inv_36V_reg, l_rms2);",
+                                               "out_w23 = bp_dec_edge_weight_policy(k23 * inv_36V_reg, l_rms2);"]),
+        C.anchor(engine_root, TILE, 324, 342, ["const float reg_denom = fmaxf(V_T * V_T, guard2);",
+                                               "const float k01 = -(N0.x * N1.x + N0.y * N1.y + N0.z * N1.z);",
+                                               "out_w01 = bp_dec_edge_weight_policy(k01 * inv_36V_reg, l_rms2);"]),
+        C.anchor(engine_root, TILE, 769, 770, ["const uint8_t eu[6] = {v0, v0, v0, v1, v1, v2};",
+                                               "const uint8_t ev[6] = {v1, v2, v3, v2, v3, v3};"]),
+        C.anchor(engine_root, TILE, 1099, 1103, ["BIPRISM_DEC_SIGMA0,warped_vol,w01,w02,w03,w12,w13,w23);",
+                                                 "smem.tet_terms[0][tid]=0.25f*warped_vol;"]),
+        C.anchor(engine_root, TILE, 1141, 1141, ["const float star1_base=bp_dec_assembled_star1(smem.star1[e]);"]),
+    ]
 
-    x, X: (4,3) current / mesh-reference coordinates. mapping="engine" keeps
-    the source assignment; "fixed" applies the correct one. floor/reg allow the
-    separate effects of the SPD floor and the sigma0 regulariser to be shown.
-    Returns (warped_vol, dict edge->weight).
+
+def detect_variant(engine_root):
+    """Return (variant or None, anchors). Raises C.AnchorMissing if the file is absent."""
+    tried = []
+    for v in ("p3_signed", "legacy_opposite_edge"):
+        a = _variant_anchors(engine_root, v) + _common_anchors(engine_root)
+        if C.anchors_ok(a):
+            return v, a
+        tried += [dict(x, variant_tried=v) for x in a]
+    return None, tried
+
+
+# ---------------------------------------------------------------- engine transcription
+def engine_weights(x, X=None, variant="legacy_opposite_edge", sigma0=_f(1e-4), mapping=None, floor=None,
+                   guard=None, round_f32=True):
+    """Transcription of the compensated FP64 evaluator for the given source variant.
+
+    mapping: "swap" (legacy, opposite edge) or "own" (k_ij = -N_i.N_j); floor:
+    per-tet fmax(w, 1e-3 l_rms); guard: "tikhonov" V/(V^2+g), "max" V/max(V^2,g),
+    or "none". Overrides allow isolating each effect. Returns (warped_vol, {edge: w}).
     """
+    P = dict(VARIANTS[variant])
+    if mapping is not None: P["mapping"] = mapping
+    if floor is not None: P["floor"] = floor
+    if guard is not None: P["guard"] = guard
     x = np.asarray(x, float)
     X = x if X is None else np.asarray(X, float)
     e01, e02, e03 = x[1] - x[0], x[2] - x[0], x[3] - x[0]
@@ -76,26 +134,37 @@ def engine_weights(x, X=None, sigma0=1e-4, mapping="engine", floor=True, reg=Tru
     N1 = np.cross(e02, e03)
     N0 = np.cross(e13, e12)
     det6V = float(e01 @ N1)
-    det6V_ref = float(np.linalg.det(np.array([E01, E02, E03])))
-    V_T = abs(det6V) / 6.0
-    V_ref = max(abs(det6V_ref) / 6.0, 1e-5)
-    J = min(max(V_T / V_ref, 0.05), 20.0)
+    det6V_ref = float(E01 @ np.cross(E02, E03))
+    V_T = abs(det6V) * _f(1.0 / 6.0)
+    V_ref = max(abs(det6V_ref) * _f(1.0 / 6.0), _f(1e-5))
+    J = min(max(V_T / V_ref, _f(0.05)), _f(20.0))
     l2 = sum(float(e @ e) for e in (e01, e02, e03, e12, e13, e23))
-    l_rms2 = l2 / 6.0
-    denom = V_T * V_T + (sigma0 * sigma0) * l_rms2 ** 3 if reg else V_T * V_T
-    inv36 = (V_T / max(denom, 1e-16)) / 36.0 * J
-    warped = max(V_T * J, 1e-5)
-    fl = 1e-3 * np.sqrt(l_rms2) if floor else -np.inf
+    l_rms2 = l2 * _f(1.0 / 6.0)
+    g = (sigma0 * sigma0) * (l_rms2 * l_rms2 * l_rms2)
+    denom = {"tikhonov": V_T * V_T + g, "max": max(V_T * V_T, g), "none": V_T * V_T}[P["guard"]]
+    inv36 = (V_T / max(denom, _f(1e-16))) * _f(1.0 / 36.0) * J
+    warped = max(V_T * J, _f(1e-5))
+    fl = _f(1e-3) * np.sqrt(l_rms2) if P["floor"] else -np.inf
     N = (N0, N1, N2, N3)
-    d = {(i, j): -float(N[i] @ N[j]) for i, j in EDGES}
+    k = {(i, j): -float(N[i] @ N[j]) for i, j in EDGES}
+    rnd = _f if round_f32 else float
     w = {}
     for e in EDGES:
-        src = SWAP[e] if mapping == "engine" else e  # engine: w01 <- N2.N3, ...
-        w[e] = max(d[src] * inv36, fl)
-    return warped, w
+        src = SWAP[e] if P["mapping"] == "swap" else e
+        w[e] = rnd(max(k[src] * inv36, fl))
+    return rnd(warped), w
 
 
 # ---------------------------------------------------------------- independent references
+def p1_weights_normals(x):
+    """Pure formula w_ij = -N_i.N_j/(36V) in FP64 (no engine literals, guard, floor or rounding)."""
+    x = np.asarray(x, float)
+    e01, e02, e03, e12, e13 = x[1] - x[0], x[2] - x[0], x[3] - x[0], x[2] - x[1], x[3] - x[1]
+    N = (np.cross(e13, e12), np.cross(e02, e03), np.cross(e03, e01), np.cross(e01, e02))
+    V = abs(float(e01 @ N[1])) / 6.0
+    return V, {(i, j): -float(N[i] @ N[j]) / (36.0 * V) for i, j in EDGES}
+
+
 def p1_weights_gradients(x):
     """w_ij = -V grad(l_i).grad(l_j) from the inverse Jacobian (no normals)."""
     x = np.asarray(x, float)
@@ -163,7 +232,7 @@ def check_reference_selftest(engine_root=None):
     for x in tets:
         V, wg = p1_weights_gradients(x)
         wc = p1_weights_cotangent(x)
-        _, wf = engine_weights(x, mapping="fixed", floor=False, reg=False)
+        _, wf = p1_weights_normals(x)
         scale = max(abs(v) for v in wg.values())
         errs_grad.append(max(abs(wf[e] - wg[e]) for e in EDGES) / scale)
         errs_cot.append(max(abs(wc[e] - wg[e]) for e in EDGES) / scale)
@@ -182,31 +251,35 @@ def check_reference_selftest(engine_root=None):
 
 
 def check_engine_mapping(engine_root=None):
+    name = "dec.engine_edge_weight_mapping"
     try:
-        anchors = _anchors(engine_root)
+        variant, anchors = detect_variant(engine_root)
     except C.AnchorMissing as ex:
-        return C.not_built("dec.engine_edge_weight_mapping", str(ex))
+        return C.not_built(name, str(ex))
+    if variant is None:
+        return C.record(name, {}, None, None, None, None,
+                        "TRANSCRIPTION_STALE: neither the legacy nor the P3 evaluator text was found",
+                        defect_id="D-DEC-OPP-EDGE", anchors=anchors)
     tets = _tets()
     a = np.array([0.3, -1.1, 0.7])
     err_engine, err_swap_identity, energy_engine = [], [], []
     for x in tets:
         V, wg = p1_weights_gradients(x)
-        _, we = engine_weights(x, floor=False)  # engine mapping, engine regulariser, no floor
+        _, we = engine_weights(x, variant=variant, floor=False)  # isolate the mapping
         scale = max(abs(v) for v in wg.values())
         err_engine.append(max(abs(we[e] - wg[e]) for e in EDGES) / scale)
         err_swap_identity.append(max(abs(we[e] - wg[SWAP[e]]) for e in EDGES) / scale)
         energy_engine.append(abs(_dirichlet(we, x, a) - V * float(a @ a)) / (V * float(a @ a)))
-    # regular tetrahedron: every edge has the same weight so the swap is invisible
     reg = np.array([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]], float)
-    _, wr_e = engine_weights(reg, floor=False)
+    _, wr_e = engine_weights(reg, variant=variant, floor=False)
     _, wr_g = p1_weights_gradients(reg)
     regular_err = max(abs(wr_e[e] - wr_g[e]) for e in EDGES) / max(wr_g.values())
-    # one worked example
     x0 = tets[0]
-    _, we0 = engine_weights(x0)
+    _, we0 = engine_weights(x0, variant=variant)
     _, wg0 = p1_weights_gradients(x0)
     example = {f"w{i}{j}": {"engine": we0[(i, j)], "correct": wg0[(i, j)]} for i, j in EDGES}
     obs = {
+        "source_variant": variant,
         "max_rel_err_engine_vs_correct": max(err_engine),
         "median_rel_err_engine_vs_correct": float(np.median(err_engine)),
         "max_rel_err_engine_vs_correct_of_opposite_edge": max(err_swap_identity),
@@ -214,17 +287,16 @@ def check_engine_mapping(engine_root=None):
         "regular_tet_rel_err": regular_err,
         "worked_example_tet0": {"coords": x0.tolist(), "weights": example},
     }
-    tol = 1e-6  # regulariser sigma0=1e-4 perturbs weights at ~1e-8 relative
+    tol = 1e-6  # FP32 output rounding (~6e-8) and float32 literals; legacy Tikhonov guard adds ~1e-5
     passed = max(err_engine) <= tol
-    notes = ("Engine weight of edge ij equals the correct weight of the opposite edge kl to "
-             f"{max(err_swap_identity):.1e} (only the sigma0=1e-4 regulariser differs): an exact 01<->23, "
-             "02<->13, 03<->12 swap. Invisible on a regular tetrahedron (all six weights equal), so "
-             "regular-mesh tests cannot catch it. Floor disabled here to isolate the mapping; see star1 check.")
-    if not C.anchors_ok(anchors):
-        notes = "TRANSCRIPTION_STALE: cited source no longer matches. " + notes
-        passed = None
-    return C.record("dec.engine_edge_weight_mapping",
-                    {"tets": "64 seeded non-regular tetrahedra", "sigma0": 1e-4},
+    if variant == "legacy_opposite_edge":
+        notes = ("Legacy source: engine weight of edge ij equals the correct weight of the opposite edge kl to "
+                 f"{max(err_swap_identity):.1e} (only the Tikhonov guard differs): an exact 01<->23, 02<->13, "
+                 "03<->12 swap. Invisible on a regular tetrahedron. Per-tet floor disabled here to isolate the mapping.")
+    else:
+        notes = ("P3 signed source: w_ij <- -N_i.N_j/(36V) with the max() sliver guard (exactly 1/V for "
+                 "V >= sigma0 l_rms^3, true for all 64 tets). Residual is FP32 output rounding and float32 literals.")
+    return C.record(name, {"tets": "64 seeded non-regular tetrahedra", "sigma0": _f(1e-4)},
                     "engine w_ij == -N_i.N_j/(36V) (opposite-face normals of i and j)",
                     obs, passed, tol, notes, defect_id="D-DEC-OPP-EDGE", anchors=anchors)
 
@@ -266,66 +338,84 @@ def _assemble(xq, tets, weight_fn):
     return star0, star1
 
 
+def _lin_residual(st1, xq, centre, exact=False):
+    """sum_j w_cj (x_j - x_c) at an interior vertex, plus the scale sum_j |w_cj| |x_j - x_c|."""
+    acc = [Fraction(0)] * 3 if exact else np.zeros(3)
+    scale = 0.0
+    for (a, b), w in st1.items():
+        if centre in (a, b):
+            o = b if a == centre else a
+            d = [xq[o][m] - xq[centre][m] for m in range(3)]
+            for m in range(3):
+                acc[m] += w * (d[m] if exact else float(d[m]))
+            scale += abs(float(w)) * float(sum(float(v) ** 2 for v in d)) ** 0.5
+    return [float(v) for v in acc], scale
+
+
 def check_star_exact(engine_root=None):
+    name = "dec.star0_star1_exact_recompute"
     try:
-        anchors = _anchors(engine_root) + [
-            C.anchor(engine_root, TILE, 1022, 1022, ["smem.tet_terms[0][tid]=0.25f*warped_vol;"])]
+        variant, anchors = detect_variant(engine_root)
     except C.AnchorMissing as ex:
-        return C.not_built("dec.star0_star1_exact_recompute", str(ex))
+        return C.not_built(name, str(ex))
+    if variant is None:
+        return C.record(name, {}, None, None, None, None,
+                        "TRANSCRIPTION_STALE: neither the legacy nor the P3 evaluator text was found",
+                        defect_id="D-DEC-OPP-EDGE", anchors=anchors)
     xq, tets = _kuhn_mesh()
     ex0, ex1 = _assemble(xq, tets, exact_weights)
-    xf = [[float(c) for c in p] for p in xq]
-    def eng(mapping, floor):
-        return lambda xs: engine_weights(np.array([[float(c) for c in p] for p in xs]), mapping=mapping, floor=floor)
-    en0, en1 = _assemble(xq, tets, eng("engine", True))
-    fx0, fx1 = _assemble(xq, tets, eng("fixed", True))
-    nf0, nf1 = _assemble(xq, tets, eng("fixed", False))
-    total_exact = sum(ex0.values())
     keys = sorted(ex1)
+
+    def eng(**kw):
+        fn = lambda xs: engine_weights(np.array([[float(c) for c in p] for p in xs]), variant=variant, **kw)
+        s0, s1 = _assemble(xq, tets, fn)
+        return s0, s1
+
+    def assembled(s1, floor):  # bp_dec_assembled_star1 / legacy fmaxf(star1, 1e-4f), stored as float
+        return {k: _f(max(v, _f(1e-4)) if floor else v) for k, v in s1.items()}
+
+    P = VARIANTS[variant]
+    en0, en1_raw = eng()
+    en1 = assembled(en1_raw, P["assembled_floor"])
     s1max = max(abs(float(ex1[k])) for k in keys)
     rel = lambda d: max(abs(d[k] - float(ex1[k])) for k in keys) / s1max
     star0_err = max(abs(en0[v] - float(ex0[v])) / float(ex0[v]) for v in ex0)
-    # linear precision at the interior vertex 13: sum_j w_ij (x_j - x_i) == 0 exactly (P1)
-    def lin(st1, exact=False):
-        acc = [Fraction(0)] * 3 if exact else np.zeros(3)
-        for (a, b), w in st1.items():
-            if 13 in (a, b):
-                o = b if a == 13 else a
-                for m in range(3):
-                    if exact:
-                        acc[m] += w * (xq[o][m] - xq[13][m])
-                    else:
-                        acc[m] += w * (xf[o][m] - xf[13][m])
-        return [float(v) for v in acc]
-    lin_exact = lin(ex1, True)
-    neg = sum(1 for k in keys if ex1[k] < 0)
+    lin_e, _ = _lin_residual(ex1, xq, 13, exact=True)
+    lin_g, lin_scale = _lin_residual(en1, xq, 13)
+    lin_rel = max(abs(v) for v in lin_g) / lin_scale
+    # isolate effects (both variants): mapping, per-tet floor, assembled floor
+    alt = {}
+    for label, kw, af in (("mapping_own_with_legacy_floors (= P3 built with -DBIPRISM_DEC_LEGACY_POSITIVE_FLOOR=1)",
+                           dict(mapping="own", floor=True), True),
+                          ("mapping_own_no_floors", dict(mapping="own", floor=False), False)):
+        _, s1 = eng(**kw)
+        s1 = assembled(s1, af)
+        r, sc = _lin_residual(s1, xq, 13)
+        alt[label] = {"max_rel_err_star1": rel(s1), "interior_linear_precision": r,
+                      "interior_linear_precision_rel": max(abs(v) for v in r) / sc}
     obs = {
+        "source_variant": variant,
         "n_vertices": len(xq), "n_tets": len(tets), "n_edges": len(keys),
-        "sum_star0_exact": str(total_exact), "sum_star0_engine": sum(en0.values()),
+        "sum_star0_exact": str(sum(ex0.values())), "sum_star0_engine": sum(en0.values()),
         "max_rel_err_star0_engine": star0_err,
         "max_rel_err_star1_engine_as_is": rel(en1),
-        "max_rel_err_star1_mapping_fixed_with_floor": rel(fx1),
-        "max_rel_err_star1_mapping_fixed_no_floor": rel(nf1),
-        "exact_negative_star1_edges": neg,
-        "interior_linear_precision_exact": lin_exact,
-        "interior_linear_precision_engine_as_is": lin(en1),
-        "interior_linear_precision_mapping_fixed_with_floor": lin(fx1),
-        "interior_linear_precision_mapping_fixed_no_floor": lin(nf1),
+        "exact_negative_star1_edges": sum(1 for k in keys if ex1[k] < 0),
+        "interior_linear_precision_exact": lin_e,
+        "interior_linear_precision_engine_as_is": lin_g,
+        "interior_linear_precision_engine_rel": lin_rel,
+        "effect_isolation": alt,
     }
     tol = 1e-6
-    passed = rel(en1) <= tol and star0_err <= tol
-    notes = ("Exact rational star0/star1 on a perturbed Kuhn mesh (48 tets). star0 (barycentric V/4) "
-             "matches; star1 is wrong as-is. Linear precision at the interior vertex is exact (0) for the "
-             "correct operator and fails for the engine operator. The SPD floor fmax(w,1e-3*l_rms) is a "
-             "separate defect whenever exact weights are negative (non-Delaunay / obtuse dihedrals): it "
-             "breaks linear precision even after the mapping fix. The dual is barycentric (V/4), not Voronoi.")
-    if not C.anchors_ok(anchors):
-        notes = "TRANSCRIPTION_STALE: " + notes
-        passed = None
-    return C.record("dec.star0_star1_exact_recompute",
-                    {"mesh": "3x3x3 grid, spacing 3/2, rational perturbation k/64 (|k|<=12), Kuhn split"},
-                    "engine star0 and star1 equal exact rational values; interior linear precision == 0",
-                    obs, passed, tol, notes, defect_id="D-DEC-OPP-EDGE", anchors=anchors)
+    passed = rel(en1) <= tol and star0_err <= tol and lin_rel <= tol
+    notes = ("Exact rational star0/star1 on a perturbed Kuhn mesh (48 tets, 17/98 exact weights negative). "
+             "star0 (barycentric V/4) matches in both variants. Legacy: star1 wrong (opposite-edge map) and "
+             "both floors (per-tet fmax(w,1e-3 l_rms), assembled fmax(star1,1e-4)) break linear precision even "
+             "after the map fix. P3 signed: star1 and interior linear precision match exact to FP32 rounding; the "
+             "deprecated legacy-floor build (-DBIPRISM_DEC_LEGACY_POSITIVE_FLOOR=1) is reported for reference and "
+             "still breaks linear precision. The dual is barycentric (V/4), not Voronoi.")
+    return C.record(name, {"mesh": "3x3x3 grid, spacing 3/2, rational perturbation k/64 (|k|<=12), Kuhn split"},
+                    "engine star0/star1 == exact rational values; interior linear precision residual <= 1e-6 "
+                    "of sum|w||dx|", obs, passed, tol, notes, defect_id="D-DEC-OPP-EDGE", anchors=anchors)
 
 
 CHECKS = [check_reference_selftest, check_engine_mapping, check_star_exact]
