@@ -48,16 +48,16 @@
 #error "nhs_biprism_xtb_lut.cuh must be in the same directory or include path"
 #endif
 
-#if __has_include("../../../../../cuda/adjudicator.cuh")
-#include "../../../../../cuda/adjudicator.cuh"
-#elif __has_include("adjudicator.cuh")
-#include "adjudicator.cuh"
+// The real adjudicator ABI header (layout pinned by its own static_asserts).
+// The former "../../../../../cuda/adjudicator.cuh" path resolved to no file in
+// either layout, so this header silently compiled an opaque 256-byte stand-in.
+// A missing header is now a hard error; there is no fallback definition.
+#if __has_include("../../../prism-nhs/src/cuda/adjudicator.cuh")
+#include "../../../prism-nhs/src/cuda/adjudicator.cuh"
 #else
-struct __align__(128) InterferometricAdjudicatorFfi {
-    uint8_t opaque_bytes[256];
-};
-static_assert(sizeof(InterferometricAdjudicatorFfi) == 256, "Must be 256B");
+#error "prism-nhs/src/cuda/adjudicator.cuh not found relative to prism-gpu/src/kernels (InterferometricAdjudicatorFfi ABI header is required)"
 #endif
+static_assert(sizeof(InterferometricAdjudicatorFfi) == 256, "InterferometricAdjudicatorFfi must stay 256 B");
 
 #define BIPRISM_INNER_SUBSTEPS 4
 #define MAX_VARIATIONAL_PICARD_ITERS 48

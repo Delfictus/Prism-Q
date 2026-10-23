@@ -11,7 +11,11 @@
 #pragma once
 #include "nhs_biprism_simplicial_tile.cuh"
 #include "nhs_biprism_xtb_lut.cuh"
-#include "../../../../../cuda/adjudicator.cuh"
+#if __has_include("../../../prism-nhs/src/cuda/adjudicator.cuh")
+#include "../../../prism-nhs/src/cuda/adjudicator.cuh"
+#else
+#error "prism-nhs/src/cuda/adjudicator.cuh not found relative to prism-gpu/src/kernels"
+#endif
 
 #define BIPRISM_INNER_SUBSTEPS 4
 #define MAX_VARIATIONAL_PICARD_ITERS 12
