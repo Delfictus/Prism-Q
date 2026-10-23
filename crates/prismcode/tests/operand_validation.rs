@@ -198,7 +198,7 @@ fn existing_manifest_producer_is_registered_without_renumbering_existing_ops() {
 
 #[test]
 fn canonical_empty_event_packet_keeps_exact_policy_identity() {
-    let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../appliance_payload_reference/packets/prismos_hyper_runtime_reference.pcode");
+    let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../appliance_payload_reference/packets/prismos_hyper_runtime_reference.pcode");
     let parsed=br::read_packet(&path).unwrap();
     assert_eq!(parsed.event_count,0);
     assert!(br::validate_packet(&path,ValidationLevel::L3).is_ok());

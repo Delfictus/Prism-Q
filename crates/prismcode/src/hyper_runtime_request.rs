@@ -2252,7 +2252,7 @@ mod tests {
         let active_release = root.join("engine-releases/release-1");
         let active_engine = active_release.join("bin/nhs_rt_full");
         let base_packet = include_bytes!(
-            "../../../../../../../appliance_payload_reference/packets/prismos_hyper_runtime_reference.pcode"
+            "../../../../appliance_payload_reference/packets/prismos_hyper_runtime_reference.pcode"
         );
         let (packet_bytes, _) =
             crate::binary_runtime::normalize_md_engine_policy_packet_bytes(base_packet)
@@ -3419,7 +3419,7 @@ mod tests {
     #[test]
     fn canonical_profile_source_matches_compiled_authority_identity() {
         let profile = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../../../appliance_payload_reference/profiles/hyper-runtime-md-v1.json");
+            .join("../../../appliance_payload_reference/profiles/hyper-runtime-md-v1.json");
         assert_eq!(
             sha256_file_hex(&profile).unwrap(),
             CANONICAL_EXECUTION_PROFILE_SHA256
