@@ -11038,15 +11038,10 @@ impl NhsAmberFusedEngine {
             min_pos[2] - padding,
         ];
 
-        // Load PTX module - try multiple paths for different execution contexts
-        //
-        // STRICT RULE: If PRISM4D_PTX_DIR is set, ONLY use that path and hard-fail
-        // if it doesn't exist. No silent fallback. This ensures explicit configuration
-        // is respected and misconfigurations are caught early.
-        //
-        // Fallback paths are only used when PRISM4D_PTX_DIR is NOT set:
-        // 1. Relative to executable: ../assets/ptx/ (release bundle)
-        // 2. Development paths (workspace root, tests)
+        // Load the fused PTX module: the QNANL-sealed packet when configured,
+        // otherwise nhs_amber_fused.ptx from the single PTX authority
+        // (prism_gpu::ptx_authority). A configured directory that lacks the file
+        // is a hard failure; nothing is probed relative to the current directory.
 
         // `fused_module_text` is Some ONLY on the QNANL packet path, where the
         // module is decoded in memory. Every kernel-ABI check below prefers it,
@@ -11060,101 +11055,36 @@ impl NhsAmberFusedEngine {
             load_qnanl_force_kernel_module_if_configured_with_text(&context)?
         {
             qnanl_module
-        } else if let Ok(env_dir) = std::env::var("PRISM4D_PTX_DIR") {
-            // STRICT: Environment variable is set - use ONLY this path, no fallback
-            let ptx_path = PathBuf::from(&env_dir).join("nhs_amber_fused.ptx");
+        } else {
+            // P0.5 single PTX authority (prism_gpu::ptx_authority): PRISM4D_PTX_DIR /
+            // PRISM_PTX_DIR (strict, fail closed), else executable-relative ptx/,
+            // else this build's governed OUT_DIR/ptx. No cwd-relative candidates.
+            let authority = prism_gpu::ptx_authority::resolve()
+                .map_err(|e| anyhow::anyhow!("FATAL: NHS-AMBER fused PTX authority: {e}"))?;
+            let ptx_path = authority
+                .file("nhs_amber_fused.ptx")
+                .map_err(|e| anyhow::anyhow!("FATAL: {e}"))?;
             let path_str = ptx_path.display().to_string();
-
-            if !ptx_path.exists() {
-                bail!(
-                    "FATAL: PRISM4D_PTX_DIR is set but PTX file not found.\n\
-                     \n\
-                     PRISM4D_PTX_DIR={}\n\
-                     Expected file: {}\n\
-                     \n\
-                     To fix:\n\
-                     - Verify the path contains nhs_amber_fused.ptx\n\
-                     - Or unset PRISM4D_PTX_DIR to use automatic path resolution",
-                    env_dir,
-                    path_str
-                );
-            }
-
             let module = context
                 .load_module(Ptx::from_file(&path_str))
                 .with_context(|| {
                     format!(
-                        "FATAL: PRISM4D_PTX_DIR is set but PTX failed to load.\n\
-                     \n\
-                     PRISM4D_PTX_DIR={}\n\
-                     PTX file: {}\n\
-                     \n\
-                     The file exists but CUDA could not load it. Check PTX compatibility.",
-                        env_dir, path_str
+                        "FATAL: PTX authority {} ({}, kernel_set_sha256={}) holds {} but CUDA \
+                         could not load it. Check PTX compatibility.",
+                        authority.dir.display(),
+                        authority.source.as_str(),
+                        authority.kernel_set_sha256,
+                        path_str
                     )
                 })?;
-
+            log::info!(
+                "PTX authority {} ({}), kernel_set_sha256={}",
+                authority.dir.display(),
+                authority.source.as_str(),
+                authority.kernel_set_sha256
+            );
             // A real file path: the checker can read it, so no text is carried.
             (module, path_str, None)
-        } else {
-            // PRISM4D_PTX_DIR not set - try fallback paths
-            let mut ptx_paths: Vec<PathBuf> = Vec::new();
-
-            // 1. Relative to executable (release bundle layout: bin/prism4d -> ../assets/ptx/)
-            if let Ok(exe_path) = std::env::current_exe() {
-                if let Some(exe_dir) = exe_path.parent() {
-                    // Bundle layout: bin/prism4d, assets/ptx/
-                    ptx_paths.push(exe_dir.join("../assets/ptx/nhs_amber_fused.ptx"));
-                    // Same directory as executable
-                    ptx_paths.push(exe_dir.join("assets/ptx/nhs_amber_fused.ptx"));
-                }
-            }
-
-            // 2. Development paths
-            ptx_paths.push(PathBuf::from("target/ptx/nhs_amber_fused.ptx"));
-            ptx_paths.push(PathBuf::from("../../target/ptx/nhs_amber_fused.ptx"));
-            ptx_paths.push(PathBuf::from(
-                "../prism-gpu/src/kernels/nhs_amber_fused.ptx",
-            ));
-            ptx_paths.push(PathBuf::from(
-                "crates/prism-gpu/src/kernels/nhs_amber_fused.ptx",
-            ));
-
-            let mut tried_paths: Vec<String> = Vec::new();
-            let mut result: Option<(Arc<CudaModule>, String, Option<String>)> = None;
-
-            for path in &ptx_paths {
-                let path_str = path.display().to_string();
-                tried_paths.push(path_str.clone());
-                log::debug!("Trying PTX path: {}", path_str);
-                if path.exists() {
-                    match context.load_module(Ptx::from_file(&path_str)) {
-                        Ok(m) => {
-                            result = Some((m, path_str, None));
-                            break;
-                        }
-                        Err(e) => {
-                            log::debug!("PTX exists but failed to load from {}: {}", path_str, e);
-                        }
-                    }
-                }
-            }
-
-            result.ok_or_else(|| {
-                anyhow::anyhow!(
-                    "FATAL: Failed to load NHS-AMBER fused PTX from any location.\n\
-                     Tried paths:\n{}\n\n\
-                     To fix:\n\
-                     - Set PRISM4D_PTX_DIR=/path/to/ptx/dir\n\
-                     - Or ensure assets/ptx/nhs_amber_fused.ptx exists relative to executable\n\
-                     - Or run from workspace root with target/ptx/ available",
-                    tried_paths
-                        .iter()
-                        .map(|p| format!("  - {}", p))
-                        .collect::<Vec<_>>()
-                        .join("\n")
-                )
-            })?
         };
 
         log::info!("Loaded fused kernel PTX from: {}", loaded_path);

@@ -1,0 +1,8 @@
+# P0.5 toolchain pin (2026-10-23). 1.97.1 (8bab26f4f 2026-07-14) built 1010
+# cac70ea6 and 5722a4d5, and both rebuild byte-identically with it (after
+# strip/build-id normalization). The CUDA side is pinned separately: release
+# builds require PRISM_GPU_NVCC (CUDA 13.2.51 for these engines), and build.rs
+# records `nvcc --version`.
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"

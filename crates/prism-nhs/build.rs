@@ -128,10 +128,9 @@ fn main() {
     }
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let nvcc = find_nvcc().expect(
-        "nvcc not found. CUDA toolkit is required for the `gpu` feature.\n\
-         Set CUDA_HOME or ensure nvcc is in PATH.",
-    );
+    // Release builds are pinned to PRISM_GPU_NVCC (P0.5; fail closed, no PATH
+    // guessing). PRISM_NHS_NVCC, if also set, must name the same compiler.
+    let nvcc = pinned_nvcc();
     println!("cargo:info=Using nvcc: {}", nvcc);
     println!("cargo:info=Using CUDA target arch: {}", cuda_arch());
 
@@ -890,6 +889,34 @@ fn cuda_lib_dir() -> Option<PathBuf> {
     None
 }
 
+fn pinned_nvcc() -> String {
+    let release = env::var("PROFILE").map(|p| p == "release").unwrap_or(false);
+    let pinned = env::var("PRISM_GPU_NVCC").ok().filter(|v| !v.trim().is_empty());
+    if let (Some(gpu), Ok(nhs)) = (pinned.as_deref(), env::var("PRISM_NHS_NVCC")) {
+        if !nhs.trim().is_empty() && nhs.trim() != gpu.trim() {
+            panic!("PRISM_NHS_NVCC={} differs from PRISM_GPU_NVCC={}; one nvcc per build", nhs, gpu);
+        }
+    }
+    match pinned {
+        Some(raw) => {
+            let path = PathBuf::from(raw.trim());
+            if !path.is_absolute() || !path.is_file() {
+                panic!("PRISM_GPU_NVCC={} must be an absolute path to an existing nvcc", raw);
+            }
+            raw.trim().to_string()
+        }
+        None if release => panic!(
+            "release build requires PRISM_GPU_NVCC=<absolute path to nvcc> \
+             (toolchain pin; no PATH/CUDA_HOME discovery in release)"
+        ),
+        None => find_nvcc().expect(
+            "nvcc not found. CUDA toolkit is required for the `gpu` feature.\n\
+             Set CUDA_HOME or ensure nvcc is in PATH.",
+        ),
+    }
+}
+
+/// Historical discovery order (debug builds only).
 fn find_nvcc() -> Option<String> {
     for key in ["PRISM_NHS_NVCC", "PRISM_GPU_NVCC", "NVCC"] {
         if let Ok(path) = env::var(key) {

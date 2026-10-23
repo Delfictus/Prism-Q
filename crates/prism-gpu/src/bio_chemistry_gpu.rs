@@ -18,7 +18,6 @@ use cudarc::driver::{
     CudaContext, CudaFunction, CudaModule, CudaSlice, CudaStream, LaunchConfig, PushKernelArg,
 };
 use cudarc::nvrtc::Ptx;
-use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Maximum supported atoms for GPU feature extraction
@@ -182,42 +181,12 @@ impl BiochemistryGpu {
         })
     }
 
-    /// Find the PTX file path
+    /// Path of bio_chemistry_features.ptx in the single PTX authority (P0.5).
     fn find_ptx_path() -> Result<String> {
         const MODULE: &str = "bio_chemistry_features.ptx";
-        for variable in ["PRISM4D_PTX_DIR", "PRISM_PTX_DIR"] {
-            if let Ok(directory) = std::env::var(variable) {
-                anyhow::ensure!(!directory.trim().is_empty(), "{} is set but empty", variable);
-                let path = PathBuf::from(directory).join(MODULE);
-                anyhow::ensure!(
-                    path.is_file(),
-                    "{} selects a missing bio-chemistry PTX: {}",
-                    variable,
-                    path.display()
-                );
-                return Ok(path.to_string_lossy().into_owned());
-            }
-        }
-
-        // build.rs validates all 95 members and mirrors these exact OUT_DIR
-        // artifacts into the workspace target/ptx directory.
-        let candidates = [
-            PathBuf::from(env!("OUT_DIR")).join("ptx").join(MODULE),
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ptx").join(MODULE),
-            PathBuf::from("target/ptx").join(MODULE),
-            PathBuf::from("../../target/ptx").join(MODULE),
-        ];
-
-        for path in &candidates {
-            if path.is_file() {
-                return Ok(path.to_string_lossy().into_owned());
-            }
-        }
-
-        anyhow::bail!(
-            "Governed bio_chemistry_features.ptx not found. Build prism-gpu with its cuda feature \
-             or set PRISM4D_PTX_DIR / PRISM_PTX_DIR to the installed PTX authority"
-        )
+        crate::ptx_authority::ptx_file(MODULE)
+            .map(|path| path.to_string_lossy().into_owned())
+            .map_err(|e| anyhow::anyhow!("governed {MODULE}: {e}"))
     }
 
     /// Upload atomic metadata to GPU

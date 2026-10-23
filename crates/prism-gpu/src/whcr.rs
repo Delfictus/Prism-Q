@@ -119,8 +119,15 @@ impl WhcrGpu {
         let (row_ptr, col_idx) = adjacency_to_csr(adjacency);
 
         // Load PTX
-        let ptx_path =
-            std::env::var("PRISM_PTX_PATH").unwrap_or_else(|_| "target/ptx/whcr.ptx".to_string());
+        // PRISM_PTX_PATH remains an explicit file override; otherwise the single
+        // PTX authority (P0.5). No cwd-relative default.
+        let ptx_path = match std::env::var("PRISM_PTX_PATH") {
+            Ok(path) => path,
+            Err(_) => crate::ptx_authority::ptx_file("whcr.ptx")
+                .map_err(|e| anyhow::anyhow!("whcr.ptx: {e}"))?
+                .to_string_lossy()
+                .into_owned(),
+        };
 
         log::debug!("Loading WHCR PTX from: {}", ptx_path);
 

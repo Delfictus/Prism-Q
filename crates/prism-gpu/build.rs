@@ -93,8 +93,10 @@ fn main() {
     }
     println!("cargo:rustc-link-lib=cufft");
 
-    // Locate nvcc compiler
-    let nvcc = find_nvcc().expect("nvcc not found. Ensure CUDA toolkit is installed.");
+    // Locate nvcc compiler. Release builds are pinned: PRISM_GPU_NVCC must name
+    // the nvcc to use (P0.5 toolchain pinning; fail closed, no PATH guessing).
+    let nvcc = pinned_nvcc();
+    record_nvcc_identity(&nvcc);
 
     println!("cargo:info=Using nvcc: {}", nvcc);
 
@@ -102,6 +104,9 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let ptx_dir = out_dir.join("ptx");
     std::fs::create_dir_all(&ptx_dir).expect("Failed to create PTX output directory");
+    // Absolute governed PTX directory of this exact build; the runtime PTX
+    // authority (src/ptx_authority.rs) uses it as its last, non-cwd candidate.
+    println!("cargo:rustc-env=PRISM_GPU_GOVERNED_PTX_DIR={}", ptx_dir.display());
 
     // Also create target/ptx for easier access.
     //
@@ -165,7 +170,54 @@ fn main() {
     println!("cargo:info=PTX compilation completed successfully");
 }
 
-/// Finds nvcc compiler in PATH or CUDA_HOME
+/// Release builds require PRISM_GPU_NVCC (absolute path to an existing nvcc).
+/// Debug builds keep the historical discovery order as a convenience.
+fn pinned_nvcc() -> String {
+    let release = env::var("PROFILE").map(|p| p == "release").unwrap_or(false);
+    match env::var("PRISM_GPU_NVCC") {
+        Ok(raw) if !raw.trim().is_empty() => {
+            let path = PathBuf::from(raw.trim());
+            if !path.is_absolute() || !path.is_file() {
+                panic!(
+                    "PRISM_GPU_NVCC={} must be an absolute path to an existing nvcc",
+                    raw
+                );
+            }
+            raw.trim().to_string()
+        }
+        _ if release => panic!(
+            "release build requires PRISM_GPU_NVCC=<absolute path to nvcc> \
+             (toolchain pin; no PATH/CUDA_HOME discovery in release)"
+        ),
+        _ => find_nvcc().expect("nvcc not found. Ensure CUDA toolkit is installed."),
+    }
+}
+
+/// Record `nvcc --version` for provenance (rustc-env + OUT_DIR/nvcc_version.txt).
+fn record_nvcc_identity(nvcc: &str) {
+    let output = Command::new(nvcc)
+        .arg("--version")
+        .output()
+        .unwrap_or_else(|e| panic!("failed to run {} --version: {}", nvcc, e));
+    if !output.status.success() {
+        panic!("{} --version failed", nvcc);
+    }
+    let text = String::from_utf8_lossy(&output.stdout).to_string();
+    let release_line = text
+        .lines()
+        .find(|line| line.contains("Cuda compilation tools"))
+        .unwrap_or_else(|| panic!("{} --version printed no release line", nvcc))
+        .trim()
+        .to_string();
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    std::fs::write(out_dir.join("nvcc_version.txt"), &text)
+        .expect("failed to record nvcc --version");
+    println!("cargo:rustc-env=PRISM_GPU_NVCC_VERSION={}", release_line);
+    println!("cargo:rustc-env=PRISM_GPU_NVCC_PATH={}", nvcc);
+    println!("cargo:info=nvcc identity: {} ({})", release_line, nvcc);
+}
+
+/// Finds nvcc compiler in PATH or CUDA_HOME (debug builds only)
 fn find_nvcc() -> Option<String> {
     for var in ["PRISM_GPU_NVCC", "NVCC"] {
         if let Ok(nvcc) = env::var(var) {

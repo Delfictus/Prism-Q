@@ -358,42 +358,12 @@ impl NhsGpuEngine {
         })
     }
 
-    /// Find PTX file path
+    /// Path of `<kernel_name>.ptx` in the single PTX authority (P0.5).
     fn find_ptx_path(kernel_name: &str) -> Result<String> {
         let filename = format!("{}.ptx", kernel_name);
-        // Check PRISM4D_PTX_DIR / PRISM_PTX_DIR first
-        for env_key in &["PRISM4D_PTX_DIR", "PRISM_PTX_DIR"] {
-            if let Ok(dir) = std::env::var(env_key) {
-                let p = std::path::PathBuf::from(&dir).join(&filename);
-                if p.exists() {
-                    return Ok(p.display().to_string());
-                }
-            }
-        }
-        let paths = [
-            format!("target/ptx/{}", filename),
-            format!("crates/prism-gpu/target/ptx/{}", filename),
-            format!("../prism-gpu/target/ptx/{}", filename),
-        ];
-
-        for path in &paths {
-            if std::path::Path::new(path).exists() {
-                return Ok(path.clone());
-            }
-        }
-
-        // Try OUT_DIR from build
-        if let Ok(out_dir) = std::env::var("OUT_DIR") {
-            let path = format!("{}/ptx/{}", out_dir, filename);
-            if std::path::Path::new(&path).exists() {
-                return Ok(path);
-            }
-        }
-
-        Err(anyhow::anyhow!(
-            "{}.ptx not found. Run `cargo build -p prism-gpu --features cuda` to compile kernels",
-            kernel_name
-        ))
+        prism_gpu::ptx_authority::ptx_file(&filename)
+            .map(|path| path.display().to_string())
+            .map_err(|e| anyhow::anyhow!("{}: {}", filename, e))
     }
 
     /// Initialize the LIF network state

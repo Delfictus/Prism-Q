@@ -564,81 +564,10 @@ impl AmberSimdBatch {
         })
     }
 
-    /// Find PTX file path
+    /// Path of amber_simd_batch.ptx in the single PTX authority (P0.5).
     fn find_ptx_path() -> Result<std::path::PathBuf> {
-        let ptx_name = "amber_simd_batch.ptx";
-
-        // 1. Check target/ptx directory first (build.rs copies here)
-        let target_ptx = std::path::PathBuf::from("target/ptx").join(ptx_name);
-        if target_ptx.exists() {
-            log::debug!("Found PTX at: {:?}", target_ptx);
-            return Ok(target_ptx);
-        }
-
-        // 2. Check OUT_DIR from build.rs
-        if let Ok(out_dir) = std::env::var("OUT_DIR") {
-            let ptx_path = std::path::PathBuf::from(&out_dir)
-                .join("ptx")
-                .join(ptx_name);
-            if ptx_path.exists() {
-                log::debug!("Found PTX in OUT_DIR: {:?}", ptx_path);
-                return Ok(ptx_path);
-            }
-        }
-
-        // 3. Check workspace target directories
-        let workspace_paths = [
-            std::path::PathBuf::from("target/release").join(ptx_name),
-            std::path::PathBuf::from("target/debug").join(ptx_name),
-        ];
-        for path in &workspace_paths {
-            if path.exists() {
-                log::debug!("Found PTX at: {:?}", path);
-                return Ok(path.clone());
-            }
-        }
-
-        // 4. Search in build directories for prism-gpu output
-        for profile in ["release", "debug"] {
-            let build_dir = std::path::PathBuf::from(format!("target/{}/build", profile));
-            if build_dir.exists() {
-                if let Ok(entries) = std::fs::read_dir(&build_dir) {
-                    for entry in entries.filter_map(|e| e.ok()) {
-                        let dir_name = entry.file_name();
-                        let dir_str = dir_name.to_string_lossy();
-
-                        // Look for prism-gpu build directories
-                        if dir_str.starts_with("prism-gpu-") {
-                            // Check both out/ and out/ptx/
-                            let candidates = [
-                                entry.path().join("out").join(ptx_name),
-                                entry.path().join("out/ptx").join(ptx_name),
-                            ];
-                            for ptx_path in candidates {
-                                if ptx_path.exists() {
-                                    log::debug!("Found PTX in build dir: {:?}", ptx_path);
-                                    return Ok(ptx_path);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // 5. Try absolute paths based on common workspace locations
-        let workspace_root = std::env::current_dir().unwrap_or_default();
-        let absolute_ptx = workspace_root.join("target/ptx").join(ptx_name);
-        if absolute_ptx.exists() {
-            log::debug!("Found PTX at absolute path: {:?}", absolute_ptx);
-            return Ok(absolute_ptx);
-        }
-
-        bail!(
-            "{} not found. Build with 'cargo build -p prism-gpu --features cuda' first.\n\
-             Searched: target/ptx/, OUT_DIR/ptx/, target/{{release,debug}}/build/prism-gpu-*/out/",
-            ptx_name
-        )
+        crate::ptx_authority::ptx_file("amber_simd_batch.ptx")
+            .map_err(|e| anyhow::anyhow!("amber_simd_batch.ptx: {e}"))
     }
 
     /// Add a structure to the batch

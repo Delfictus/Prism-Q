@@ -16500,39 +16500,22 @@ fn run_coupled_twin_multi_pipeline(
     Ok(())
 }
 
-/// Find the PTX file path (same logic as fused_engine)
+/// Path of nhs_amber_fused.ptx in the single PTX authority (P0.5; same
+/// authority as fused_engine). No cwd-relative candidates.
 #[cfg(feature = "gpu")]
 fn find_ptx_path() -> Result<String> {
-    // Check PRISM4D_PTX_DIR and PRISM_PTX_DIR environment variables first
-    for env_key in &["PRISM4D_PTX_DIR", "PRISM_PTX_DIR"] {
-        if let Ok(dir) = std::env::var(env_key) {
-            let p = std::path::Path::new(&dir).join("nhs_amber_fused.ptx");
-            if p.exists() {
-                log::info!("PTX loaded from {}: {}", env_key, p.display());
-                return Ok(p.display().to_string());
-            }
-        }
-    }
-    let candidates = vec![
-        "target/ptx/nhs_amber_fused.ptx".to_string(),
-        "../../target/ptx/nhs_amber_fused.ptx".to_string(),
-    ];
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(dir) = exe.parent() {
-            let p = dir.join("../assets/ptx/nhs_amber_fused.ptx");
-            if p.exists() {
-                return Ok(p.display().to_string());
-            }
-        }
-    }
-    for p in &candidates {
-        if std::path::Path::new(p).exists() {
-            return Ok(p.clone());
-        }
-    }
-    anyhow::bail!(
-        "PTX file not found. Set PRISM4D_PTX_DIR or PRISM_PTX_DIR, or ensure target/ptx/ exists."
-    )
+    let authority = prism_gpu::ptx_authority::resolve()
+        .map_err(|e| anyhow::anyhow!("PTX authority: {e}"))?;
+    let path = authority
+        .file("nhs_amber_fused.ptx")
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    log::info!(
+        "PTX authority {} ({}), kernel_set_sha256={}",
+        authority.dir.display(),
+        authority.source.as_str(),
+        authority.kernel_set_sha256
+    );
+    Ok(path.display().to_string())
 }
 
 /// Env var naming the QNANL-sealed force-kernel packet. Mirrors the private
@@ -21568,23 +21551,6 @@ fn run_multi_stream_pipeline(args: &Args, topology_path: &PathBuf, n_streams: us
     // CUDA construction follows full checkpoint identity admission.
 
 
-    // Check PRISM4D_PTX_DIR / PRISM_PTX_DIR env vars first, then fallback candidates
-    let env_ptx: Option<String> = std::env::var("PRISM4D_PTX_DIR")
-        .or_else(|_| std::env::var("PRISM_PTX_DIR"))
-        .ok()
-        .and_then(|dir| {
-            let p = std::path::Path::new(&dir).join("nhs_amber_fused.ptx");
-            if p.exists() {
-                Some(p.display().to_string())
-            } else {
-                None
-            }
-        });
-    let ptx_candidates = [
-        "../prism-gpu/src/kernels/nhs_amber_fused.ptx",
-        "crates/prism-gpu/src/kernels/nhs_amber_fused.ptx",
-        "target/ptx/nhs_amber_fused.ptx",
-    ];
     let ptx_path_owned: String;
     let admitted_ptx_path = lambda_runtime_admission
         .as_ref()
@@ -21594,19 +21560,9 @@ fn run_multi_stream_pipeline(args: &Args, topology_path: &PathBuf, n_streams: us
     let ptx_path: &str = if let Some(ref admitted) = admitted_ptx_path {
         ptx_path_owned = admitted.display().to_string();
         &ptx_path_owned
-    } else if let Some(ref ep) = env_ptx {
-        log::info!("PTX loaded from env: {}", ep);
-        ep.as_str()
     } else {
-        ptx_path_owned = ptx_candidates
-            .iter()
-            .find(|p| Path::new(p).exists())
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "nhs_amber_fused.ptx not found. Set PRISM4D_PTX_DIR or PRISM_PTX_DIR."
-                )
-            })?
-            .to_string();
+        // P0.5 single PTX authority (env strict -> exe-relative -> governed build dir).
+        ptx_path_owned = find_ptx_path()?;
         &ptx_path_owned
     };
     std::fs::create_dir_all(&args.output)?;

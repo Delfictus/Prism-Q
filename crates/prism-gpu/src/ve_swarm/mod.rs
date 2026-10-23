@@ -112,7 +112,10 @@ impl Default for VeSwarmConfig {
             prediction_threshold: 0.5,
             attention_temperature: 1.0,
             velocity_correction: true,
-            ptx_dir: "kernels/ptx".to_string(),
+            // P0.5: default to the single PTX authority directory (no cwd path).
+            ptx_dir: crate::ptx_authority::resolve()
+                .map(|authority| authority.dir.display().to_string())
+                .unwrap_or_default(),
         }
     }
 }

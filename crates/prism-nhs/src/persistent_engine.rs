@@ -423,33 +423,10 @@ struct ResidentGraphReplayBindingState {
 
 #[cfg(feature = "gpu")]
 fn resolve_persistent_fused_ptx_path() -> Result<PathBuf> {
-    for variable in ["PRISM4D_PTX_DIR", "PRISM_PTX_DIR"] {
-        if let Ok(raw) = std::env::var(variable) {
-            let directory = raw.trim();
-            if directory.is_empty() {
-                bail!("{} is set but empty", variable);
-            }
-            let path = PathBuf::from(directory).join("nhs_amber_fused.ptx");
-            if !path.is_file() {
-                bail!(
-                    "{} is set but its authoritative fused PTX is missing: {}",
-                    variable,
-                    path.display()
-                );
-            }
-            return Ok(path);
-        }
-    }
-    [
-        PathBuf::from("../prism-gpu/src/kernels/nhs_amber_fused.ptx"),
-        PathBuf::from("crates/prism-gpu/src/kernels/nhs_amber_fused.ptx"),
-        PathBuf::from("target/ptx/nhs_amber_fused.ptx"),
-    ]
-    .into_iter()
-    .find(|path| path.is_file())
-    .ok_or_else(|| anyhow::anyhow!(
-        "nhs_amber_fused.ptx not found; set PRISM4D_PTX_DIR or PRISM_PTX_DIR to the installed PTX authority"
-    ))
+    // P0.5 single PTX authority: env (strict) -> executable-relative ptx/ ->
+    // this build's governed OUT_DIR/ptx. No cwd-relative candidates.
+    prism_gpu::ptx_authority::ptx_file("nhs_amber_fused.ptx")
+        .map_err(|e| anyhow::anyhow!("persistent engine fused PTX: {e}"))
 }
 
 /// Configuration for persistent batch processing

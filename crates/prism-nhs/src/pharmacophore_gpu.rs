@@ -139,30 +139,11 @@ pub struct PharmacophoreGpu {
 #[cfg(feature = "gpu")]
 impl PharmacophoreGpu {
     pub fn new(context: Arc<CudaContext>, stream: Arc<CudaStream>) -> anyhow::Result<Self> {
-        // Load PTX — same path resolution as fused_engine
-        let ptx_paths = vec![
-            std::path::PathBuf::from("target/ptx/pharmacophore_splat.ptx"),
-            std::path::PathBuf::from("../../target/ptx/pharmacophore_splat.ptx"),
-        ];
-
-        let mut module: Option<Arc<CudaModule>> = None;
-        if let Ok(env_dir) = std::env::var("PRISM4D_PTX_DIR") {
-            let p = std::path::PathBuf::from(&env_dir).join("pharmacophore_splat.ptx");
-            if p.exists() {
-                module = Some(context.load_module(Ptx::from_file(&p.display().to_string()))?);
-            }
-        }
-        if module.is_none() {
-            for p in &ptx_paths {
-                if p.exists() {
-                    if let Ok(m) = context.load_module(Ptx::from_file(&p.display().to_string())) {
-                        module = Some(m);
-                        break;
-                    }
-                }
-            }
-        }
-        let module = module.ok_or_else(|| anyhow::anyhow!("pharmacophore_splat.ptx not found"))?;
+        // P0.5 single PTX authority (same authority as fused_engine).
+        let ptx_path = prism_gpu::ptx_authority::ptx_file("pharmacophore_splat.ptx")
+            .map_err(|e| anyhow::anyhow!("pharmacophore_splat.ptx: {e}"))?;
+        let module: Arc<CudaModule> =
+            context.load_module(Ptx::from_file(&ptx_path.display().to_string()))?;
 
         Ok(Self {
             splat_kernel: module.load_function("gaussian_splat")?,

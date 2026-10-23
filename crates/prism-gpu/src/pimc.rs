@@ -119,7 +119,9 @@ impl PimcGpu {
         );
 
         // Load PTX module
-        let ptx_path = std::path::Path::new("kernels/ptx/pimc.ptx");
+        let ptx_path_buf = crate::ptx_authority::ptx_file("pimc.ptx")
+            .map_err(|e| anyhow::anyhow!("pimc.ptx: {e}"))?;
+        let ptx_path = ptx_path_buf.as_path();
         let module = device
             .load_module(Ptx::from_file(ptx_path))
             .with_context(|| format!("Failed to load PIMC PTX module: {:?}", ptx_path))?;

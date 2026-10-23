@@ -243,31 +243,11 @@ impl DendriticSNNReservoir {
         })
     }
 
-    /// Finds the PTX file path
+    /// Path of dendritic_snn_reservoir.ptx in the single PTX authority (P0.5).
     fn find_ptx_path() -> Result<String> {
-        let paths = [
-            "target/ptx/dendritic_snn_reservoir.ptx",
-            "crates/prism-gpu/target/ptx/dendritic_snn_reservoir.ptx",
-            "../prism-gpu/target/ptx/dendritic_snn_reservoir.ptx",
-        ];
-
-        for path in &paths {
-            if std::path::Path::new(path).exists() {
-                return Ok(path.to_string());
-            }
-        }
-
-        // Try OUT_DIR from build
-        if let Ok(out_dir) = std::env::var("OUT_DIR") {
-            let path = format!("{}/ptx/dendritic_snn_reservoir.ptx", out_dir);
-            if std::path::Path::new(&path).exists() {
-                return Ok(path);
-            }
-        }
-
-        Err(anyhow::anyhow!(
-            "dendritic_snn_reservoir.ptx not found. Run `cargo build -p prism-gpu --features cuda`"
-        ))
+        crate::ptx_authority::ptx_file("dendritic_snn_reservoir.ptx")
+            .map(|path| path.to_string_lossy().into_owned())
+            .map_err(|e| anyhow::anyhow!("dendritic_snn_reservoir.ptx: {e}"))
     }
 
     /// Initializes reservoir weights with E/I balanced sparse connectivity

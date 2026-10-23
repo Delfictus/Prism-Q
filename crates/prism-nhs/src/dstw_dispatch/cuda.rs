@@ -241,14 +241,6 @@ mod gpu_impl {
     use sha2::{Digest, Sha256};
     use std::{fs::File, io::Read, path::Path, sync::Arc};
 
-    /// Default PTX search paths.  Mirrors the layout used by the engine's
-    /// existing kernels (transfer_entropy etc.) so the cargo target/ptx/
-    /// directory is the canonical location.
-    const PTX_CANDIDATE_PATHS: &[&str] = &[
-        "target/ptx/dstw_propagation.ptx",
-        "../target/ptx/dstw_propagation.ptx",
-        "../../target/ptx/dstw_propagation.ptx",
-    ];
 
     pub struct CudaPropagationKernel {
         stream: Arc<CudaStream>,
@@ -270,23 +262,20 @@ mod gpu_impl {
         }
     }
 
+    /// `$DSTW_PROPAGATION_PTX` (explicit file pin; must exist) or
+    /// dstw_propagation.ptx from the single PTX authority (P0.5). The former
+    /// cwd-relative target/ptx candidates are gone.
     fn find_ptx_path() -> Result<String, String> {
-        for candidate in PTX_CANDIDATE_PATHS {
-            if std::path::Path::new(candidate).is_file() {
-                return Ok(candidate.to_string());
-            }
-        }
         if let Ok(env_path) = std::env::var("DSTW_PROPAGATION_PTX") {
-            if std::path::Path::new(&env_path).is_file() {
-                return Ok(env_path);
-            }
+            return if std::path::Path::new(&env_path).is_file() {
+                Ok(env_path)
+            } else {
+                Err(format!("DSTW_PROPAGATION_PTX={env_path} is not a file"))
+            };
         }
-        Err(format!(
-            "could not locate dstw_propagation.ptx in any of {:?} or via \
-             $DSTW_PROPAGATION_PTX. Rebuild prism-gpu so build.rs emits \
-             target/ptx/dstw_propagation.ptx.",
-            PTX_CANDIDATE_PATHS
-        ))
+        prism_gpu::ptx_authority::ptx_file("dstw_propagation.ptx")
+            .map(|path| path.display().to_string())
+            .map_err(|e| format!("dstw_propagation.ptx: {e}"))
     }
 
     impl CudaPropagationKernel {

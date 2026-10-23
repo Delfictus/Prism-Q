@@ -20,7 +20,7 @@
 //!
 //! Expected speedup: 2-4x over standard kernel
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
 #[cfg(feature = "gpu")]
@@ -335,45 +335,14 @@ impl UltimateEngine {
 
     /// Load the ultimate_md.ptx module
     fn load_ultimate_ptx(context: &Arc<CudaContext>) -> Result<(Arc<CudaModule>, String)> {
-        // Check env var first
-        if let Ok(env_dir) = std::env::var("PRISM4D_PTX_DIR") {
-            let ptx_path = std::path::PathBuf::from(&env_dir).join("ultimate_md.ptx");
-            let path_str = ptx_path.display().to_string();
-
-            if ptx_path.exists() {
-                let module = context
-                    .load_module(Ptx::from_file(&path_str))
-                    .with_context(|| format!("Failed to load ultimate_md.ptx from {}", path_str))?;
-                return Ok((module, path_str));
-            }
-        }
-
-        // Try fallback paths
-        let mut ptx_paths: Vec<std::path::PathBuf> = Vec::new();
-
-        if let Ok(exe_path) = std::env::current_exe() {
-            if let Some(exe_dir) = exe_path.parent() {
-                ptx_paths.push(exe_dir.join("../assets/ptx/ultimate_md.ptx"));
-                ptx_paths.push(exe_dir.join("assets/ptx/ultimate_md.ptx"));
-            }
-        }
-
-        ptx_paths.push(std::path::PathBuf::from("target/ptx/ultimate_md.ptx"));
-        ptx_paths.push(std::path::PathBuf::from("../../target/ptx/ultimate_md.ptx"));
-        ptx_paths.push(std::path::PathBuf::from(
-            "crates/prism-gpu/src/kernels/ultimate_md.ptx",
-        ));
-
-        for path in &ptx_paths {
-            let path_str = path.display().to_string();
-            if path.exists() {
-                if let Ok(module) = context.load_module(Ptx::from_file(&path_str)) {
-                    return Ok((module, path_str));
-                }
-            }
-        }
-
-        bail!("Failed to load ultimate_md.ptx from any location")
+        // P0.5 single PTX authority (no cwd-relative fallbacks).
+        let path = prism_gpu::ptx_authority::ptx_file("ultimate_md.ptx")
+            .map_err(|e| anyhow::anyhow!("ultimate_md.ptx: {e}"))?;
+        let path_str = path.display().to_string();
+        let module = context
+            .load_module(Ptx::from_file(&path_str))
+            .with_context(|| format!("failed to load {}", path_str))?;
+        Ok((module, path_str))
     }
 
     /// Upload topology data to GPU in SoA format

@@ -10,55 +10,23 @@ use anyhow::{Context, Result};
 use cudarc::driver::{
     CudaContext, CudaFunction, CudaModule, CudaSlice, CudaStream, DevicePtr, LaunchConfig, PushKernelArg,
 };
-use std::path::Path;
 use std::sync::Arc;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PTX file discovery
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Find a TWIN PTX file by name, searching standard paths.
+/// Path of a TWIN PTX file in the single PTX authority (P0.5).
+///
+/// Resolution is delegated to `prism_gpu::ptx_authority`: PRISM4D_PTX_DIR /
+/// PRISM_PTX_DIR (strict), else executable-relative `ptx/`, else this build's
+/// governed `OUT_DIR/ptx`. A file absent from the authority is an error; the
+/// former cwd-relative and `target/*/build/prism-gpu-*/out` glob probes, which
+/// could bind PTX from a different build, are gone.
 pub fn find_twin_ptx(name: &str) -> Result<String> {
-    // Check PRISM4D_PTX_DIR / PRISM_PTX_DIR first
-    for env_key in &["PRISM4D_PTX_DIR", "PRISM_PTX_DIR"] {
-        if let Ok(dir) = std::env::var(env_key) {
-            let p = std::path::PathBuf::from(&dir).join(name);
-            if p.exists() {
-                return Ok(p.display().to_string());
-            }
-        }
-    }
-    let candidates = [
-        format!("target/ptx/{}", name),
-        format!("../../target/ptx/{}", name),
-        format!(
-            "crates/prism-gpu/src/kernels/{}",
-            name.replace(".ptx", ".ptx")
-        ),
-    ];
-    // Also check OUT_DIR from build.rs
-    if let Ok(out_dir) = std::env::var("OUT_DIR") {
-        let path = format!("{}/ptx/{}", out_dir, name);
-        if Path::new(&path).exists() {
-            return Ok(path);
-        }
-    }
-    for c in &candidates {
-        if Path::new(c).exists() {
-            return Ok(c.clone());
-        }
-    }
-    // Search in build output directories (release first, then debug — covers both
-    // build profiles when running from a fresh clone where target/ptx/ doesn't exist)
-    for profile in &["release", "debug"] {
-        let build_glob = format!("target/{}/build/prism-gpu-*/out/ptx/{}", profile, name);
-        if let Ok(entries) = glob::glob(&build_glob) {
-            for entry in entries.flatten() {
-                return Ok(entry.to_string_lossy().to_string());
-            }
-        }
-    }
-    anyhow::bail!("TWIN PTX '{}' not found in any search path", name)
+    prism_gpu::ptx_authority::ptx_file(name)
+        .map(|path| path.display().to_string())
+        .map_err(|e| anyhow::anyhow!("TWIN PTX '{}': {}", name, e))
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

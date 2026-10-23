@@ -11,7 +11,22 @@ fn main() {
         return;
     }
 
-    let nvcc = find_nvcc().expect("nvcc not found");
+    // Release builds are pinned to PRISM_GPU_NVCC (P0.5; fail closed).
+    println!("cargo:rerun-if-env-changed=PRISM_GPU_NVCC");
+    let release = env::var("PROFILE").map(|p| p == "release").unwrap_or(false);
+    let nvcc = match env::var("PRISM_GPU_NVCC").ok().filter(|v| !v.trim().is_empty()) {
+        Some(raw) => {
+            let path = PathBuf::from(raw.trim());
+            if !path.is_absolute() || !path.is_file() {
+                panic!("PRISM_GPU_NVCC={raw} must be an absolute path to an existing nvcc");
+            }
+            raw.trim().to_string()
+        }
+        None if release => panic!(
+            "release build requires PRISM_GPU_NVCC=<absolute path to nvcc> (toolchain pin)"
+        ),
+        None => find_nvcc().expect("nvcc not found"),
+    };
     println!("cargo:info=Using nvcc: {}", nvcc);
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());

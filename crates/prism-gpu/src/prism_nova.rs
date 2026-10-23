@@ -228,8 +228,11 @@ impl PrismNova {
         );
 
         // Load PTX module
-        let ptx_path = "target/ptx/prism_nova.ptx";
-        let ptx = Ptx::from_file(ptx_path);
+        let ptx_path = crate::ptx_authority::ptx_file("prism_nova.ptx")
+            .map_err(|e| anyhow::anyhow!("prism_nova.ptx: {e}"))?
+            .to_string_lossy()
+            .into_owned();
+        let ptx = Ptx::from_file(&ptx_path);
         let module = context
             .load_module(ptx)
             .with_context(|| format!("Failed to load PRISM-NOVA PTX from {}", ptx_path))?;

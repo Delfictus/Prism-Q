@@ -194,34 +194,14 @@ impl GlobalGpuContext {
         })
     }
 
-    /// Find PTX directory from environment or defaults
+    /// PTX directory from the single PTX authority (P0.5): PRISM4D_PTX_DIR /
+    /// PRISM_PTX_DIR (strict; a missing configured directory is an error, not a
+    /// warning followed by cwd probing), else executable-relative ptx/, else
+    /// this build's governed OUT_DIR/ptx.
     fn find_ptx_dir() -> Result<PathBuf, GlobalGpuError> {
-        // Check PRISM_PTX_DIR environment variable
-        if let Ok(dir) = std::env::var("PRISM_PTX_DIR") {
-            let path = PathBuf::from(&dir);
-            if path.exists() {
-                return Ok(path);
-            }
-            log::warn!("PRISM_PTX_DIR='{}' does not exist, trying defaults", dir);
-        }
-
-        // Try common locations
-        let candidates = [
-            PathBuf::from("target/ptx"),
-            PathBuf::from("./target/ptx"),
-            PathBuf::from("kernels/ptx"),
-            PathBuf::from("../target/ptx"),
-        ];
-
-        for candidate in &candidates {
-            if candidate.exists() {
-                return Ok(candidate.clone());
-            }
-        }
-
-        Err(GlobalGpuError::PtxDirNotFound(
-            "No PTX directory found. Set PRISM_PTX_DIR or ensure target/ptx exists".to_string(),
-        ))
+        crate::ptx_authority::resolve()
+            .map(|authority| authority.dir.clone())
+            .map_err(|e| GlobalGpuError::PtxDirNotFound(e.to_string()))
     }
 
     /// Get reference to the underlying GPU context

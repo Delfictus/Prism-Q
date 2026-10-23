@@ -614,11 +614,15 @@ impl ActiveSensingEngine {
         );
 
         // Load PTX module
-        let ptx_path = "target/ptx/nhs_active_sensing_kernels.ptx";
+        // P0.5 single PTX authority (no cwd-relative path).
+        let ptx_path = prism_gpu::ptx_authority::ptx_file("nhs_active_sensing_kernels.ptx")
+            .map_err(|e| anyhow::anyhow!("nhs_active_sensing_kernels.ptx: {e}"))?
+            .display()
+            .to_string();
         log::info!("Loading active sensing PTX from: {}", ptx_path);
 
         let module = context
-            .load_module(Ptx::from_file(ptx_path))
+            .load_module(Ptx::from_file(&ptx_path))
             .context("Failed to load nhs_active_sensing_kernels.ptx")?;
 
         // Load all 11 kernel functions

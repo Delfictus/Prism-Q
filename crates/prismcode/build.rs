@@ -33,9 +33,31 @@ fn main() {
     if env::var_os("CXX").is_none() && PathBuf::from("/usr/bin/g++-12").exists() {
         env::set_var("CXX", "/usr/bin/g++-12");
     }
+    // Release builds are pinned to PRISM_GPU_NVCC (P0.5; fail closed). cc-rs
+    // would otherwise pick `nvcc` from PATH (or $NVCC).
+    println!("cargo:rerun-if-env-changed=PRISM_GPU_NVCC");
+    let release = env::var("PROFILE").map(|p| p == "release").unwrap_or(false);
+    let pinned_nvcc = env::var("PRISM_GPU_NVCC").ok().filter(|v| !v.trim().is_empty());
+    match pinned_nvcc.as_deref() {
+        Some(raw) => {
+            let path = PathBuf::from(raw.trim());
+            if !path.is_absolute() || !path.is_file() {
+                panic!("PRISM_GPU_NVCC={raw} must be an absolute path to an existing nvcc");
+            }
+        }
+        None if release => panic!(
+            "release build requires PRISM_GPU_NVCC=<absolute path to nvcc> (toolchain pin)"
+        ),
+        None => {}
+    }
     let cuda_root = PathBuf::from("../../cuda");
     let arch_spec = cuda_arch_spec();
     println!("cargo:rustc-env=PRISMCODE_CUDA_TARGET_ARCHES={arch_spec}");
+    if let Some(nvcc) = pinned_nvcc.as_deref() {
+        // cc-rs selects the CUDA compiler from $NVCC (keeping nvcc flag
+        // semantics); `Build::compiler` would misdetect it as a gcc-family tool.
+        env::set_var("NVCC", nvcc.trim());
+    }
     let mut build = cc::Build::new();
     build
         .cuda(true)

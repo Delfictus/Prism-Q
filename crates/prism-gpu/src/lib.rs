@@ -10,6 +10,7 @@ pub mod dendritic_reservoir;
 pub mod dendritic_snn;
 pub mod feature_merge;
 pub mod global_context;
+pub mod ptx_authority;
 pub mod lbs;
 pub mod mega_fused;
 pub mod mega_fused_batch;
