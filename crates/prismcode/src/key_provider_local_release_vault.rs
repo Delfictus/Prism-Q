@@ -604,7 +604,7 @@ fn read_or_create_unlock_secret() -> PcResult<Vec<u8>> {
         }
         return Ok(value);
     }
-    let path = default_unlock_secret_path();
+    let path = default_unlock_secret_path()?;
     if path.exists() {
         return Ok(fs::read(path)?);
     }
@@ -626,13 +626,20 @@ fn default_store_path() -> PathBuf {
         .unwrap_or_else(|| PathBuf::from("build/security/local_release_vault.store.json"))
 }
 
-fn default_unlock_secret_path() -> PathBuf {
-    let root = env::var("PRISM_BOUNDED_NAS")
-        .unwrap_or_else(|_| "/mnt/storage/NAS/Prism4D-Agents/prism-kt-superres-work".to_string());
-    PathBuf::from(root)
+/// The unlock secret lives under the bounded NAS work lane (`PRISM_BOUNDED_NAS`).
+/// There is no compiled-in host default; unset or relative fails closed so a
+/// secret is never created in an unintended location.
+fn default_unlock_secret_path() -> PcResult<PathBuf> {
+    let root = crate::host_roots::bounded_nas_work_root().ok_or_else(|| {
+        PcError::Security(
+            "PRISM_BOUNDED_NAS must name the absolute bounded NAS work root (or set PRISMCODE_RELEASE_VAULT_PASSPHRASE[_FILE])"
+                .to_string(),
+        )
+    })?;
+    Ok(root
         .join("prismcode_secret_store")
         .join("a2_vault")
-        .join("local_release_vault.unlock")
+        .join("local_release_vault.unlock"))
 }
 
 fn unlock_mode() -> String {

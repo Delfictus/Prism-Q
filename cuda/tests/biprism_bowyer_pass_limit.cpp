@@ -2,7 +2,7 @@
 // Build from roles/engine:
 //   g++ -std=c++17 -O2 -Icrates/prism-gpu/src/kernels \
 //     cuda/tests/biprism_bowyer_pass_limit.cpp -o /tmp/biprism_bowyer_pass_limit
-// Run with three exact retained files from /mnt/storage/BIPRISM_V10_RESOLUTION:
+// Run with three exact retained files from the BIPRISM v10 resolution root ($PRISM_BIPRISM_RESOLUTION_ROOT):
 //   /tmp/biprism_bowyer_pass_limit \
 //     failure_1_2_3_coupled_native_007_state.seed_tiles.bin \
 //     failure_1_2_3_coupled_native_007_state.cold.au_reference_high.bin \

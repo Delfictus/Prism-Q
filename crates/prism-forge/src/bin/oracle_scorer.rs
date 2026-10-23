@@ -70,14 +70,19 @@ impl Default for Config {
     }
 }
 
-fn default_scratch_root() -> PathBuf {
+/// Scratch root from `PRISM_SCRATCH_ROOT`. There is no compiled-in host
+/// default: when it is unset the default path is empty and `parse_args`
+/// requires an explicit `--batch` / `--rewards`.
+fn default_scratch_root() -> Option<PathBuf> {
     env::var_os("PRISM_SCRATCH_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("/mnt/storage/prism-scratch/Prism4D-bio"))
+        .filter(|root| root.is_absolute())
 }
 
 fn default_scratch_path(name: &str) -> PathBuf {
-    default_scratch_root().join("oracle_bridge").join(name)
+    default_scratch_root()
+        .map(|root| root.join("oracle_bridge").join(name))
+        .unwrap_or_default()
 }
 
 #[derive(Debug, Clone)]
@@ -478,6 +483,11 @@ fn parse_args() -> Result<Config> {
             }
             _ => return Err(anyhow!("unknown argument {arg}")),
         }
+    }
+    if config.batch.as_os_str().is_empty() || config.rewards.as_os_str().is_empty() {
+        return Err(anyhow!(
+            "--batch and --rewards are required when PRISM_SCRATCH_ROOT is unset (no compiled-in host default)"
+        ));
     }
     Ok(config)
 }

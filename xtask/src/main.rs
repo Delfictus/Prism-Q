@@ -49,8 +49,6 @@ const CSE_HD_AUDIT_NEGATIVE_PROOF_JSON: &str = "build/audit/cse_hd_audit_negativ
 const CSE_HD_ARTIFACT_HASH_LEDGER_JSON: &str = "build/audit/cse_hd_artifact_hash_ledger.json";
 const NAS_LANE_ISOLATION_REPORT_JSON: &str = "build/audit/nas_lane_isolation_report.json";
 const WARNING_CLASSIFICATION_REPORT_JSON: &str = "build/audit/warning_classification_report.json";
-const CSE_HD_CARGO_TARGET_LANE: &str =
-    "/mnt/storage/NAS/Prism4D-Agents/prism-kt-superres-work/cargo_target_prismcode_isa_ext4/a3_cse_hd";
 const BOUNDED_NAS_ROOTS: &[&str] = &["/mnt/storage/NAS", "/mnt/prism4d-nas"];
 const FILE_KEYRING_DEV_NOT_MARKET_READY: &str = "FILE_KEYRING_DEV_NOT_MARKET_READY";
 const OPENBAO_OR_VAULT_UNBOUND: &str = "OPENBAO_OR_VAULT_UNBOUND";
@@ -176,16 +174,41 @@ impl ReleaseMode {
     }
 }
 
+/// Bounded NAS work lane from `PRISM_BOUNDED_NAS`. There is no compiled-in
+/// host default: when it is unset or relative, xtask stops (fail closed).
+fn bounded_nas_work_root() -> PathBuf {
+    match env::var_os("PRISM_BOUNDED_NAS")
+        .map(PathBuf::from)
+        .filter(|root| root.is_absolute())
+    {
+        Some(root) => root,
+        None => {
+            eprintln!(
+                "xtask: PRISM_BOUNDED_NAS must name the absolute bounded NAS work root (no compiled-in host default)"
+            );
+            std::process::exit(2);
+        }
+    }
+}
+
+fn cse_hd_shared_base_target() -> PathBuf {
+    bounded_nas_work_root().join("cargo_target_prismcode_isa_ext4")
+}
+
+fn cse_hd_cargo_target_lane() -> PathBuf {
+    cse_hd_shared_base_target().join("a3_cse_hd")
+}
+
 fn cargo_target_dir() -> PathBuf {
     env::var_os("CARGO_TARGET_DIR")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(CSE_HD_CARGO_TARGET_LANE))
+        .unwrap_or_else(cse_hd_cargo_target_lane)
 }
 
 fn nas_tmp_dir() -> PathBuf {
-    env::var_os("TMPDIR").map(PathBuf::from).unwrap_or_else(|| {
-        PathBuf::from("/mnt/storage/NAS/Prism4D-Agents/prism-kt-superres-work/prismcode_tmp")
-    })
+    env::var_os("TMPDIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| bounded_nas_work_root().join("prismcode_tmp"))
 }
 
 fn release_version() -> String {
@@ -2515,7 +2538,7 @@ fn nas_lane_isolation_report() -> Result<Value> {
     let configured = cargo_target_dir();
     fs::create_dir_all(&configured)?;
     let resolved = fs::canonicalize(&configured).unwrap_or_else(|_| configured.clone());
-    let expected = PathBuf::from(CSE_HD_CARGO_TARGET_LANE);
+    let expected = cse_hd_cargo_target_lane();
     fs::create_dir_all(&expected)?;
     let expected_resolved = fs::canonicalize(&expected).unwrap_or(expected);
     let resolved_s = resolved.display().to_string();
@@ -2526,10 +2549,10 @@ fn nas_lane_isolation_report() -> Result<Value> {
         "status_schema_version": "PRISMCODE_NAS_LANE_ISOLATION_V0_1",
         "status": if lane_ok && json_str(&report, "/status") == Some("PASS") { "PASS" } else { "FAIL" },
         "lane_id": "a3_cse_hd",
-        "required_lane_target_dir": CSE_HD_CARGO_TARGET_LANE,
+        "required_lane_target_dir": cse_hd_cargo_target_lane().display().to_string(),
         "configured_cargo_target_dir": resolved_s,
         "lane_isolated": lane_ok,
-        "shared_base_target_forbidden": "/mnt/storage/NAS/Prism4D-Agents/prism-kt-superres-work/cargo_target_prismcode_isa_ext4",
+        "shared_base_target_forbidden": cse_hd_shared_base_target().display().to_string(),
         "path_report": report
     }))
 }
@@ -6085,9 +6108,7 @@ fn write_text<P: AsRef<Path>>(path: P, text: &str) -> Result<()> {
 }
 
 fn stage_bundle_root() -> Result<PathBuf> {
-    let bounded = env::var("PRISM_BOUNDED_NAS")
-        .unwrap_or_else(|_| "/mnt/storage/NAS/Prism4D-Agents/prism-kt-superres-work".to_string());
-    let nas_dist = PathBuf::from(bounded).join("prismcode_dist");
+    let nas_dist = bounded_nas_work_root().join("prismcode_dist");
     fs::create_dir_all(&nas_dist)?;
     let dist_link = Path::new("dist");
     if dist_link.exists() {
