@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=PrismOS
+GenericName=Scientific Operator Console
+Comment=PrismOS Beta2.0 evidence, state-graph, QNANL and diagnostics console
+Exec=prismos-ui
+TryExec=prismos-ui
+Icon=com.delfictus.PrismOS.Ui
+Terminal=false
+Categories=Science;
+Keywords=PRISM;PrismOS;QNANL;DSTW;evidence;tokenizer;diagnostics;
+StartupNotify=true
+StartupWMClass=com.delfictus.PrismOS.Ui

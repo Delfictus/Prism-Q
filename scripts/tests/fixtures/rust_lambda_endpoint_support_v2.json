@@ -1,0 +1,403 @@
+{
+  "atom_index_set_domain": "PRISM_LAMBDA_SLOT_ATOM_INDEX_SET_V1\\0",
+  "binding_domain": "PRISM_LAMBDA_ENDPOINT_SUPPORT_BINDING_V2\\0",
+  "binding_schema_kind": "prismos_lambda_endpoint_support_binding",
+  "binding_schema_version": 2,
+  "expected_binding_sha256": "c3ba3d3870e9feb2e870508ead3a3bdc45b67232734f7fd12eb4546d3fb9121f",
+  "lambda_fragment_system": {
+    "chemical_potentials": [],
+    "experiment_id": "rust-precalibration-fixture",
+    "molecules": [],
+    "ncmc": {
+      "forward_operations": [
+        {
+          "lambda_from": 0.0,
+          "lambda_to": 1.0,
+          "operation": "PERTURB"
+        },
+        {
+          "integration_steps": 1,
+          "lambda": 1.0,
+          "operation": "PROPAGATE"
+        }
+      ],
+      "forward_protocol_probability": 0.5,
+      "initial_endpoint_equilibrium_density_evaluated": true,
+      "integrator_path_probability_convention": "SHADOW_WORK_VOLUME_PRESERVING",
+      "integrator_splitting": "BAOAB",
+      "momentum_reversal_policy": "REVERSE_PATH_AND_REJECTION",
+      "proposed_endpoint_equilibrium_density_evaluated": true,
+      "reverse_operations": [
+        {
+          "integration_steps": 1,
+          "lambda": 1.0,
+          "operation": "PROPAGATE"
+        },
+        {
+          "lambda_from": 1.0,
+          "lambda_to": 0.0,
+          "operation": "PERTURB"
+        }
+      ],
+      "reverse_protocol_probability": 0.5,
+      "rng_algorithm": "PHILOX",
+      "schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a"
+    },
+    "periodic_box": {
+      "minimum_image_enabled": true,
+      "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "vectors_a": [
+        [
+          20.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          20.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          20.0
+        ]
+      ]
+    },
+    "pme": {
+      "boundary_condition": "ORTHORHOMBIC_TINFOIL_3D",
+      "ewald_alpha_a_inv": 0.36548257097169157,
+      "ewald_alpha_derivation": "sqrt(-ln(2*relative_force_tolerance))/real_space_cutoff_angstrom",
+      "independent_openmm_force_energy_validation_required": true,
+      "pme_grid_dimensions": [
+        50,
+        50,
+        50
+      ],
+      "pme_grid_dimensions_lower_bound": [
+        49,
+        49,
+        49
+      ],
+      "pme_grid_formula": "fixture-grid",
+      "pme_grid_rounding_policy": "PRISM_CUFFT_GOOD_SIZE_TABLE_V1_ROUND_UP_NO_DOWNROUND",
+      "pme_interpolation_order": 5,
+      "pme_parameterization_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "real_space_cutoff_angstrom": 9.0,
+      "reference_implementation": "OpenMM NonbondedForce PME",
+      "relative_force_tolerance": 0.00001,
+      "runtime_exact_parameter_lock_required": true
+    },
+    "schema_kind": "prismos_lambda_fragment_system",
+    "schema_version": 2,
+    "slots": [
+      {
+        "atom_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "chemical_state_id": 0,
+        "endpoint_a": {
+          "chemical_state_id": 0,
+          "occupancy": "EMPTY",
+          "species_id": 7
+        },
+        "endpoint_b": {
+          "chemical_state_id": 0,
+          "occupancy": "OCCUPIED",
+          "species_id": 7
+        },
+        "endpoint_occupancy": "EMPTY",
+        "lambda": 0.0,
+        "molecule_id": 1009,
+        "path_kind": "INSERT_DELETE",
+        "slot_id": 9,
+        "species_id": 7,
+        "state_transition_id": null
+      }
+    ],
+    "softcore": {
+      "alpha_coulomb_a2": 1.0,
+      "alpha_lj": 0.5,
+      "coupling_power": 1.0,
+      "cutoff_a": 10.0,
+      "formula": "PRISM_LAMBDA_SOFTCORE_LJ_COULOMB_V1",
+      "periodic_charge_convention": "NET_CHARGE_CHANGE_REQUIRES_COUPLED_NEUTRALIZATION_OR_BOX_PME_FINITE_SIZE_CORRECTION_V1",
+      "softcore_power": 2.0
+    },
+    "species": [
+      {
+        "canonical_isomeric_smiles": "C",
+        "chemical_states": [
+          {
+            "atom_mapping": [
+              {
+                "atom_map_number": 1,
+                "atomic_number": 6,
+                "element": "C",
+                "template_atom_id": 1
+              },
+              {
+                "atom_map_number": 2,
+                "atomic_number": 6,
+                "element": "C",
+                "template_atom_id": 2
+              },
+              {
+                "atom_map_number": 3,
+                "atomic_number": 6,
+                "element": "C",
+                "template_atom_id": 3
+              },
+              {
+                "atom_map_number": 4,
+                "atomic_number": 1,
+                "element": "H",
+                "template_atom_id": 4
+              }
+            ],
+            "atom_parameters": [
+              {
+                "charge_e": 0.0,
+                "endpoint_present": true,
+                "epsilon_kcal_mol": 0.1,
+                "sigma_a": 3.2,
+                "template_atom_id": 1
+              },
+              {
+                "charge_e": 0.0,
+                "endpoint_present": true,
+                "epsilon_kcal_mol": 0.1,
+                "sigma_a": 3.2,
+                "template_atom_id": 2
+              },
+              {
+                "charge_e": 0.0,
+                "endpoint_present": true,
+                "epsilon_kcal_mol": 0.1,
+                "sigma_a": 3.2,
+                "template_atom_id": 3
+              },
+              {
+                "charge_e": 0.0,
+                "endpoint_present": true,
+                "epsilon_kcal_mol": 0.02,
+                "sigma_a": 1.0,
+                "template_atom_id": 4
+              }
+            ],
+            "bonded_parameter_plane": {
+              "angles": [
+                {
+                  "angle_rad": 1.91,
+                  "force_constant_kcal_mol_rad2": 38.0,
+                  "template_atom_i": 1,
+                  "template_atom_j": 2,
+                  "template_atom_k": 3
+                }
+              ],
+              "bonds": [
+                {
+                  "force_constant_kcal_mol_a2": 110.0,
+                  "length_a": 1.42,
+                  "template_atom_i": 1,
+                  "template_atom_j": 2
+                }
+              ],
+              "constraints": [],
+              "formula": "PRISM_ENDPOINT_BONDED_AMBER_V1",
+              "proper_and_improper_torsions": [
+                {
+                  "barrier_kcal_mol": 1.7,
+                  "improper": false,
+                  "periodicity": 2,
+                  "phase_rad": 0.37,
+                  "template_atom_i": 1,
+                  "template_atom_j": 2,
+                  "template_atom_k": 3,
+                  "template_atom_l": 4
+                }
+              ]
+            },
+            "bonded_parameter_plane_sha256": "24e97e1e0201785532fd90815cbe1e5449ca3ab464cbab30c83181203a280ff0",
+            "exact_exception_parameters": [],
+            "formal_charge_e": 0,
+            "intramolecular_parameter_set_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "intramolecular_parameters_invariant": false,
+            "intrinsic_free_energy_kcal_mol": 0.0,
+            "parameter_digest_sha256": "1a9b2163853df8048f4198e4055cccdad9939b1ee847ac1758339e80a0589d5f",
+            "proton_count": 0,
+            "protonation_id": "prot-0",
+            "reference_conformer_positions_a": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.4,
+                0.1,
+                0.0
+              ],
+              [
+                2.2,
+                1.2,
+                0.2
+              ],
+              [
+                3.0,
+                1.1,
+                1.3
+              ]
+            ],
+            "state_canonical_isomeric_smiles": "state-0",
+            "state_explicit_h_mapped_smiles": "[C:1][C:2][N:3][H:4]-0",
+            "state_id": 0,
+            "state_inchikey_fixed_h": "FIXEDH-STATE-0",
+            "tautomer_id": "tautomer-0"
+          }
+        ],
+        "inchikey": "VNWKTOKETHGBQD-UHFFFAOYSA-N",
+        "name": "rust-neutral-fragment",
+        "parameter_template_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "species_id": 7,
+        "state_transitions": []
+      }
+    ],
+    "water": {
+      "hoh_angle_rad": 1.824218134,
+      "model": "TIP3P-FB",
+      "oh_distance_a": 0.9572,
+      "parameterization_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "settle_positions_enabled": true,
+      "settle_velocities_enabled": true
+    }
+  },
+  "ncmc_proposal_scheduler": {
+    "admitted_slot_ids": [
+      9
+    ],
+    "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+    "contract_sha256": "63c95a5d50a71c05104aa2a10ee11aaf32bd2a192ea033aa86f33bd1883aee8a",
+    "equilibrated_after_step": 18,
+    "first_move_step": 18,
+    "forward_proposal_density_formula": "q_fwd=move*selection*placement*orientation",
+    "maximum_move_count": 1,
+    "minimum_decorrelation_steps": 10,
+    "move_interval_steps": 10,
+    "ncmc_protocol_schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a",
+    "placement_measure": {
+      "coordinate_ensemble_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "measure": "PERSISTENT_DECOUPLED_COORDINATE_ENSEMBLE",
+      "mixing_evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "orientation_density_formula": "q_decoupled(R|slot,epoch)",
+      "placement_density_formula": "q_decoupled(x|slot,epoch)"
+    },
+    "proposal_supports": [
+      {
+        "balance_template": {
+          "accessible_volume_a3": 8000.0,
+          "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+          "forward_orientation_density": 0.07957747154594767,
+          "forward_placement_density_a3_inv": 0.000125,
+          "initial_bias_weight": 1.0,
+          "ph": 7.0,
+          "proposed_bias_weight": 1.0,
+          "reverse_orientation_density": 0.07957747154594767,
+          "reverse_placement_density_a3_inv": 0.000125,
+          "temperature_k": 300.0
+        },
+        "base_weight": 1.0,
+        "coupled_charge_partner": null,
+        "initial": {
+          "chemical_state_id": 0,
+          "occupancy": "EMPTY",
+          "species_id": 7
+        },
+        "move_kind": "INSERTION",
+        "periodic_charge_treatment": {
+          "kind": "NET_CHARGE_INVARIANT",
+          "subject_charge_change_e": 0
+        },
+        "proposed": {
+          "chemical_state_id": 0,
+          "occupancy": "OCCUPIED",
+          "species_id": 7
+        },
+        "reverse_support_id": "slot9-occupied-to-empty",
+        "slot_id": 9,
+        "support_id": "slot9-empty-to-occupied"
+      },
+      {
+        "balance_template": {
+          "accessible_volume_a3": 8000.0,
+          "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+          "forward_orientation_density": 0.07957747154594767,
+          "forward_placement_density_a3_inv": 0.000125,
+          "initial_bias_weight": 1.0,
+          "ph": 7.0,
+          "proposed_bias_weight": 1.0,
+          "reverse_orientation_density": 0.07957747154594767,
+          "reverse_placement_density_a3_inv": 0.000125,
+          "temperature_k": 300.0
+        },
+        "base_weight": 1.0,
+        "coupled_charge_partner": null,
+        "initial": {
+          "chemical_state_id": 0,
+          "occupancy": "OCCUPIED",
+          "species_id": 7
+        },
+        "move_kind": "DELETION",
+        "periodic_charge_treatment": {
+          "kind": "NET_CHARGE_INVARIANT",
+          "subject_charge_change_e": 0
+        },
+        "proposed": {
+          "chemical_state_id": 0,
+          "occupancy": "EMPTY",
+          "species_id": 7
+        },
+        "reverse_support_id": "slot9-empty-to-occupied",
+        "slot_id": 9,
+        "support_id": "slot9-occupied-to-empty"
+      }
+    ],
+    "reverse_proposal_density_formula": "q_rev=move*selection*placement*orientation",
+    "rng_algorithm": "SPLITMIX64_COUNTER_V1",
+    "rng_counter_layout": {
+      "acceptance_counter_offset": "41",
+      "counters_per_opportunity": "42",
+      "momentum_counter_count": "16",
+      "momentum_counter_start_offset": "9",
+      "orientation_counter_count": "4",
+      "orientation_counter_start_offset": "5",
+      "placement_counter_count": "4",
+      "placement_counter_start_offset": "1",
+      "selection_counter_offset": "0",
+      "thermostat_counter_count": "16",
+      "thermostat_counter_start_offset": "25"
+    },
+    "rng_counter_start": "8",
+    "rng_domain": "test.lambda.ncmc",
+    "rng_key": 7,
+    "scheduled_opportunities": [
+      {
+        "allowed_support_ids": [
+          "slot9-empty-to-occupied",
+          "slot9-occupied-to-empty"
+        ],
+        "move_ordinal": 0,
+        "rng_counter_base": "8",
+        "step": 18
+      }
+    ],
+    "scheduler_id": "test-state-conditioned-v3",
+    "schema_kind": "prismos_ncmc_proposal_scheduler_contract",
+    "schema_version": 3
+  },
+  "schema_kind": "prismos_lambda_endpoint_support_cross_language_fixture",
+  "schema_version": 1
+}

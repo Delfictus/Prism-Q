@@ -1,0 +1,158 @@
+# Prism-Q public repo ignore rules (engine-only).
+# Policy: source, specs, schemas, small fixtures and docs are committed.
+# Build outputs, vendored crates, generated GPU code, run outputs, large data,
+# dumps, secrets and editor/OS files are never committed. Hashes of anything
+# excluded that a build or receipt depends on live in manifests/.
+
+# ---- Rust / Cargo build outputs ----
+/target/
+**/target/
+**/*.rs.bk
+xtask/target/
+
+# ---- Vendored dependencies (published separately as a hashed tarball) ----
+/vendor/
+**/vendor/crates-io/
+
+# ---- Generated GPU code (rebuilt from .cu/.cuh by build.rs) ----
+*.ptx
+*.cubin
+*.fatbin
+*.optixir
+*.sass
+*.nvvm
+*.ii
+*.module_id
+
+# ---- Native build objects and prebuilt libraries (source is committed; hashes in manifests/) ----
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+.archive/crates/sdst/build/
+BUILD_INPUTS/sdst/lib/
+
+# ---- Archives and backups of source trees ----
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.zst
+*.7z
+*.bak
+*.bak.*
+*.orig
+*.rej
+*.pre_*
+*~
+
+# ---- Run outputs and evidence (Chronicle, Path B, DSTW live outside the repo) ----
+out/
+outputs/
+runs/
+results/
+PRISM_RUNS/
+chronicle/
+*.chronicle
+frames.bin
+*.dcd
+*.xtc
+*.trr
+*.nc
+*.h5
+*.hdf5
+
+# ---- Large data / evidence formats (hash in manifests/, never committed) ----
+*.arrow
+*.feather
+*.parquet
+*.npz
+*.npy
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.gguf
+*.zst
+*.qnanl
+*.prsqnb
+# small committed fixtures and build-embedded assets are allow-listed explicitly:
+!cuda/tests/fixtures/*.bin
+!crates/prism-nhs/assets/*.bin
+
+# ---- Profiler reports, core dumps, traces ----
+*.nsys-rep
+*.ncu-rep
+*.qdrep
+*.sqlite
+core
+core.*
+vgcore.*
+*.core
+*_core_dump.*
+mcp_core_dump.*
+renderer_core_dump.*
+codex_memory_dump.*
+*_trace*.json
+*.trace
+perf.data*
+*.log
+
+# ---- Python caches / envs ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
+
+# ---- Secrets and credentials (never committed) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.kdbx
+id_rsa*
+id_ed25519*
+auth.json
+credentials*
+*.credentials
+secrets.*
+*secret*.json
+*.token
+cookies*
+.netrc
+.npmrc
+.pypirc
+codex-home/
+rclone.conf
+.git-credentials
+
+# ---- Editor / OS / agent tool state ----
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.serena/
+.claude/settings.local.json
+.direnv/
+
+# ---- Generated build manifests (written by xtask) ----
+crates/prismcode/build/
+
+# ---- Workstation-only reference-check defaults (host paths); never published ----
+scripts/physics_refs/_site.py

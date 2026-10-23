@@ -1,0 +1,1082 @@
+{
+  "G_CANDIDATE_PRESERVATION": {
+    "equal": [
+      [
+        "complete_candidate_count",
+        "retained_candidate_count"
+      ]
+    ],
+    "positive": [
+      "complete_candidate_count"
+    ],
+    "sha256": [
+      "complete_population_authority_sha256",
+      "preserved_population_authority_sha256"
+    ],
+    "sha256_equal": [
+      [
+        "complete_population_authority_sha256",
+        "preserved_population_authority_sha256"
+      ]
+    ],
+    "sum_equal": [
+      [
+        "complete_candidate_count",
+        [
+          "recurrent_candidate_count",
+          "ambiguous_candidate_count",
+          "unmatched_candidate_count",
+          "singleton_candidate_count",
+          "zero_detection_candidate_count",
+          "not_evaluable_candidate_count"
+        ]
+      ]
+    ],
+    "truthy": [
+      "complete_noneligible_population_preserved",
+      "not_evaluable_no_promotion_pass",
+      "unassigned_fragment_ledger_pass",
+      "pareto_determinism_pass",
+      "append_only_hash_chain_pass",
+      "supersession_pass",
+      "correspondence_identity_pass"
+    ],
+    "zero": [
+      "deleted_candidate_count",
+      "unprovenance_candidate_count",
+      "silent_unassigned_fragment_drop_count",
+      "claim_ineligible_evidence_loss_count"
+    ]
+  },
+  "G_CANONICAL_ENGINE": {
+    "truthy": [
+      "single_successor_hash_pass",
+      "real_preflight_pass",
+      "source_snapshot_self_verification_pass",
+      "live_source_snapshot_equality_pass",
+      "source_snapshot_manifest_hash_bound"
+    ],
+    "values": {
+      "canonical_gate_count": 10,
+      "canonical_gate_pass_count": 10
+    },
+    "zero": [
+      "canonical_gate_fail_count",
+      "engine_hash_mismatch_count"
+    ]
+  },
+  "G_CROSS_RUN_MATCHED_AGGREGATION": {
+    "equal": [
+      [
+        "pair_scoped_aggregation_count",
+        "native_aggregation_manifest_count",
+        "native_aggregation_receipt_count",
+        "native_aggregation_result_count"
+      ],
+      [
+        "classification_input_candidate_count",
+        "classified_candidate_count"
+      ],
+      [
+        "confirmation_handoff_input_count",
+        "operator_selection_authority_input_count",
+        "selected_candidate_authority_input_count"
+      ]
+    ],
+    "finite": [
+      "no_probe_detection_limit",
+      "orthogonal_detection_limit",
+      "hypothesis_effect_size",
+      "control_adjusted_effect_size",
+      "classification_uncertainty",
+      "created_estimand",
+      "stabilized_estimand",
+      "pre_existing_estimand"
+    ],
+    "minimum": {
+      "matched_seed_count": 5
+    },
+    "nonnegative": [
+      "no_probe_detection_limit",
+      "orthogonal_detection_limit",
+      "classification_uncertainty"
+    ],
+    "positive": [
+      "native_aggregation_manifest_count",
+      "native_aggregation_receipt_count",
+      "native_aggregation_result_count",
+      "no_probe_exposure",
+      "hypothesis_exposure",
+      "orthogonal_exposure",
+      "classification_input_candidate_count"
+    ],
+    "sha256": [
+      "exposure_authority_sha256",
+      "detection_limit_authority_sha256",
+      "effect_estimand_authority_sha256",
+      "uncertainty_authority_sha256",
+      "classification_authority_sha256",
+      "confirmation_handoff_sha256",
+      "operator_selection_authority_sha256",
+      "selected_candidate_authority_bytes_sha256",
+      "tracker_v2_sha256",
+      "disjoint_seed_authority_sha256"
+    ],
+    "sum_equal": [
+      [
+        "classified_candidate_count",
+        [
+          "created_candidate_count",
+          "stabilized_candidate_count",
+          "pre_existing_candidate_count",
+          "inconclusive_candidate_count"
+        ]
+      ]
+    ],
+    "truthy": [
+      "immutable_per_run_evidence_pass",
+      "content_addressed_manifest_pass",
+      "common_physical_state_digest_pass",
+      "distinct_chemical_condition_identity_pass",
+      "native_aggregator_executable_hash_bound",
+      "transaction_verified_lane_input_pass",
+      "pair_scoped_fiber_materialization_pass",
+      "append_only_registry_receipt_pass",
+      "no_probe_detection_limit_pass",
+      "orthogonal_selectivity_pass",
+      "confirmation_handoff_v1_input_pass",
+      "selected_candidate_authority_byte_identity_pass",
+      "selection_conservation_pass",
+      "discovery_influence_zero_revalidated"
+    ],
+    "values": {
+      "confirmation_handoff_input_count": 1,
+      "confirmation_handoff_schema_version": 1,
+      "lane_identity_count": 3,
+      "operator_selection_authority_input_count": 1,
+      "pair_scoped_aggregation_count": 6,
+      "selected_candidate_authority_input_count": 1
+    },
+    "zero": [
+      "duplicate_lane_run_count",
+      "mixed_lane_stream_count",
+      "unmatched_seed_count",
+      "cross_site_aggregation_count",
+      "cross_pair_aggregation_count",
+      "aggregator_substitution_count",
+      "legacy_binding_site_json_input_count",
+      "unverified_lane_transaction_input_count",
+      "confirmation_handoff_candidate_mismatch_count",
+      "confirmation_handoff_authority_mismatch_count",
+      "confirmation_handoff_seed_mismatch_count",
+      "selection_population_loss_count"
+    ]
+  },
+  "G_ENSEMBLE_BALANCE": {
+    "equal": [
+      [
+        "force_boundary_produced_count",
+        "force_boundary_persisted_count",
+        "force_boundary_decoded_count",
+        "force_boundary_indexed_count"
+      ]
+    ],
+    "le_pairs": [
+      [
+        "maximum_forward_reverse_residual",
+        "forward_reverse_tolerance"
+      ]
+    ],
+    "minimum": {
+      "force_boundary_produced_count": 1,
+      "independent_seed_count": 5,
+      "move_class_count": 5,
+      "valid_resolution_batch_commit_count": 1
+    },
+    "truthy": [
+      "canonical_u128_decimal_string_abi_pass",
+      "numeric_u128_rejected",
+      "cross_language_scheduler_digest_pass",
+      "forward_reverse_schedule_bound",
+      "proposal_scheduler_content_addressed",
+      "proposal_cadence_bound",
+      "current_state_conditioned_support_pass",
+      "move_slot_species_state_probabilities_bound",
+      "placement_orientation_measure_bound",
+      "reverse_support_verified",
+      "selected_support_identity_bound",
+      "bias_epoch_bound",
+      "rng_domain_and_counter_allocation_bound",
+      "rng_subdomain_disjointness_pass",
+      "rng_subrange_disposition_bound",
+      "rng_disposition_matches_physical_operations",
+      "gamma_zero_thermostat_rng_forbidden",
+      "raw_forward_reverse_proposal_context_pass",
+      "proposal_measure_contract_pass",
+      "derived_proposal_ratio_recomputed_pass",
+      "calibration_join_exact_pass",
+      "precalibration_work_beta_mu_zero_pass",
+      "production_missing_mu_rejected",
+      "runtime_ncmc_callsite_pass",
+      "scheduled_opportunity_receipt_conservation_pass",
+      "resident_ncmc_graph_pass",
+      "ncmc_internal_window_namespace_separate",
+      "ncmc_graph_kernel_schedule_hash_bound",
+      "ncmc_mutable_allocation_digest_bound",
+      "conditional_path_ratio_accounted",
+      "integrator_path_accounting_mechanically_true",
+      "realized_rng_or_shadow_work_trace_bound",
+      "protocol_and_shadow_work_accounted",
+      "jacobian_accounted",
+      "momentum_convention_bound",
+      "rejection_momentum_policy_exact_pass",
+      "atomic_subject_partner_transaction_pass",
+      "ncmc_resolution_atomic_exactly_once_pass",
+      "ncmc_guard_entry_fail_atomic_pass",
+      "endpoint_charge_lambda_restore_pass",
+      "physical_phase_space_rng_and_work_restore_pass",
+      "proposal_accept_rng_monotonic_nonreuse_pass",
+      "force_boundary_schema_v2_pass",
+      "force_boundary_full_multiplicity_key_pass",
+      "force_boundary_lossless_conservation_pass",
+      "atomic_resolution_loader_authorization_pass",
+      "resolution_members_exactly_one_valid_batch_pass",
+      "incomplete_resolution_stages_ignored",
+      "committed_missing_or_invalid_manifest_rejected",
+      "insertion_deletion_pass",
+      "identity_pass",
+      "tautomer_pass",
+      "protonation_pass",
+      "rollback_pass",
+      "charge_treatment_pass"
+    ],
+    "values": {
+      "ncmc_receipt_schema_version": 6
+    },
+    "zero": [
+      "lossy_v2_production_receipt_count",
+      "lossy_pre_v6_production_receipt_count",
+      "noncanonical_u128_counter_count",
+      "numeric_u128_counter_count",
+      "proposal_context_reconstruction_count",
+      "scheduled_opportunity_receipt_mismatch_count",
+      "legacy_ncmc_graph_dispatch_count",
+      "partial_transaction_restore_count",
+      "partial_resolution_chain_count",
+      "fake_rng_draw_consumption_count",
+      "proposal_accept_rng_reuse_count",
+      "force_boundary_duplicate_key_loss_count",
+      "force_boundary_unkeyed_record_count",
+      "incomplete_resolution_stage_authorized_count",
+      "invalid_committed_resolution_manifest_accepted_count",
+      "resolution_member_multi_batch_count",
+      "orphan_resolution_event_count"
+    ]
+  },
+  "G_EXACT_COORDINATE_COVERAGE": {
+    "equal": [
+      [
+        "inference_node_count",
+        "exact_same_stream_step_coordinate_count"
+      ]
+    ],
+    "positive": [
+      "inference_node_count"
+    ],
+    "zero": [
+      "nearest_frame_interpolation_count",
+      "uncovered_inference_node_count",
+      "atom_mapping_mismatch_count"
+    ]
+  },
+  "G_FIBER": {
+    "equal": [
+      [
+        "expected_fiber_count",
+        "materialized_fiber_count",
+        "decoded_fiber_count"
+      ]
+    ],
+    "positive": [
+      "expected_fiber_count"
+    ],
+    "truthy": [
+      "all_required_dimensions_present",
+      "byte_lineage_pass",
+      "content_hash_pass"
+    ],
+    "zero": [
+      "unmatched_join_count",
+      "partial_lambda_claim_fiber_count"
+    ]
+  },
+  "G_FULL_BENCHMARK": {
+    "positive": [
+      "full_benchmark_lane_count",
+      "mycmax_matched_lane_run_count"
+    ],
+    "truthy": [
+      "full_benchmark_terminal_pass",
+      "mycmax_terminal_pass"
+    ],
+    "zero": [
+      "substituted_run_count",
+      "terminal_failure_count"
+    ]
+  },
+  "G_GHOST_CONSERVATION": {
+    "equal": [
+      [
+        "produced",
+        "persisted",
+        "decoded",
+        "lattice_nodes"
+      ]
+    ],
+    "positive": [
+      "produced"
+    ],
+    "truthy": [
+      "byte_lineage_exact",
+      "per_stream_conservation_pass",
+      "versioned_membership_payload_pass"
+    ],
+    "zero": [
+      "membership_truncation_count",
+      "duplicate_count",
+      "gap_count",
+      "overflow_loss_count"
+    ]
+  },
+  "G_GHOST_SEGMENT": {
+    "minimum": {
+      "segment_count": 2
+    },
+    "truthy": [
+      "forced_rollover_pass",
+      "restart_pass",
+      "partial_write_rejected",
+      "corruption_rejected",
+      "duplicate_rejected",
+      "gap_rejected",
+      "fsync_pass",
+      "manifest_pass",
+      "reconstruction_pass"
+    ]
+  },
+  "G_GRADIENT": {
+    "le_pairs": [
+      [
+        "maximum_force_error",
+        "force_tolerance"
+      ],
+      [
+        "maximum_dudlambda_error",
+        "dudlambda_tolerance"
+      ],
+      [
+        "maximum_energy_error",
+        "energy_tolerance"
+      ]
+    ],
+    "truthy": [
+      "cpu_double_precision_reference_pass",
+      "cuda_force_gradient_pass",
+      "cuda_dudlambda_gradient_pass"
+    ]
+  },
+  "G_GRAPH_RESIDENT": {
+    "positive": [
+      "governed_stream_count",
+      "counted_window_count",
+      "resident_dispatch_count"
+    ],
+    "truthy": [
+      "all_counted_windows_resident",
+      "exact_tail_valid",
+      "required_collapse_valid"
+    ],
+    "zero": [
+      "legacy_graph_replay_dispatch_count",
+      "window_gap_count",
+      "window_overlap_count"
+    ]
+  },
+  "G_HAMILTONIAN": {
+    "finite": [
+      "potential_energy",
+      "maximum_force_component",
+      "dudlambda"
+    ],
+    "truthy": [
+      "single_machine_readable_surface",
+      "endpoint_union_interaction_membership_pass",
+      "path_typed_endpoint_union_membership_pass",
+      "canonical_torsion_membership_key_pass",
+      "multi_term_torsion_parity_pass",
+      "endpoint_a_equivalence_pass",
+      "endpoint_b_equivalence_pass",
+      "dynamic_endpoint_parameters_pass",
+      "endpoint_lj_planes_pass",
+      "endpoint_bond_angle_torsion_planes_pass",
+      "endpoint_exact_exception_planes_pass",
+      "cross_slot_exact_exception_rejection_pass",
+      "excluded_pair_periodic_composition_pass",
+      "scaled_14_periodic_composition_pass",
+      "dual_endpoint_cuda_closure_pass",
+      "real_reciprocal_self_background_exception_closure",
+      "pme_parameter_hash_lock_pass",
+      "charged_path_treatment_pass"
+    ]
+  },
+  "G_MATCHED_CONTROLS": {
+    "equal": [
+      [
+        "run_unit_count",
+        "runtime_admission_count",
+        "launch_argv_count",
+        "native_pathb_request_count",
+        "lane_transaction_terminal_count"
+      ]
+    ],
+    "minimum": {
+      "independent_seed_count_per_lane": 5,
+      "lane_count": 3,
+      "requested_stream_count": 2
+    },
+    "positive": [
+      "run_unit_count",
+      "runtime_admission_count",
+      "launch_argv_count",
+      "native_pathb_request_count",
+      "lane_transaction_terminal_count"
+    ],
+    "truthy": [
+      "runtime_admission_loader_compatibility_pass",
+      "python_rust_matched_initialization_v3_roundtrip_pass",
+      "stale_matched_initialization_v1_rejected",
+      "stale_matched_initialization_v2_rejected",
+      "matched_environment_f64_checkpoint_to_f32_projection_pass",
+      "matched_fragment_suffix_f64_checkpoint_to_f32_projection_pass",
+      "matched_periodic_cell_rne_f32_cross_language_digest_pass",
+      "npt_population_seed_frozen_authority_binding_pass",
+      "runtime_replica_seed_equals_frozen_checkpoint_seed",
+      "calibrated_target_topology_materialization_pass",
+      "calibrated_target_precursor_immutable_projection_pass",
+      "calibrated_target_live_source_reconstruction_pass",
+      "calibrated_target_largest_cell_calibration_join_pass",
+      "calibrated_target_native_mu_finite_seed_digest_pass",
+      "calibrated_target_receipt_population_complete",
+      "calibrated_target_topology_index_rebuild_pass",
+      "target_protocol_authority_population_hash_bound",
+      "target_protocol_authority_keyed_join_pass",
+      "target_package_calibrated_topology_lifecycle_pass",
+      "placement_source_branch_digest_bound",
+      "placement_ncmc_projection_digest_bound",
+      "placement_full_authority_digest_bound",
+      "placement_three_digest_identity_separation_pass",
+      "scheduler_placement_projection_recomputed_pass",
+      "calibration_placement_lifecycle_admission_pass",
+      "target_placement_lifecycle_admission_pass",
+      "placement_promotion_receipt_roundtrip_pass",
+      "native_precursor_placement_reconstruction_pass",
+      "placement_promotion_evidence_semantic_binding_pass",
+      "cross_cell_unlock_runtime_binding_pass",
+      "panel_scientific_identity_distinct_from_lane_pass",
+      "topology_index_v2_cartesian_closure_pass",
+      "per_seed_checkpoint_topology_binding_pass",
+      "fragment_coordinate_branch_authority_pass",
+      "decoupled_coordinate_mixing_pass",
+      "placement_measure_normalization_pass",
+      "fragment_suffix_f64_f32_projection_pass",
+      "exact_non_shell_argv_pass",
+      "ncmc_rescue_and_steering_disabled",
+      "unique_output_root_per_run_unit_pass",
+      "native_pathb_request_per_run_unit_pass",
+      "explicit_ghost_phase_lattice_backend_pass",
+      "uninterrupted_exact_step_schedule_pass",
+      "within_run_streams_correlated_not_independent_pass",
+      "native_lane_transaction_terminal_pass",
+      "hypothesis_lane_pass",
+      "orthogonal_lane_pass",
+      "molecular_covariate_balance_ledger_pass",
+      "common_estimand_pass",
+      "endpoint_only_claim_pass"
+    ],
+    "values": {
+      "calibrated_fragment_target_topology_count": 60,
+      "calibrated_target_topology_materialization_schema_version": 1,
+      "calibrated_target_topology_receipt_schema_version": 1,
+      "lane_transaction_terminal_count": 65,
+      "launch_argv_count": 65,
+      "matched_velocity_initialization_schema_version": 3,
+      "native_pathb_request_count": 65,
+      "native_pathb_request_schema_version": "6.0.0",
+      "no_probe_target_topology_count": 5,
+      "placement_measure_authority_schema_version": 1,
+      "placement_promotion_receipt_schema_version": 1,
+      "run_unit_count": 65,
+      "runtime_admission_count": 65,
+      "runtime_materialization_authority_schema_version": 5,
+      "seed_specific_target_topology_count": 65,
+      "target_protocol_authority_population_count": 60
+    },
+    "zero": [
+      "no_probe_physical_probe_count",
+      "no_probe_virtual_probe_count",
+      "no_probe_lambda_event_count",
+      "shared_topology_across_seed_count",
+      "frozen_checkpoint_seed_mismatch_count",
+      "insufficient_decoupled_mixing_member_count",
+      "fragment_suffix_projection_mismatch_count",
+      "placement_support_normalization_failure_count",
+      "pre_v3_matched_initialization_admitted_count",
+      "matched_frozen_checkpoint_replica_seed_mismatch_count",
+      "placement_digest_alias_count",
+      "placement_scheduler_projection_mismatch_count",
+      "calibration_lane_placement_rejection_count",
+      "target_lane_precalibration_placement_admission_count",
+      "precalibration_topology_target_admission_count",
+      "calibrated_target_precursor_mutation_count",
+      "calibrated_target_live_source_reconstruction_mismatch_count",
+      "calibrated_target_receipt_or_content_address_mismatch_count",
+      "calibrated_target_largest_cell_calibration_join_mismatch_count",
+      "calibrated_target_index_population_mismatch_count",
+      "target_protocol_authority_member_mismatch_count",
+      "target_protocol_authority_duplicate_or_missing_count",
+      "matched_periodic_cell_projection_mismatch_count",
+      "precursor_placement_sha_reused_as_promoted_count",
+      "placement_promotion_mismatch_count",
+      "circular_placement_promotion_reference_count",
+      "panel_lane_identity_alias_count",
+      "cross_cell_runtime_binding_mismatch_count",
+      "wall_clock_or_early_exit_token_count",
+      "adaptive_schedule_token_count",
+      "within_run_stream_independent_replica_claim_count",
+      "native_pathb_request_mismatch_count",
+      "lane_transaction_terminal_mismatch_count"
+    ]
+  },
+  "G_NATIVE_LATTICE_PATHB": {
+    "equal": [
+      [
+        "accepted_edge_count",
+        "edge_produced_count",
+        "edge_persisted_count",
+        "edge_decoded_count",
+        "edge_indexed_count"
+      ],
+      [
+        "surveillance_scheduled_row_count",
+        "surveillance_persisted_row_count",
+        "surveillance_decoded_row_count",
+        "surveillance_indexed_row_count"
+      ],
+      [
+        "scheduled_structural_evaluable_row_count",
+        "scheduled_state_assignment_count",
+        "time_at_risk_denominator_row_count",
+        "physical_cavity_expected_row_count",
+        "physical_cavity_evaluated_row_count",
+        "body_fixed_coordinate_row_count"
+      ],
+      [
+        "loso_expected_fold_count",
+        "loso_evaluated_fold_count",
+        "loso_passed_fold_count"
+      ],
+      [
+        "discovery_candidate_population_count",
+        "discovery_preserved_candidate_count",
+        "discovery_transaction_candidate_population_count",
+        "confirmation_handoff_discovery_population_count"
+      ],
+      [
+        "no_emission_structural_state_count",
+        "no_emission_time_at_risk_count"
+      ],
+      [
+        "confirmation_handoff_selected_candidate_count",
+        "operator_selection_selected_candidate_count",
+        "selected_candidate_authority_count"
+      ]
+    ],
+    "le_pairs": [
+      [
+        "open_basin_numerator_row_count",
+        "time_at_risk_denominator_row_count"
+      ]
+    ],
+    "minimum": {
+      "discovery_independent_seed_count": 5
+    },
+    "positive": [
+      "accepted_edge_count",
+      "edge_produced_count",
+      "component_count",
+      "surveillance_scheduled_row_count",
+      "scheduled_structural_evaluable_row_count",
+      "scheduled_state_assignment_count",
+      "kinetic_transition_pair_count",
+      "lane_transaction_commit_count",
+      "discovery_lane_count",
+      "discovery_candidate_population_count",
+      "discovery_independent_seed_count",
+      "integration_timestep_femtoseconds",
+      "surveillance_cadence_steps",
+      "loso_expected_fold_count",
+      "physical_cavity_expected_row_count",
+      "discovery_transaction_candidate_population_count"
+    ],
+    "positive_integer_list_divisible_by": [
+      [
+        "candidate_lag_steps",
+        "surveillance_cadence_steps"
+      ]
+    ],
+    "sha256": [
+      "runtime_timebase_sha256",
+      "pathb_timebase_sha256",
+      "integration_timebase_authority_sha256",
+      "candidate_lag_grid_authority_sha256",
+      "cavity_population_authority_sha256",
+      "body_fixed_population_authority_sha256",
+      "loso_fold_population_authority_sha256",
+      "confirmation_handoff_sha256",
+      "discovery_transaction_commit_sha256",
+      "discovery_transaction_population_sha256",
+      "selected_candidate_id_authority_sha256",
+      "selected_candidate_authority_bytes_sha256",
+      "operator_selection_authority_sha256",
+      "tracker_design_authority_sha256",
+      "operator_design_authority_sha256",
+      "tracker_v2_sha256",
+      "disjoint_seed_authority_sha256",
+      "discovery_seed_set_sha256",
+      "confirmation_seed_set_sha256"
+    ],
+    "sha256_equal": [
+      [
+        "runtime_timebase_sha256",
+        "pathb_timebase_sha256"
+      ]
+    ],
+    "sum_equal": [
+      [
+        "surveillance_scheduled_row_count",
+        [
+          "surveillance_open_row_count",
+          "surveillance_closed_row_count",
+          "surveillance_indeterminate_row_count",
+          "surveillance_not_evaluable_row_count"
+        ]
+      ],
+      [
+        "surveillance_scheduled_row_count",
+        [
+          "ghost_emitted_row_count",
+          "ghost_not_emitted_row_count"
+        ]
+      ],
+      [
+        "scheduled_structural_evaluable_row_count",
+        [
+          "surveillance_open_row_count",
+          "surveillance_closed_row_count",
+          "surveillance_indeterminate_row_count"
+        ]
+      ],
+      [
+        "within_step_input_row_count",
+        [
+          "within_step_output_row_count",
+          "within_step_collapsed_row_count"
+        ]
+      ],
+      [
+        "component_count",
+        [
+          "component_assigned_count",
+          "component_ambiguous_count",
+          "component_unmatched_count"
+        ]
+      ],
+      [
+        "discovery_candidate_population_count",
+        [
+          "candidate_recurrent_count",
+          "candidate_ambiguous_count",
+          "candidate_unmatched_count",
+          "candidate_singleton_count",
+          "candidate_zero_detection_count"
+        ]
+      ],
+      [
+        "physical_cavity_evaluated_row_count",
+        [
+          "physical_cavity_open_row_count",
+          "physical_cavity_closed_row_count",
+          "physical_cavity_indeterminate_row_count"
+        ]
+      ]
+    ],
+    "truthy": [
+      "two_pass_exact_edge_count_pass",
+      "all_components_preserved",
+      "component_correspondence_pass",
+      "ambiguous_and_unmatched_preserved",
+      "complete_surveillance_grid_pass",
+      "lane_transaction_fail_atomic_pass",
+      "lane_transaction_exact_membership_pass",
+      "discovery_no_probe_only_pass",
+      "discovery_no_target_or_tracker_pass",
+      "discovery_fixed_cadence_conservation_pass",
+      "discovery_all_components_preserved_pass",
+      "discovery_candidate_native_origin_pass",
+      "discovery_confirmation_seed_disjoint_pass",
+      "pathb_runtime_timebase_digest_join_pass",
+      "pathb_lag_cadence_alignment_pass",
+      "pathb_stationary_phase_pass",
+      "pathb_fragment_feature_leakage_zero_pass",
+      "pathb_scheduled_state_assignment_conservation_pass",
+      "pathb_no_emission_denominator_inclusion_pass",
+      "pathb_every_loso_lane_fold_pass",
+      "train_fitted_heldout_vampe_pass",
+      "implied_timescale_plateau_pass",
+      "multilag_ck_pass",
+      "pathb_multihorizon_ck_its_pass",
+      "pathb_unconstrained_reversibility_diagnostic_pass",
+      "pathb_segment_aware_bootstrap_pass",
+      "state_seed_support_pass",
+      "bootstrap_uncertainty_pass",
+      "cavity_discretization_convergence_pass",
+      "body_fixed_site_tracking_pass",
+      "pathb_confirmation_handoff_v1_pass",
+      "confirmation_handoff_post_commit_pass",
+      "confirmation_handoff_discovery_commit_population_join_pass",
+      "selected_candidate_exact_authority_bytes_pass",
+      "operator_selection_authority_complete_pass",
+      "tracker_design_authority_join_pass",
+      "operator_design_authority_join_pass",
+      "tracker_v2_full_binding_pass",
+      "discovery_confirmation_seed_set_disjoint_pass",
+      "confirmation_handoff_mechanically_derived_pass",
+      "selected_candidate_present_in_discovery_population_pass"
+    ],
+    "values": {
+      "confirmation_handoff_schema_version": 1,
+      "confirmation_handoff_selected_candidate_count": 1,
+      "integration_timestep_femtoseconds": 2,
+      "operator_selection_selected_candidate_count": 1,
+      "selected_candidate_authority_count": 1
+    },
+    "zero": [
+      "legacy_binding_site_json_input_count",
+      "edge_conservation_mismatch_count",
+      "not_evaluable_bridge_count",
+      "cross_stationary_phase_transition_count",
+      "raw_site_id_equivalence_count",
+      "incomplete_lane_transaction_stage_authorized_count",
+      "invalid_lane_transaction_commit_accepted_count",
+      "discovery_probe_lane_count",
+      "discovery_target_or_tracker_count",
+      "discovery_confirmation_seed_overlap_count",
+      "fragment_structural_feature_count",
+      "no_emission_denominator_omission_count",
+      "lag_cadence_misalignment_count",
+      "cross_boundary_bootstrap_block_count",
+      "poor_loso_lane_fold_admitted_count",
+      "threshold_straddling_binary_label_count",
+      "static_lab_frame_tracking_count",
+      "candidate_population_loss_count",
+      "scheduled_time_conservation_mismatch_count",
+      "within_step_reduction_mismatch_count",
+      "physical_cavity_population_mismatch_count",
+      "body_fixed_population_mismatch_count",
+      "discovery_selection_influence_count",
+      "discovery_tracker_influence_count",
+      "discovery_confirmation_influence_count",
+      "confirmation_handoff_selection_conservation_mismatch_count"
+    ]
+  },
+  "G_NPT_EXECUTION_PURPOSE": {
+    "positive": [
+      "qualification_execution_count",
+      "production_execution_count"
+    ],
+    "truthy": [
+      "execution_contract_purpose_bound",
+      "exact_launcher_argv_purpose_bound",
+      "md_p0_lease_purpose_bound",
+      "terminal_output_role_pass",
+      "production_qualification_dependency_pass"
+    ],
+    "zero": [
+      "untyped_execution_count",
+      "purpose_schedule_mismatch_count",
+      "qualification_frozen_cell_authority_count",
+      "production_before_qualification_count",
+      "purpose_receipt_mismatch_count"
+    ]
+  },
+  "G_PHASE_BINDING": {
+    "positive": [
+      "record_count",
+      "stream_count",
+      "condition_count",
+      "protocol_phase_count"
+    ],
+    "truthy": [
+      "phase_protocols_bound_by_stream",
+      "condition_binding_hash_pass"
+    ],
+    "zero": [
+      "unbound_record_count",
+      "unbound_node_count",
+      "phase_mismatch_count"
+    ]
+  },
+  "G_PREP_REPRODUCIBILITY": {
+    "le_pairs": [
+      [
+        "maximum_final_rms_force_kj_mol_nm",
+        "minimization_tolerance_kj_mol_nm"
+      ]
+    ],
+    "minimum": {
+      "independent_preparation_count": 2
+    },
+    "truthy": [
+      "atom_digest_equal",
+      "molecule_digest_equal",
+      "water_digest_equal",
+      "ion_digest_equal",
+      "periodic_cell_digest_equal",
+      "forcefield_digest_equal",
+      "exception_digest_equal",
+      "minimized_position_digest_equal",
+      "minimization_contract_digest_equal",
+      "minimization_platform_bound",
+      "requested_effective_platform_properties_equal",
+      "preparation_thread_containment_pass",
+      "hydrogen_placement_platform_bound",
+      "preparation_platform_defaults_applied",
+      "plugin_set_hash_bound",
+      "cpu_affinity_bound",
+      "energy_minimization_applied",
+      "minimization_energy_finite_pass",
+      "minimization_energy_nonincreasing",
+      "minimization_convergence_pass",
+      "serialization_nondeterminism_bounded"
+    ]
+  },
+  "G_PRISMCODE_QNANL": {
+    "positive": [
+      "numeric_opcode_count",
+      "string_opcode_count",
+      "typed_artifact_count"
+    ],
+    "truthy": [
+      "executable_dispatch_pass",
+      "inline_engine_ownership_pass",
+      "packet_hash_binding_pass"
+    ],
+    "zero": [
+      "unregistered_opcode_count",
+      "roundtrip_mismatch_count"
+    ]
+  },
+  "G_RANKING_IDENTITY": {
+    "truthy": [
+      "native_ghost_lambda_pathb_uncertainty_only",
+      "ranking_input_lineage_pass"
+    ],
+    "zero": [
+      "p2rank_execution_count",
+      "p2rank_artifact_count",
+      "p2rank_score_field_count",
+      "external_ranking_fallback_count"
+    ]
+  },
+  "G_RUNTIME_OBSERVATION_ORIGIN": {
+    "positive": [
+      "selected_engine_runtime_observation_count"
+    ],
+    "truthy": [
+      "request_configuration_only",
+      "content_addressed_reconstruction_pass"
+    ],
+    "zero": [
+      "pre_run_observation_count",
+      "host_fabricated_observation_count",
+      "unbound_runtime_observation_count"
+    ]
+  },
+  "G_SEAL": {
+    "positive": [
+      "ptx_file_count"
+    ],
+    "truthy": [
+      "ledger_rebless_pass",
+      "portable_self_verification_pass",
+      "source_snapshot_in_portable_manifest_pass",
+      "active_transaction_pass",
+      "credentials_absent_from_artifacts"
+    ],
+    "zero": [
+      "three_point_hash_mismatch_count",
+      "ptx_hash_mismatch_count",
+      "portable_manifest_mismatch_count"
+    ]
+  },
+  "G_SEEDS_UNCERTAINTY": {
+    "minimum": {
+      "independent_seed_count": 5
+    },
+    "truthy": [
+      "one_seed_level_estimand_pass",
+      "autocorrelation_ess_pass",
+      "overlap_pass",
+      "seed_recurrence_pass",
+      "multiple_comparison_control_pass"
+    ],
+    "zero": [
+      "stream_as_replicate_count",
+      "node_as_replicate_count",
+      "fiber_as_replicate_count"
+    ]
+  },
+  "G_SLOT_ENDPOINT_REACHABILITY": {
+    "positive": [
+      "runtime_slot_count",
+      "scheduler_directed_support_count"
+    ],
+    "truthy": [
+      "exact_per_slot_endpoint_pair_equality_pass",
+      "reverse_support_exact_involution_pass",
+      "coupled_partner_endpoint_pair_pass",
+      "native_endpoint_support_recomputation_pass",
+      "cross_language_endpoint_support_digest_pass",
+      "runtime_admission_endpoint_proof_hash_bound",
+      "selected_engine_endpoint_proof_consumption_pass",
+      "move_force_resident_union_lineage_pass"
+    ],
+    "zero": [
+      "slot_endpoint_pair_mismatch_count",
+      "foreign_third_state_support_count",
+      "wrong_slot_support_count",
+      "missing_reverse_support_count",
+      "support_without_resident_plane_count",
+      "coupled_partner_endpoint_mismatch_count"
+    ]
+  },
+  "G_SOLVENT": {
+    "positive": [
+      "water_molecule_count",
+      "pme_grid_x",
+      "pme_grid_y",
+      "pme_grid_z"
+    ],
+    "truthy": [
+      "tip3pfb_identity_pass",
+      "openmm_alpha_formula_pass",
+      "grid_rounding_upward_pass",
+      "settle_position_pass",
+      "settle_velocity_pass",
+      "thermostat_distribution_pass",
+      "box_wrapping_pass",
+      "translation_invariance_pass"
+    ],
+    "values": {
+      "pme_interpolation_order": 5
+    },
+    "zero": [
+      "incomplete_water_count",
+      "pme_parameter_mismatch_count",
+      "constraint_failure_count"
+    ]
+  },
+  "G_TARGET_CAPACITY": {
+    "equal": [
+      [
+        "atom_count",
+        "admitted_topology_atom_count",
+        "runtime_topology_atom_count"
+      ]
+    ],
+    "le_pairs": [
+      [
+        "projected_campaign_output_bytes",
+        "admitted_campaign_output_byte_limit"
+      ],
+      [
+        "admitted_campaign_output_byte_limit",
+        "available_output_bytes"
+      ],
+      [
+        "projected_campaign_inode_count",
+        "admitted_campaign_output_inode_limit"
+      ],
+      [
+        "admitted_campaign_output_inode_limit",
+        "available_output_inode_count"
+      ]
+    ],
+    "minimum": {
+      "atom_count": 1,
+      "requested_stream_count": 1
+    },
+    "positive": [
+      "projected_campaign_output_bytes",
+      "admitted_campaign_output_byte_limit",
+      "available_output_bytes",
+      "projected_campaign_inode_count",
+      "admitted_campaign_output_inode_limit",
+      "available_output_inode_count"
+    ],
+    "truthy": [
+      "topology_raw_hash_bound",
+      "topology_scientific_hash_bound",
+      "capacity_projection_topology_identity_pass",
+      "md_p0_lease_pass",
+      "md_p0_lease_receipt_hash_bound",
+      "gpu_command_engine_ptx_topology_test_hash_bound",
+      "selected_engine_identity_pass",
+      "host_allocation_pass",
+      "device_allocation_pass",
+      "fail_closed_overflow_paths_pass",
+      "campaign_storage_headroom_pass",
+      "journal_segmentation_capacity_pass"
+    ],
+    "zero": [
+      "allocation_overflow_count",
+      "cell_capacity_overflow_count",
+      "neighbor_capacity_overflow_count",
+      "integer_wrap_count",
+      "unadmitted_gpu_acceptance_execution_count"
+    ]
+  },
+  "G_TOPOLOGY_MOLECULES": {
+    "minimum": {
+      "protein_chain_count": 2
+    },
+    "positive": [
+      "atom_count",
+      "molecule_count",
+      "water_molecule_count",
+      "analysis_protein_atom_count",
+      "fragment_slot_count"
+    ],
+    "truthy": [
+      "periodic_box_present",
+      "endpoint_parameters_bound",
+      "molecule_partition_complete",
+      "analysis_axis_hash_bound"
+    ],
+    "zero": [
+      "unassigned_atom_count",
+      "incomplete_water_count",
+      "analysis_nonprotein_atom_count"
+    ]
+  }
+}

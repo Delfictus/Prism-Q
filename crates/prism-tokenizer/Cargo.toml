@@ -1,0 +1,64 @@
+[package]
+name = "prism-tokenizer"
+version = "0.1.0"
+edition = "2021"
+description = "Decode-before-tokenize structured-artifact modality tokenizer for PRISM sealed streams"
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "prism_tokenizer"
+path = "src/lib.rs"
+
+# Phase-1 CPU baseline harness (default-buildable, no GPU).
+[[bin]]
+name = "tok_cpu_baseline"
+path = "src/bin/tok_cpu_baseline.rs"
+
+# Phase-2 workload classification (offline synthesis of the Phase-1/Phase-6 ledgers; no GPU).
+[[bin]]
+name = "tok_classify"
+path = "src/bin/tok_classify.rs"
+
+# Phase-5 GPU↔CPU parity harness (the CPU reference side builds without the feature; the GPU side
+# is compiled in only under --features gpu-tokenizer).
+[[bin]]
+name = "tok_gpu_parity"
+path = "src/bin/tok_gpu_parity.rs"
+
+# Phase-6 GPU vs CPU performance harness (GPU lanes only under --features gpu-tokenizer).
+[[bin]]
+name = "tok_gpu_perf"
+path = "src/bin/tok_gpu_perf.rs"
+
+[dependencies]
+# Single source of truth for the sealed-container decoders (INV-1). prism-tokenizer
+# NEVER re-implements NANL-Q4 / QNANL parsing — it calls the engine's authoritative
+# codec so a format change can never silently diverge the tokenizer.
+prismcode = { path = "../prismcode" }
+# Used directly only for the spike-packet path (PRSPCZ01) which lives in a binary upstream.
+blake3 = "1.5"
+sha2 = "0.10"
+zstd = "0.13"
+# PRSPCZ01 spike-packet header is a JSON object (record_count / payload_stride).
+serde_json = "1"
+# GPU acceleration lanes (feature `gpu-tokenizer`, default OFF). Direct cudarc — NOT prism-gpu —
+# so the CPU-default build stays light and the GPU lane is opt-in. cudarc is patched workspace-wide
+# to the vendored copy (see root Cargo.toml [patch.crates-io]).
+cudarc = { version = "0.18.2", features = ["std", "cuda-12050", "driver", "nvrtc"], optional = true }
+
+[features]
+default = []
+# Compile the device kernels + backend GPU lanes. CPU remains the default and the reference path;
+# enabling this NEVER changes a tokenization result, only offers an accelerator above the
+# benchmarked crossover thresholds.
+gpu-tokenizer = ["dep:cudarc"]
+
+[[bin]]
+name = "tok_export_corpus"
+path = "src/bin/tok_export_corpus.rs"
+
+# Directive v6 Agent 3/4: full-PRISM sharded exporter for the generative/molecule tables.
+[[bin]]
+name = "tok_export_full_prism_corpus"
+path = "src/bin/tok_export_full_prism_corpus.rs"

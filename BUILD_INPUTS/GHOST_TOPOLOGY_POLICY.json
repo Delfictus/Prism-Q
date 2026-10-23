@@ -1,0 +1,62 @@
+{
+  "authority_producer_sha256": "eab1bc9d0c05b34e8718a0a158349587a390c18f373c98dedf878d423dc8e875",
+  "policy_contract_sha256": "5aad9d95d7de489bb727897b394090084380e2b11132490dce4a3959284f55e9",
+  "policy_id": "WP2_GLP1R_APO_EXACT_V2_GHOST_PROJECTION",
+  "projection": {
+    "analysis_authority": "KCC_GHOST_PROTEIN_RESIDUE_AXIS",
+    "expected_molecule_count": 1,
+    "expected_molecule_identity": "R",
+    "expected_molecule_kind": "BIOMOLECULE",
+    "protein_residue_names": [
+      "ALA",
+      "ARG",
+      "ASN",
+      "ASP",
+      "CYS",
+      "CYX",
+      "GLN",
+      "GLU",
+      "GLY",
+      "HID",
+      "HIE",
+      "HIP",
+      "HIS",
+      "ILE",
+      "LEU",
+      "LYS",
+      "MET",
+      "PHE",
+      "PRO",
+      "SER",
+      "THR",
+      "TRP",
+      "TYR",
+      "VAL"
+    ],
+    "spatial_boundary_reason": "LEGACY_RECEPTOR_ONLY_NONPERIODIC_TOPOLOGY_AMBER_IFBOX_0",
+    "spatial_distance_mode": "NONPERIODIC_DIRECT_DISTANCE"
+  },
+  "schema_kind": "prismos_legacy_ghost_topology_policy",
+  "schema_version": 1,
+  "source_parameter_topology": {
+    "amber_pointer_format": "AMBER_PRMTOP_POINTERS_10I8",
+    "box_dimensions_required_absent": true,
+    "ifbox": 0,
+    "natom": 6254,
+    "nres": 380,
+    "sha256": "6ba34ee3b054e976716d6fd36cc30c7d34ebb0557b52f0c2132b2903569aaa17",
+    "size_bytes": 3924108
+  },
+  "topology": {
+    "chain_ids": [
+      "R"
+    ],
+    "generated_prmtop_sha256": "6ba34ee3b054e976716d6fd36cc30c7d34ebb0557b52f0c2132b2903569aaa17",
+    "n_atoms": 6254,
+    "n_chains": 1,
+    "n_residues": 380,
+    "sha256": "5087b3392f1859636b423d2618401db508c0462d88a71e85901ced949c111455",
+    "size_bytes": 12732276,
+    "source_prmtop_artifact": "receptor.exact-v2.prmtop"
+  }
+}

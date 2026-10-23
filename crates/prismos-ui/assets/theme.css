@@ -1,0 +1,164 @@
+/*
+ * PrismOS Beta2.0 — delfictus light theme for the GTK4 desktop shell.
+ *
+ * Palette is bound 1:1 to delfictus_schema_tokens.json (delfictus.com). The
+ * accent is cyan (#0078b8 / #00b8e6) — explicitly NOT green. Status green is
+ * reserved for PASS pills only. Loaded at app startup via gtk::CssProvider with
+ * STYLE_PROVIDER_PRIORITY_APPLICATION.
+ */
+
+@define-color prism_bg          #ffffff;
+@define-color prism_bg_soft     #fafbfc;
+@define-color prism_card        #ffffff;
+@define-color prism_text        #0f1722;
+@define-color prism_text_2      #3d4d63;
+@define-color prism_dim         #7c8aa0;
+@define-color prism_border      #e2e8f0;
+@define-color prism_border_2    #cbd5e1;
+@define-color prism_cyan        #0078b8;
+@define-color prism_cyan_bright #00b8e6;
+@define-color prism_green       #10a36e;
+@define-color prism_amber       #d97706;
+@define-color prism_red         #dc2626;
+
+.prismos-root {
+  background-color: @prism_bg;
+  color: @prism_text;
+  font-family: "IBM Plex Sans", "Cantarell", sans-serif;
+}
+
+.prismos-title {
+  font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  font-weight: 700;
+}
+
+.subtitle { color: @prism_text_2; }
+.dim      { color: @prism_dim; }
+
+.mono, .log-view, .argv, .sha {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.card {
+  background-color: @prism_card;
+  border: 1px solid @prism_border;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.sidebar-pane {
+  background-color: @prism_bg_soft;
+  border-right: 1px solid @prism_border;
+}
+
+/* Generic status pills (operational dashboard). */
+.status-pill {
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-family: "JetBrains Mono", monospace;
+}
+.status-pill.pass    { background-color: alpha(@prism_green, 0.12); color: @prism_green; }
+.status-pill.blocked { background-color: alpha(@prism_red,   0.12); color: @prism_red; }
+.status-pill.warn    { background-color: alpha(@prism_amber, 0.14); color: @prism_amber; }
+.status-pill.info    { background-color: alpha(@prism_cyan,  0.12); color: @prism_cyan; }
+
+/*
+ * runtime_origin badges — the load-bearing native-vs-derived distinction.
+ * Native runtime emissions glow cyan; derived/external/blocked are muted.
+ * Class names match model::state_graph::RuntimeOrigin::css_class().
+ */
+.origin-native   { background-color: alpha(@prism_cyan,  0.16); color: @prism_cyan; }
+.origin-derived  { background-color: alpha(@prism_dim,   0.16); color: @prism_text_2; }
+.origin-external { background-color: alpha(@prism_amber, 0.14); color: @prism_amber; }
+.origin-blocked  { background-color: alpha(@prism_red,   0.12); color: @prism_red; }
+.origin-unknown  { background-color: alpha(@prism_dim,   0.16); color: @prism_dim; }
+
+.accent-button {
+  background-color: @prism_cyan;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 6px 14px;
+}
+.accent-button:hover  { background-color: @prism_cyan_bright; }
+.accent-button:active  { background-color: @prism_cyan; }
+
+.legend-swatch {
+  border-radius: 3px;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+/* --- Prism CoPilot chat --- */
+.copilot-bubble      { padding: 9px 13px; border-radius: 14px; }
+.copilot-user        { background-color: @prism_cyan; color: #ffffff; }
+.copilot-ai          { background-color: alpha(@prism_dim, 0.14); }
+.copilot-tools       { font-size: 0.8em; color: @prism_dim; }
+.copilot-chip        { border-radius: 13px; padding: 4px 11px;
+                       background-color: alpha(@prism_cyan, 0.12); color: @prism_cyan; }
+.copilot-chip:hover  { background-color: alpha(@prism_cyan, 0.24); }
+.copilot-input-card  { border-radius: 10px; }
+.copilot-attach      { font-size: 0.85em; color: @prism_text_2; }
+
+/* Pocket Evolution: provenance chips + per-pocket window timeline cells. */
+.prov-chip     { border-radius: 11px; padding: 2px 9px; font-size: 0.78em; }
+.prov-real     { background-color: alpha(@prism_green, 0.14); color: @prism_green; }
+.prov-derived  { background-color: alpha(@prism_cyan,  0.12); color: @prism_cyan; }
+.prov-proxy    { background-color: alpha(@prism_amber, 0.16); color: @prism_amber; }
+.prov-omitted  { background-color: alpha(@prism_dim,   0.16); color: @prism_dim; }
+
+.pocket-site-label { font-family: monospace; font-weight: 700; color: @prism_text; }
+.pocket-cell {
+  border: 1px solid @prism_border;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background-color: @prism_bg_soft;
+  min-width: 132px;
+}
+.pocket-cell-hydrated { border-color: @prism_cyan;
+                        background-color: alpha(@prism_cyan, 0.06); }
+.pocket-cell-active   { border-left: 3px solid @prism_amber; }
+
+/* --- Run Engine panel --- */
+.gate-strip { }
+.gate-chip  { padding: 2px 10px; font-size: 0.82em; }
+.run-command-preview {
+  border: 1px solid @prism_border;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background-color: @prism_bg_soft;
+}
+
+/* Surface & Mode selector: a locked (read-only) control that is emitted but
+   never editable, versus a control the current engine CLI does not expose. */
+.surface-locked {
+  color: @prism_cyan;
+  font-size: 0.86em;
+  padding: 2px 8px;
+  border-left: 3px solid @prism_cyan;
+  background-color: alpha(@prism_cyan, 0.06);
+  border-radius: 4px;
+}
+.surface-unavailable {
+  color: @prism_dim;
+  font-size: 0.82em;
+  padding: 2px 8px;
+  border-left: 3px solid @prism_border_2;
+  background-color: @prism_bg_soft;
+  border-radius: 4px;
+}
+
+/* --- PrismAI compare + distribution (reuses .prov-chip/.prov-derived above) --- */
+.dist-bar     { min-height: 8px; }
+.compare-grid {
+  border: 1px solid @prism_border;
+  border-radius: 6px;
+  padding: 4px;
+}
+.compare-grid > * {
+  padding: 4px 8px;
+  border-bottom: 1px solid @prism_border;
+}
+.compare-best  { background-color: alpha(@prism_green, 0.12); color: @prism_green;
+                 border-radius: 4px; font-weight: 600; }
+.compare-worst { color: @prism_dim; }

@@ -1,0 +1,13 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PRISMCODE workspace automation"
+
+[dependencies]
+blake3 = "1.5"
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+zstd = "0.13"

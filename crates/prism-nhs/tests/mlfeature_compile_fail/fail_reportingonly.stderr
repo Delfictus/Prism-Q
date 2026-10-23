@@ -1,0 +1,5 @@
+error: field `debug_label` (of `PoisonedFeatures`) has FeatureRole::ReportingOnly which is forbidden from ML training tensors (Pillar 5 firewall: §5 of the PRISM-4D Entangled Transform Blueprint)
+  --> tests/mlfeature_compile_fail/fail_reportingonly.rs:12:5
+   |
+12 |     #[role(ReportingOnly)]
+   |     ^^^^^^^^^^^^^^^^^^^^^^

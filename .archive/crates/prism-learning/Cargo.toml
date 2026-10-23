@@ -1,0 +1,57 @@
+[package]
+name = "prism-learning"
+version = "0.1.0"
+edition = "2021"
+description = "PRISM-Zero v3.1: Self-calibrating engine with swappable RL training datasets"
+license = "MIT"
+
+[dependencies]
+# Core Utilities
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10"
+rand = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.6", features = ["v4"] }
+clap = { version = "4.0", features = ["derive"] }
+
+# Parallelism
+rayon = "1.8"
+parking_lot = "0.12"
+
+# AI & GPU
+tch = { version = "0.15", optional = true }
+cudarc = { version = "0.18.2", features = ["std", "cuda-12050", "driver"] }
+
+# Internal Crates
+prism-core = { path = "../prism-core" }
+prism-io = { path = "../prism-io" }
+prism-gpu = { path = "../../../crates/prism-gpu" }
+prism-physics = { path = "../prism-physics" }
+
+[features]
+# CUDA enabled by default; DendriticAgent is the default (no PyTorch)
+# Use "rl" feature to enable DQNAgent with PyTorch
+default = ["cuda"]
+
+# Feature Definitions
+rl = ["tch"]                                    # PyTorch-based DQN (optional, adds ~100MB)
+cuda = ["prism-gpu/cuda", "prism-physics/cuda"] # GPU acceleration (required for both agents)
+
+[[bin]]
+name = "prism-train"
+path = "src/bin/prism_train.rs"
+
+[[bin]]
+name = "prism-train-neuro"
+path = "src/bin/prism_train_neuro.rs"
+
+[[bin]]
+name = "prism-validate"
+path = "src/bin/prism_validate.rs"
+
+[dev-dependencies]
+tempfile = "3.0"

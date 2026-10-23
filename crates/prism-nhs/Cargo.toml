@@ -1,0 +1,329 @@
+[package]
+name = "prism-nhs"
+version = "0.1.0"
+edition = "2021"
+authors = ["PRISM-4D Engineering Team"]
+description = "Neuromorphic Holographic Stream (NHS) for real-time cryptic site detection with UV bias perturbation"
+license.workspace = true
+readme = "README.md"
+
+[features]
+# `diagnostic` is in `default` so the bin's `--m1-typed-producer`
+# wire-in continues to compile against the migrated
+# `diagnostic::m1_differential` module without scattering
+# `#[cfg]` gates throughout `bin/nhs_rt_full.rs`. Production lockdown
+# excludes it explicitly:
+#   cargo build --release -p prism-nhs --bin nhs_rt_full \
+#     --no-default-features --features gpu,ensemble,v2_ignition
+default = ["gpu", "diagnostic"]
+cudarc = ["dep:cudarc"]
+gpu = [
+    "cudarc",
+    "dep:prism-cuda-ext",
+    "dep:prism-gpu",
+    "prism-gpu/cuda",
+    "dep:prism-io",
+    "dep:prism-learning",
+]
+# Source-validation lane for the exact Ghost/lattice/Path-B/lambda reference
+# surfaces. This feature deliberately has no dependency edges: in particular it
+# must not activate cudarc or any internal crate whose default graph activates
+# CUDA. Production remains on the default `gpu` feature.
+cpu-analysis = []
+# OptiX is not part of the SM120 production closure. Keep the historical
+# implementation available only when the SDK-backed feature is requested
+# explicitly; the `gpu` feature alone uses the CUDA clustering backend.
+optix = ["gpu", "dep:prism-optix", "dep:optix-sys"]
+# The canonical phase-manifold ranker is native and does not require ONNX.
+# Keep the legacy xgb-v3 replay lane explicit so the offline MD executable
+# does not acquire an unfulfilled dynamic-runtime dependency.
+onnx = ["dep:ort"]
+# Diagnostic / informational modules. Per Blackwell Convergence
+# mandate §2 the M1.2.5b typed-producer differential
+# (`src/diagnostic/m1_differential.rs`) is no longer a closure gate
+# — it survives only as an opt-out feature. The cfg gate makes the
+# diagnostic surface excludable from production builds without
+# touching source.
+diagnostic = []
+ensemble = []
+# V2 ignition authority: OPERATOR_V2_IGNITION_EXECUTE_20260725.
+# The captured pipeline is CUDA-only, so this feature implies `gpu`.
+v2_ignition = ["gpu"]
+# Force-Gear Orchestration Supervisor Shim — host-side gear_override
+# write at chunk boundaries crossing steps 800/1000. Violates Self-
+# Clocking Control Plane Invariant #1 (device-derived control only).
+# Default OFF. Enable ONLY for the Hardware-Interlock proof. When the
+# feature fires it MUST emit a ControlPlaneRecord::GearOverride record
+# with host_mutation=true (see crates/prism-nhs/src/control_trace.rs).
+# See:
+#   docs/PRISM4D_PARENT_CONTROL_SUPERGRAPH_IMPLEMENTATION_DIRECTIVE.md
+#     §10, §15.2, Gate G2
+#   docs/SELF_CLOCKING_CONTROL_PLANE_PLAN.md §4.1
+#   .prism_orchestration/GEAR_OVERRIDE_MITIGATION_PLAN.md
+force_gear_override_supervisor_shim = []
+
+[dependencies]
+# PRISM-Therm: SDST thermodynamic analysis pipeline
+sdst = { path = "../../.archive/crates/sdst" }
+
+# Core
+anyhow = "1.0"
+thiserror = "1.0"
+log = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+# Force-field contracts hash exact IEEE-754 bytes after JSON decode. The
+# default fast parser can differ by one ULP for valid long decimals.
+serde_json = { version = "1.0", features = ["float_roundtrip"] }
+zstd = "0.13"
+serde_yaml = "0.9"
+sha2 = { workspace = true }
+rayon = { workspace = true }
+uuid = { workspace = true }
+# DSTW Option A dispatcher: blake3 hashes for the round-link chain on
+# PRISMExecutionRequest / PRISMExecutionResponse payloads.
+blake3 = "1.5"
+ryu = "1.0"
+# ZSTR O_DIRECT consumer: pwrite(2), fdatasync(2), O_DIRECT flag
+libc = "0.2"
+# Wave 0 / #69 — io_uring SQE zero-copy NVMe sink for the ZSTR Reaper.
+# Excommunicates the Linux page cache from the exfiltration path:
+# pinned ring slot → IORING_OP_WRITE SQE → NVMe queue, no VFS
+# buffer copy. 0.5.13 matches the workspace lock (transitive via
+# tokio-uring) so we share the resolved version graph.
+io-uring = "0.5.13"
+
+# Async streaming
+tokio = { version = "1.0", features = ["sync", "macros", "rt-multi-thread"] }
+
+# GPU acceleration - CUDA 12.x for NHS compute kernels
+# `nvrtc` feature enables runtime CUDA source -> PTX compilation, used by
+# gpu_cluster_backend for post-MD clustering on SM120 where OptiX is unavailable.
+cudarc = { version = "0.18.2", features = ["std", "cuda-12050", "driver", "nvrtc"], optional = true }
+
+# FP16 for TWIN Tensor Core CCF (WMMA input format)
+half = "2"
+
+# PRISM-TWIN advanced CUDA: device-side compaction, conditional graphs, exhaust pipeline
+prism-cuda-ext = { path = "../../.archive/crates/prism-cuda-ext", optional = true }
+
+# File pattern matching for trajectory discovery
+glob = "0.3"
+
+# Random number generation for UV burst patterns
+rand = "0.8"
+rand_distr = "0.4"
+
+# Statistical analysis for CCNS power-law fitting
+statrs = { workspace = true }
+
+# ONNX Runtime via ort crate — loads the XGBoost v3 binding-site ranker.
+# The ISO is offline and relocatable, so the native API-23 runtime is loaded
+# from the packaged path at execution time rather than downloaded at build time.
+ort = { version = "2.0.0-rc.10", default-features = false, features = ["std", "ndarray", "load-dynamic"], optional = true }
+ndarray = "0.16"
+
+# Apache Arrow IPC streaming for per-spike training data export (Stage 1B-1).
+# Pure Rust implementation; no system dependencies. Used by spike_arrow_writer
+# to produce columnar per-target Arrow IPC files with full per-spike tagging
+# (28 columns including phase_bits, nearby_residues, group_id, chunk_idx,
+# voxel_idx, wd_change, plus background spike stratification).
+arrow = "58"
+arrow-ipc = "58"
+arrow-array = "58"
+arrow-schema = "58"
+parquet = { version = "58", default-features = false, features = ["arrow", "zstd"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+env_logger = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Internal crates
+prism-io = { path = "../../.archive/crates/prism-io", optional = true }
+prism-learning = { path = "../../.archive/crates/prism-learning", optional = true }
+prism-gpu = { path = "../prism-gpu", optional = true }
+prismcode = { path = "../prismcode" }
+# Codec-registered token vocabulary. The gearbox-facing TSH arm emits
+# `ThermodynamicActionOpcode` (family slot 74) directly rather than inventing a
+# parallel action enum, so the registered opcode has a real producer instead of
+# a definition with zero writers. Lib-only edge; prism-tokenizer depends on
+# prismcode, which prism-nhs already depends on, so the graph stays acyclic.
+prism-tokenizer = { path = "../prism-tokenizer" }
+prism-optix = { path = "../../.archive/crates/prism-optix", optional = true }
+optix-sys = { path = "../../.archive/crates/optix-sys", optional = true }
+
+[[bin]]
+name = "nhs-detect"
+path = "src/bin/nhs_detect.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-cryo-probe"
+path = "src/bin/nhs_cryo_probe.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-adaptive"
+path = "src/bin/nhs_adaptive.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-batch"
+path = "src/bin/nhs_batch.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-guided-stage2"
+path = "src/bin/nhs_guided_stage2.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-diagnose"
+path = "src/bin/nhs_diagnose.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-analyze"
+path = "src/bin/nhs_analyze.rs"
+
+[[bin]]
+name = "nhs-analyze-gpu"
+path = "src/bin/nhs_analyze_gpu.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-analyze-ultra"
+path = "src/bin/nhs_analyze_ultra.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-analyze-turbo"
+path = "src/bin/nhs_analyze_turbo.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "nhs-analyze-pro"
+path = "src/bin/nhs_analyze_pro.rs"
+required-features = ["gpu"]
+
+[dev-dependencies]
+tempfile = "3.0"
+tokio-test = "0.4"
+
+[build-dependencies]
+# Compile-time Ghost policy closure. The build script independently hashes the
+# exact nofollow policy path before exposing its digest to v2_ignition code.
+libc = "0.2"
+sha2 = { workspace = true }
+
+[[bin]]
+name = "nhs-simd-batch-test"
+path = "src/bin/nhs_simd_batch_test.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "stage2b-process"
+path = "src/bin/stage2b_process.rs"
+required-features = ["gpu", "optix"]
+
+[[bin]]
+name = "test-rt-clustering"
+path = "src/bin/test_rt_clustering.rs"
+required-features = ["gpu", "optix"]
+
+[[bin]]
+name = "stress-rt-clustering"
+path = "src/bin/stress_rt_clustering.rs"
+required-features = ["gpu", "optix"]
+
+[[bin]]
+name = "rt_probe_validate"
+path = "src/bin/rt_probe_validate.rs"
+required-features = ["gpu", "optix"]
+
+# Path B materializer — offline consumer of the MD-only evidence handoff
+# bundle (md_evidence_manifest.json + per-stream PRSPK001/PRSGD001/PRKCC001
+# binaries). Pure CPU; does not require the gpu feature. See
+# .prism_orchestration/PATHB_MATERIALIZER_SKELETON_REPORT.md.
+[[bin]]
+name = "prism-materialize-sites"
+path = "src/bin/prism_materialize_sites.rs"
+
+# Path B Ghost/ZSTR evidence scanner — offline reader/scorer/provenance
+# emitter for Channel-B ghost_tiles.bin + prism_zstr_*.bin. NOT a binding
+# site materializer; emits feature artifacts for downstream
+# prism-materialize-sites consumption. See
+# .prism_orchestration/PATHB_GHOST_EVIDENCE_SCANNER_REPORT.md.
+[[bin]]
+name = "prism-ghost-evidence-scan"
+path = "src/bin/prism_ghost_evidence_scan.rs"
+
+[[bin]]
+name = "nhs_rt_full"
+path = "src/bin/nhs_rt_full.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "prism-v004-ensemble"
+path = "src/bin/prism_v004_ensemble.rs"
+
+[[bin]]
+name = "prism-teacher-tags"
+path = "src/bin/prism_teacher_tags.rs"
+
+[[bin]]
+name = "prism-teacher-finalize"
+path = "src/bin/prism_teacher_finalize.rs"
+
+[[bin]]
+name = "prism-teacher-pipeline"
+path = "src/bin/prism_teacher_pipeline.rs"
+
+[[bin]]
+name = "prism-teacher-archive"
+path = "src/bin/prism_teacher_archive.rs"
+
+[[bin]]
+name = "prism-noise-floor"
+path = "src/bin/prism_noise_floor.rs"
+
+[[bin]]
+name = "prism-negative-evidence-mine"
+path = "src/bin/prism_negative_evidence_mine.rs"
+
+[[bin]]
+name = "prism-tsh-consensus-gate"
+path = "src/bin/prism_tsh_consensus_gate.rs"
+
+[[bin]]
+name = "pharmacophore_gpu"
+path = "src/bin/pharmacophore_gpu.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "ccns-analyze"
+path = "src/bin/ccns_analyze.rs"
+
+# PRISM-4D → DSTW Air-Gap bridge: WT prime-run physics exporter.
+# Pure post-processor over engine outputs; no GPU runtime dependency.
+[[bin]]
+name = "dstw-export-wt"
+path = "src/bin/dstw_export_wt.rs"
+
+# PRISM-4D Option A variant dispatcher.  Reads a DSTW BALD request,
+# projects rigid-backbone Δq/ΔV through the WT thermodynamic tensors,
+# emits the PRISMExecutionResponse.  GPU path (operator-authorised
+# 2026-05-20); CPU fallback removed.
+[[bin]]
+name = "dstw-dispatch-variants"
+path = "src/bin/dstw_dispatch_variants.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "m1_v3_synthetic"
+path = "src/bin/m1_v3_synthetic.rs"
+required-features = ["gpu"]
+
+[[bin]]
+name = "prism-coordinate-cavity-replay"
+path = "src/bin/prism_coordinate_cavity_replay.rs"

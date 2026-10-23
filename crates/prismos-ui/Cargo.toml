@@ -1,0 +1,44 @@
+[package]
+name = "prismos-ui"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PrismOS Beta2.0 native GTK4 desktop application (operator + scientific surface)"
+
+# This crate is an ADDITIVE workspace member. It is intentionally NOT in the
+# workspace `default-members`, so a plain `cargo build` / `cargo build -p prismcode`
+# never pulls the GTK4 dependency tree. The existing `prismui` CLI and its
+# `crates/prismcode/tests/prismui_cli.rs` contract stay byte-for-byte unchanged.
+
+[lib]
+name = "prismos_ui"
+path = "src/lib.rs"
+
+[[bin]]
+name = "prismos-ui"
+path = "src/main.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["float_roundtrip"] }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+
+# --- GTK4 desktop stack (Phase 2; requires libgtk-4-dev + libadwaita-1-dev) ---
+# Gated behind the default-on `gui` feature so the pure core (adapters + model)
+# can be compiled/tested without the GTK system libraries present.
+gtk = { package = "gtk4", version = "0.9", features = ["v4_12"], optional = true }
+adw = { package = "libadwaita", version = "0.7", features = ["v1_4"], optional = true }
+glib = { version = "0.20", optional = true }
+async-channel = { version = "2", optional = true }
+
+[features]
+default = ["gui"]
+# `gui` turns on the GTK desktop shell. Disable it (`--no-default-features`) to
+# build/test only the pure command-adapter + evidence-model core.
+gui = ["dep:gtk", "dep:adw", "dep:glib", "dep:async-channel"]
+
+[dev-dependencies]
+tempfile = "3.10"

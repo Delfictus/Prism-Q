@@ -1,0 +1,51 @@
+{
+  "species_id": 9001,
+  "name": "rust_serde_digest_fixture_helium",
+  "canonical_isomeric_smiles": "[He]",
+  "inchikey": "SWQJXJOGLNCZEY-UHFFFAOYNA-N",
+  "parameter_template_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "chemical_states": [
+    {
+      "state_id": 0,
+      "state_canonical_isomeric_smiles": "[He]",
+      "state_explicit_h_mapped_smiles": "[He:1]",
+      "state_inchikey_fixed_h": "SWQJXJOGLNCZEY-UHFFFAOYNA-N",
+      "tautomer_id": "HELIUM_FIXED",
+      "protonation_id": "NEUTRAL",
+      "formal_charge_e": 0,
+      "proton_count": 0,
+      "atom_mapping": [
+        {
+          "template_atom_id": 0,
+          "atomic_number": 2,
+          "element": "He",
+          "atom_map_number": 1
+        }
+      ],
+      "reference_conformer_positions_a": [[0.0, 0.0, 0.0]],
+      "atom_parameters": [
+        {
+          "template_atom_id": 0,
+          "endpoint_present": true,
+          "charge_e": 0.0,
+          "sigma_a": 2.64,
+          "epsilon_kcal_mol": 0.021
+        }
+      ],
+      "parameter_digest_sha256": "6dd1bd2f62fa9cd6d6f90a4f6238aa5afcc2b2b6f8ddd6b0cf2fefb6a6a86ca9",
+      "intrinsic_free_energy_kcal_mol": 0.0,
+      "intramolecular_parameters_invariant": true,
+      "intramolecular_parameter_set_sha256": "57c890eed9b365b576aa46b3622c935a47fc1b18918293c1b8b2dfb4ef0061b0",
+      "bonded_parameter_plane": {
+        "formula": "PRISM_ENDPOINT_BONDED_AMBER_V1",
+        "bonds": [],
+        "angles": [],
+        "proper_and_improper_torsions": [],
+        "constraints": []
+      },
+      "bonded_parameter_plane_sha256": "57c890eed9b365b576aa46b3622c935a47fc1b18918293c1b8b2dfb4ef0061b0",
+      "exact_exception_parameters": []
+    }
+  ],
+  "state_transitions": []
+}

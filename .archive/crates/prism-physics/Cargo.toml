@@ -1,0 +1,71 @@
+[package]
+name = "prism-physics"
+version = "0.3.0"
+edition = "2021"
+authors = ["PRISM-AI Research Team"]
+license = "MIT"
+repository = "https://github.com/prism-ai/prism"
+
+[dependencies]
+# Core dependencies
+prism-core = { path = "../prism-core" }
+prism-gpu = { path = "../../../crates/prism-gpu", optional = true }
+prism-io = { path = "../prism-io" }
+
+# Async & error handling
+anyhow = "1.0"
+thiserror = "1.0"
+async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+
+# Math & scientific
+nalgebra = "0.32"
+ndarray = "0.15"
+num-complex = "0.4"
+rustfft = "6.2"
+statrs = "0.16"
+rand = "0.8"
+rand_distr = "0.4"
+
+# Parallelism
+rayon = "1.7"
+
+# Cryptographic integrity
+blake3 = "1.5"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# GPU
+cudarc = { version = "0.18.2", optional = true, features = ["std", "cuda-12050", "driver", "nvrtc"] }
+uuid = { version = "1.6", features = ["v4"] }
+
+[[bin]]
+name = "prism-niv-bench"
+path = "src/bin/prism-niv-bench.rs"
+required-features = ["cuda"]
+
+[[bin]]
+name = "test-holographic"
+path = "src/bin/test_holographic.rs"
+required-features = ["cuda"]
+
+[[bin]]
+name = "test-gpu-gnm"
+path = "src/bin/test_gpu_gnm.rs"
+required-features = ["cuda"]
+
+[features]
+default = []
+cuda = ["cudarc", "prism-gpu/cuda", "prism-io/gpu"]
+telemetry = ["prism-core/telemetry"]
+
+[dev-dependencies]
+approx = "0.5"
+criterion = "0.5"

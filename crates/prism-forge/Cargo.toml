@@ -1,0 +1,27 @@
+[package]
+name = "prism-forge"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PRISM-FORGE native 3D reaction kernel and thermodynamic reward bridge"
+
+[lib]
+name = "prism_forge"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+anyhow = { workspace = true }
+arrow-array = "58"
+arrow-schema = "58"
+ndarray = { workspace = true }
+numpy = "0.20"
+parquet = { version = "58", default-features = false, features = ["arrow", "zstd"] }
+pyo3 = { version = "0.20", features = ["extension-module"] }
+rayon = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = "0.9"
+sha2 = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }

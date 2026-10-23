@@ -1,0 +1,83 @@
+[package]
+name = "prism-io"
+version = "0.3.0"
+edition = "2021"
+authors = ["PRISM-Zero Team <noreply@prism-zero.org>"]
+description = "Revolutionary I/O architecture with holographic binary format and async streaming"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Delfictus/Prism4D-bio"
+keywords = ["bioinformatics", "protein", "io", "async", "gpu"]
+categories = ["science", "asynchronous", "hardware-support"]
+
+[dependencies]
+# Prism-Stream Core Dependencies
+tokio-uring = "0.4"                     # io_uring kernel bypass for async I/O
+rkyv = { version = "0.7", features = ["validation", "strict"] }  # Zero-copy serialization
+memmap2 = "0.9"                         # Memory-mapped file support for .ptb format
+lz4 = "1.24"                            # Fast compression for holographic format
+
+# CUDA Integration
+cudarc = { version = "0.18.2", features = ["std", "cuda-12050", "driver"], optional = true }  # CUDA runtime bindings
+cuda-driver-sys = { version = "0.3", optional = true }  # Direct CUDA driver API access
+
+# Cryptographic Data Validation (Zero-Mock Protocol) - BLAKE3 for Performance
+blake3 = { version = "1.5", features = ["rayon"] }  # High-speed parallel cryptographic hashing
+# sha2 = "0.10"  # Replaced by BLAKE3 for 10x-20x performance improvement
+hex = "0.4"                             # Hexadecimal encoding/decoding
+
+# Error Handling & Safety (Production Standards)
+thiserror = "1.0"                       # Custom error types
+anyhow = "1.0"                          # Error context propagation
+serde = { version = "1.0", features = ["derive"] }  # Serialization support
+bytemuck = { version = "1.14", features = ["derive"] }  # Safe memory transmutation
+
+# Async Runtime & Utilities
+tokio = { version = "1.0", features = ["full"] }  # Async runtime
+futures = "0.3"                         # Async utilities
+pin-project = "1.1"                     # Safe pinning for async streams
+parking_lot = "0.12"                    # High-performance locking primitives
+
+# CLI & Command Line Tools
+clap = { version = "4.0", features = ["derive"] }  # Command line argument parsing
+
+# Performance & Monitoring
+tracing = "0.1"                         # Structured logging
+metrics = "0.21"                        # Performance metrics collection
+
+# File Format Support
+pdb = "0.8"                             # PDB file parsing
+bio = "1.6"                             # Bioinformatics formats
+flate2 = "1.0"                          # Compression support
+
+[dev-dependencies]
+tokio-test = "0.4"                      # Async testing utilities
+criterion = { version = "0.5", features = ["html_reports"] }  # Performance benchmarking
+tempfile = "3.8"                        # Temporary files for testing
+proptest = "1.4"                        # Property-based testing
+
+[[bin]]
+name = "prism-ingest"
+path = "src/bin/prism-ingest.rs"
+
+[[bin]]
+name = "prism-export"
+path = "src/bin/prism-export.rs"
+
+[[bin]]
+name = "prism-diff"
+path = "src/bin/prism-diff.rs"
+
+[features]
+default = ["gpu", "validation"]
+gpu = ["cudarc", "cuda-driver-sys"]     # GPU acceleration support
+validation = ["rkyv/validation"]        # Enhanced data validation
+strict = ["rkyv/strict"]               # Strict zero-copy validation
+
+# Benchmarks will be added in future iterations
+# [[bench]]
+# name = "holographic_format"
+# harness = false
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

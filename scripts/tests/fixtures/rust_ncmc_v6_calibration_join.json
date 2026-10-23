@@ -1,0 +1,698 @@
+{
+  "schema_kind": "prismos_lambda_calibration_join_artifact",
+  "schema_version": 2,
+  "source_journal_population_receipt_sha256": "9cfb9256c859c62695b1dae943a1906ddc45beeecff94fb94f2a417a06523305",
+  "source_produced": 7,
+  "source_persisted": 7,
+  "source_decoded": 7,
+  "source_indexed": 7,
+  "stream_terminal_manifest_sha256": {
+    "3": "3c4b910a7c7d3c009b962dc75257b6e1e858cbe006fbb5aafcc3a6bd79eaa8bf"
+  },
+  "rows": [
+    {
+      "schema_kind": "prismos_lambda_calibration_join_row",
+      "schema_version": 2,
+      "key": {
+        "stream_id": 3,
+        "step_idx": 18,
+        "slot_id": 9
+      },
+      "lane": {
+        "schema_kind": "prismos_lambda_experiment_lane_contract",
+        "schema_version": 1,
+        "lane_id": "rust-precalibration-work",
+        "lane_kind": "HYPOTHESIS_FRAGMENTS",
+        "fragment_species_ids": [
+          7
+        ],
+        "virtual_probe_count": 0,
+        "contract_sha256": "25e5e000889aabf075eb8c07cc9f5f1daa92750189c57188b544841fa761b9b7"
+      },
+      "protocol_context": {
+        "run_id": "rust-ncmc-v6-calibration-fixture",
+        "replica_id": "rep-00",
+        "replica_seed": 42,
+        "stream_id": 3,
+        "stream_seed": 45,
+        "engine_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "topology_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "lane": {
+          "schema_kind": "prismos_lambda_experiment_lane_contract",
+          "schema_version": 1,
+          "lane_id": "rust-precalibration-work",
+          "lane_kind": "HYPOTHESIS_FRAGMENTS",
+          "fragment_species_ids": [
+            7
+          ],
+          "virtual_probe_count": 0,
+          "contract_sha256": "25e5e000889aabf075eb8c07cc9f5f1daa92750189c57188b544841fa761b9b7"
+        },
+        "ncmc_execution_mode": {
+          "mode": "CALIBRATION_WORK_COLLECTION",
+          "protocol_authority_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99"
+        },
+        "ncmc_scheduler": {
+          "schema_kind": "prismos_ncmc_proposal_scheduler_contract",
+          "schema_version": 3,
+          "scheduler_id": "CALIBRATION_WORK::rust-ncmc-v6-fixture",
+          "admitted_slot_ids": [
+            9
+          ],
+          "proposal_supports": [
+            {
+              "support_id": "slot9-empty-to-occupied",
+              "reverse_support_id": "slot9-occupied-to-empty",
+              "slot_id": 9,
+              "move_kind": "INSERTION",
+              "initial": {
+                "species_id": 7,
+                "chemical_state_id": 0,
+                "occupancy": "EMPTY"
+              },
+              "proposed": {
+                "species_id": 7,
+                "chemical_state_id": 0,
+                "occupancy": "OCCUPIED"
+              },
+              "base_weight": 1.0,
+              "balance_template": {
+                "temperature_k": 300.0,
+                "ph": 7.0,
+                "accessible_volume_a3": 8000.0,
+                "forward_placement_density_a3_inv": 0.000125,
+                "reverse_placement_density_a3_inv": 0.000125,
+                "forward_orientation_density": 0.07957747154594767,
+                "reverse_orientation_density": 0.07957747154594767,
+                "initial_bias_weight": 1.0,
+                "proposed_bias_weight": 1.0,
+                "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999"
+              },
+              "periodic_charge_treatment": {
+                "kind": "NET_CHARGE_INVARIANT",
+                "subject_charge_change_e": 0
+              },
+              "coupled_charge_partner": null
+            },
+            {
+              "support_id": "slot9-occupied-to-empty",
+              "reverse_support_id": "slot9-empty-to-occupied",
+              "slot_id": 9,
+              "move_kind": "DELETION",
+              "initial": {
+                "species_id": 7,
+                "chemical_state_id": 0,
+                "occupancy": "OCCUPIED"
+              },
+              "proposed": {
+                "species_id": 7,
+                "chemical_state_id": 0,
+                "occupancy": "EMPTY"
+              },
+              "base_weight": 1.0,
+              "balance_template": {
+                "temperature_k": 300.0,
+                "ph": 7.0,
+                "accessible_volume_a3": 8000.0,
+                "forward_placement_density_a3_inv": 0.000125,
+                "reverse_placement_density_a3_inv": 0.000125,
+                "forward_orientation_density": 0.07957747154594767,
+                "reverse_orientation_density": 0.07957747154594767,
+                "initial_bias_weight": 1.0,
+                "proposed_bias_weight": 1.0,
+                "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999"
+              },
+              "periodic_charge_treatment": {
+                "kind": "NET_CHARGE_INVARIANT",
+                "subject_charge_change_e": 0
+              },
+              "coupled_charge_partner": null
+            }
+          ],
+          "scheduled_opportunities": [
+            {
+              "move_ordinal": 0,
+              "step": 18,
+              "allowed_support_ids": [
+                "slot9-empty-to-occupied",
+                "slot9-occupied-to-empty"
+              ],
+              "rng_counter_base": "8"
+            }
+          ],
+          "placement_measure": {
+            "measure": "PERSISTENT_DECOUPLED_COORDINATE_ENSEMBLE",
+            "coordinate_ensemble_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "mixing_evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "placement_density_formula": "q_decoupled(x|slot,epoch)",
+            "orientation_density_formula": "q_decoupled(R|slot,epoch)"
+          },
+          "first_move_step": 18,
+          "move_interval_steps": 10,
+          "equilibrated_after_step": 18,
+          "minimum_decorrelation_steps": 10,
+          "maximum_move_count": 1,
+          "rng_algorithm": "SPLITMIX64_COUNTER_V1",
+          "rng_domain": "test.lambda.ncmc",
+          "rng_key": 7,
+          "rng_counter_start": "8",
+          "rng_counter_layout": {
+            "selection_counter_offset": "0",
+            "placement_counter_start_offset": "1",
+            "placement_counter_count": "4",
+            "orientation_counter_start_offset": "5",
+            "orientation_counter_count": "4",
+            "momentum_counter_start_offset": "9",
+            "momentum_counter_count": "16",
+            "thermostat_counter_start_offset": "25",
+            "thermostat_counter_count": "16",
+            "acceptance_counter_offset": "41",
+            "counters_per_opportunity": "42"
+          },
+          "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+          "forward_proposal_density_formula": "q_fwd=move*selection*placement*orientation",
+          "reverse_proposal_density_formula": "q_rev=move*selection*placement*orientation",
+          "ncmc_protocol_schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a",
+          "contract_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99"
+        },
+        "lambda_fragment_system_sha256": "514a0c23678d1fdc2ace58968b81bfb8af740de95284a8363a787783704ec2fa",
+        "protocol_phase": {
+          "stream_id": 3,
+          "thermodynamic_condition_id": "bulk-calibration-300K",
+          "phase_ordinal": 0,
+          "phase_name": "bulk-switching-work",
+          "start_step": 0,
+          "end_step_exclusive": 100,
+          "protocol_name": "rust-ncmc-v6-fixture",
+          "phase_schedule_digest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "protocol_state_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "thermodynamic_condition": {
+          "condition_id": "bulk-calibration-300K",
+          "temperature_k": 300.0,
+          "pressure_bar": 1.0,
+          "ionic_strength_molar": 0.15,
+          "solvent_model": "TIP3P-FB",
+          "periodic_box_vectors_a": [
+            [
+              20.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              20.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              20.0
+            ]
+          ],
+          "pme_parameter_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "phase_protocol_sha256": "0744d6219a685a7b0e467ebb4da25bc53418341cff0b20fc95f472d110b06598"
+      },
+      "join_mode": {
+        "mode": "CALIBRATION_WORK_COLLECTION",
+        "protocol_authority_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99"
+      },
+      "chemical_potential_calibration": null,
+      "chemical_potential_calibration_sha256": null,
+      "ncmc_move_receipt": {
+        "schema_kind": "prismos_lambda_fragment_ncmc_move_receipt",
+        "schema_version": 6,
+        "stream_id": 3,
+        "step": 18,
+        "move_id": 0,
+        "event_sequence": 4,
+        "parent_receipt_sha256": "ff2f0382ef485b2ac7885742c588c35901556349bedfe571522336b58900de2c",
+        "slot_id": 9,
+        "move_kind": "INSERTION",
+        "execution_mode": {
+          "mode": "CALIBRATION_WORK_COLLECTION",
+          "protocol_authority_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99"
+        },
+        "scheduler_contract_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99",
+        "selected_support_id": "slot9-empty-to-occupied",
+        "initial": {
+          "species_id": 7,
+          "chemical_state_id": 0,
+          "occupancy": "EMPTY"
+        },
+        "proposed": {
+          "species_id": 7,
+          "chemical_state_id": 0,
+          "occupancy": "OCCUPIED"
+        },
+        "protocol_work_reduced": 0.0,
+        "ncmc_schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a",
+        "ncmc_protocol": {
+          "forward_operations": [
+            {
+              "operation": "PERTURB",
+              "lambda_from": 0.0,
+              "lambda_to": 1.0
+            },
+            {
+              "operation": "PROPAGATE",
+              "lambda": 1.0,
+              "integration_steps": 1
+            }
+          ],
+          "reverse_operations": [
+            {
+              "operation": "PROPAGATE",
+              "lambda": 1.0,
+              "integration_steps": 1
+            },
+            {
+              "operation": "PERTURB",
+              "lambda_from": 1.0,
+              "lambda_to": 0.0
+            }
+          ],
+          "forward_protocol_probability": 0.5,
+          "reverse_protocol_probability": 0.5,
+          "integrator_splitting": "BAOAB",
+          "integrator_path_probability_convention": "SHADOW_WORK_VOLUME_PRESERVING",
+          "momentum_reversal_policy": "REVERSE_PATH_AND_REJECTION",
+          "initial_endpoint_equilibrium_density_evaluated": true,
+          "proposed_endpoint_equilibrium_density_evaluated": true,
+          "rng_algorithm": "PHILOX",
+          "schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a"
+        },
+        "protocol_direction": "FORWARD",
+        "forward_protocol_probability": 0.5,
+        "reverse_protocol_probability": 0.5,
+        "log_protocol_probability_ratio": 0.0,
+        "integrator_path_accounting": {
+          "accounting": "SHADOW_WORK_VOLUME_PRESERVING",
+          "shadow_work_reduced": 0.0
+        },
+        "integrator_log_acceptance_contribution": -0.0,
+        "momentum_reversal_applied": true,
+        "endpoint_equilibrium_densities_evaluated": true,
+        "log_target_ratio": 0.0,
+        "log_proposal_ratio": 0.0,
+        "proposal_context": {
+          "temperature_k": 300.0,
+          "ph": 7.0,
+          "accessible_volume_a3": 8000.0,
+          "occupied_count_before": 0,
+          "occupied_count_after": 1,
+          "forward_selection_probability": 1.0,
+          "reverse_selection_probability": 1.0,
+          "forward_placement_density_a3_inv": 0.000125,
+          "reverse_placement_density_a3_inv": 0.000125,
+          "forward_orientation_density": 0.07957747154594767,
+          "reverse_orientation_density": 0.07957747154594767,
+          "initial_bias_weight": 1.0,
+          "proposed_bias_weight": 1.0,
+          "bias_epoch_sha256": "9999999999999999999999999999999999999999999999999999999999999999"
+        },
+        "proposal_measure_contract": {
+          "schema_kind": "prismos_ncmc_proposal_measure_contract",
+          "schema_version": 2,
+          "selection_measure": "DISCRETE_PROBABILITY",
+          "placement_measure": "PROBABILITY_DENSITY_ANGSTROM^-3",
+          "orientation_measure": "NORMALIZED_ORIENTATION_PROBABILITY_DENSITY",
+          "ratio_convention": "LOG_REVERSE_OVER_FORWARD_PRODUCT"
+        },
+        "derived_balance": {
+          "beta_mol_per_kcal": 1.6773984449958872,
+          "beta_chemical_potential_term": 0.0,
+          "beta_intrinsic_state_reference_term_in_total_mu": 0.0,
+          "beta_nonreference_chemical_potential_term": 0.0,
+          "beta_periodic_finite_size_correction_term_in_total_mu": 0.0,
+          "beta_calibrated_mu_remainder_term": 0.0,
+          "periodic_charge_treatment": {
+            "kind": "NET_CHARGE_INVARIANT",
+            "subject_charge_change_e": 0
+          },
+          "state_reference_convention": "TOTAL_MU_INCLUDES_INTRINSIC_STATE_FREE_ENERGY",
+          "ph_log_weight_term": 0.0,
+          "standard_state_volume_term": 0.0,
+          "occupancy_combinatorics_term": 0.0,
+          "target_bias_term": 0.0,
+          "log_target_ratio": 0.0,
+          "selection_proposal_term": 0.0,
+          "placement_proposal_term": 0.0,
+          "orientation_proposal_term": 0.0,
+          "log_proposal_ratio": 0.0,
+          "derivation_sha256": "0979737dcb06aa938a2abb0b9068755e4f80778c91a32ce0c00c5688c1b108aa"
+        },
+        "coupled_charge_partner": null,
+        "hamiltonian_sha256": "8ab95b61ee18d54a26ab60d6719c115e355290b992e7b6066725baeddf455370",
+        "endpoint_support_binding_sha256": "d603d331dd74fc517f98c592d100e209380acb34541791e69216f175853fdbfd",
+        "dual_endpoint_union_contract_sha256": "dd41ab1e124229d853e7ea8a85159f9c95fd0cbbb249491478dfd639549e6615",
+        "periodic_box_source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "pme_parameterization_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "log_acceptance": 0.0,
+        "uniform_random": 0.6242153602995086,
+        "accepted": true,
+        "rng_key": 7,
+        "rng_counter": "49",
+        "rng_allocation": {
+          "opportunity_counter_base": "8",
+          "selection_counter": "8",
+          "placement": {
+            "start": "9",
+            "count": "4"
+          },
+          "orientation": {
+            "start": "13",
+            "count": "4"
+          },
+          "momenta": {
+            "start": "17",
+            "count": "16"
+          },
+          "thermostat": {
+            "start": "33",
+            "count": "16"
+          },
+          "acceptance_counter": "49"
+        },
+        "rng_consumption": {
+          "schema_kind": "prismos_ncmc_rng_consumption_receipt",
+          "schema_version": 2,
+          "scheduler_contract_sha256": "00cee00b591bb3e218bafe90979ebadc3ae73353c91a6ac8fd56dd9084651a99",
+          "move_ordinal": 0,
+          "allocation": {
+            "opportunity_counter_base": "8",
+            "selection_counter": "8",
+            "placement": {
+              "start": "9",
+              "count": "4"
+            },
+            "orientation": {
+              "start": "13",
+              "count": "4"
+            },
+            "momenta": {
+              "start": "17",
+              "count": "16"
+            },
+            "thermostat": {
+              "start": "33",
+              "count": "16"
+            },
+            "acceptance_counter": "49"
+          },
+          "selection": {
+            "disposition": "CONSUMED",
+            "draw_count": "1",
+            "sampling_measure": "STATE_CONDITIONED_SUPPORT_CATEGORICAL_V2",
+            "deterministic_draws_sha256": "a0eab8299754ffbeea73b9a0d1e626491359ce15e31033a5ba6ed71341edea60"
+          },
+          "placement": {
+            "disposition": "NOT_APPLICABLE",
+            "physical_reason": "PERSISTENT_DECOUPLED_COORDINATES_RETAINED"
+          },
+          "orientation": {
+            "disposition": "NOT_APPLICABLE",
+            "physical_reason": "PERSISTENT_DECOUPLED_COORDINATES_RETAINED"
+          },
+          "momenta": {
+            "disposition": "NOT_APPLICABLE",
+            "physical_reason": "EXISTING_EQUILIBRIUM_MOMENTA_RETAINED"
+          },
+          "thermostat": {
+            "disposition": "FORBIDDEN",
+            "physical_reason": "DETERMINISTIC_GAMMA_ZERO_THERMOSTAT"
+          },
+          "acceptance": {
+            "disposition": "CONSUMED",
+            "draw_count": "1",
+            "sampling_measure": "METROPOLIS_UNIFORM_OPEN01_V1",
+            "deterministic_draws_sha256": "39d77aa11228f066365bf75157b41f79ed3848de2c5804d0d86fbfa9e13660df"
+          },
+          "counters_irrevocably_reserved_after_rejection": true,
+          "receipt_sha256": "e5ba245bd0d0a0a4c16a5b31fb3c68c3c6d9fd9f23e19f16682996e5830cf59a"
+        },
+        "ordered_work_trace": {
+          "schema_kind": "prismos_ncmc_ordered_work_trace",
+          "schema_version": 2,
+          "move_id": 0,
+          "schedule_sha256": "a005a6f1ec5af61ea8c426454e2949970e6dc7af1f5aecc0bc2a52b037dc0c7a",
+          "protocol_direction": "FORWARD",
+          "beta_mol_per_kcal": 1.0,
+          "entries": [
+            {
+              "entry_kind": "PERTURB",
+              "operation_index": 0,
+              "boundary_lineage": {
+                "before": {
+                  "schema_kind": "prismos_ncmc_boundary_population_lineage",
+                  "schema_version": 1,
+                  "boundary": {
+                    "move_id": 0,
+                    "protocol_direction": "FORWARD",
+                    "operation_index": 0,
+                    "boundary_ordinal": 0,
+                    "boundary_kind": "PERTURB_PRE"
+                  },
+                  "slot_events": [
+                    {
+                      "slot_id": 9,
+                      "event_sequence": 0,
+                      "raw_event_sha256": "e2d7cb3b3286c1498684f164162de679a97c7f2541a03481f20bb4e5cf688e48",
+                      "emission_receipt_sha256": "82fa0a7c0d9b46135766938a862dd848958adb1afd524e33f25aa770c452cda0"
+                    }
+                  ],
+                  "population_sha256": "45be46cc67a17ab4b100af8212a259c9d2896a592107104d0d08ac36190b68f9"
+                },
+                "after": {
+                  "schema_kind": "prismos_ncmc_boundary_population_lineage",
+                  "schema_version": 1,
+                  "boundary": {
+                    "move_id": 0,
+                    "protocol_direction": "FORWARD",
+                    "operation_index": 0,
+                    "boundary_ordinal": 1,
+                    "boundary_kind": "PERTURB_POST"
+                  },
+                  "slot_events": [
+                    {
+                      "slot_id": 9,
+                      "event_sequence": 1,
+                      "raw_event_sha256": "6a9f62c63b4d0a00d37ef2b8afc93bcc44ecc2fa1935ed5fd39523e04c3c1b5f",
+                      "emission_receipt_sha256": "b424330c97fb717c0388e6ed98ccd0e0309a0fdc30c42ffe8ece0fc1d40726fb"
+                    }
+                  ],
+                  "population_sha256": "d69fcb8287c206782ebc82be8cd0eff2f13bcef621e19fc919dcec1c26e194b2"
+                }
+              },
+              "lambda_from": 0.0,
+              "lambda_to": 1.0,
+              "potential_before_kcal_mol": 0.0,
+              "potential_after_kcal_mol": 0.0,
+              "reduced_work": 0.0
+            },
+            {
+              "entry_kind": "PROPAGATE",
+              "operation_index": 1,
+              "boundary_lineage": {
+                "before": {
+                  "schema_kind": "prismos_ncmc_boundary_population_lineage",
+                  "schema_version": 1,
+                  "boundary": {
+                    "move_id": 0,
+                    "protocol_direction": "FORWARD",
+                    "operation_index": 1,
+                    "boundary_ordinal": 2,
+                    "boundary_kind": "PROPAGATE_PRE"
+                  },
+                  "slot_events": [
+                    {
+                      "slot_id": 9,
+                      "event_sequence": 2,
+                      "raw_event_sha256": "b1f32f7e7aaa014e32d805b35ab22e3a310ed5926424b05c7cf8a07c2096c410",
+                      "emission_receipt_sha256": "4499d12143f7aa50ff2cc69174b1f72e02ec7c1b4e8c69e51a2c56c68413fe8e"
+                    }
+                  ],
+                  "population_sha256": "66e6bf953c463434b4a9ab499c6405b6fa2e468350583e7c257887fbf6ee22bc"
+                },
+                "after": {
+                  "schema_kind": "prismos_ncmc_boundary_population_lineage",
+                  "schema_version": 1,
+                  "boundary": {
+                    "move_id": 0,
+                    "protocol_direction": "FORWARD",
+                    "operation_index": 1,
+                    "boundary_ordinal": 3,
+                    "boundary_kind": "PROPAGATE_POST"
+                  },
+                  "slot_events": [
+                    {
+                      "slot_id": 9,
+                      "event_sequence": 3,
+                      "raw_event_sha256": "bfcd6527355de434f8560523582e4f4b564351f6b270e7febc48f58d50edd2c2",
+                      "emission_receipt_sha256": "ff2f0382ef485b2ac7885742c588c35901556349bedfe571522336b58900de2c"
+                    }
+                  ],
+                  "population_sha256": "ed21c4a318a4eea3ea88e06e59cbf13b2835c043a71ef4dd37c9dc490141c428"
+                }
+              },
+              "lambda": 1.0,
+              "integration_steps": 1,
+              "hamiltonian_before_kcal_mol": 0.0,
+              "hamiltonian_after_kcal_mol": 0.0,
+              "constraint_impulse_work_kcal_mol": 0.0,
+              "reduced_shadow_work": 0.0,
+              "resident_window": {
+                "logical_steps": 1,
+                "host_graph_launches": 1,
+                "legacy_graph_replay_dispatch_count": 0,
+                "resident_execution": true,
+                "capture_identity_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+                "graph_structure_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+                "deterministic_reversible_propagation": true,
+                "graph_exec_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+              }
+            }
+          ],
+          "perturbation_work_reduced": 0.0,
+          "shadow_work_reduced": 0.0,
+          "initial_endpoint_equilibrium_density_evaluated": true,
+          "proposed_endpoint_equilibrium_density_evaluated": true,
+          "trace_sha256": "2bdd8173af3b6c1bcfd626a153e83d2b68163a04c50084434164f5a61a465714"
+        },
+        "work_trace_sha256": "2bdd8173af3b6c1bcfd626a153e83d2b68163a04c50084434164f5a61a465714",
+        "phase_protocol_sha256": "0744d6219a685a7b0e467ebb4da25bc53418341cff0b20fc95f472d110b06598",
+        "prismcode_opcode": "MD.LAMBDA_NCMC_ACCEPT",
+        "prismcode_opcode_id": 1828,
+        "qnanl_artifact_family": "LAMBDA_FRAGMENT_NCMC_MOVE_RECEIPT"
+      },
+      "ncmc_move_receipt_sha256": "637681b159af4251d56b60152e2c307fc867566ede99fda9e44bb788a0c2171a",
+      "log_target_ratio": 0.0,
+      "log_acceptance": 0.0,
+      "uniform_random": 0.6242153602995086,
+      "forward_protocol_probability": 0.5,
+      "reverse_protocol_probability": 0.5,
+      "forward_selection_probability": 1.0,
+      "reverse_selection_probability": 1.0,
+      "forward_placement_density_a3_inv": 0.000125,
+      "reverse_placement_density_a3_inv": 0.000125,
+      "forward_orientation_density": 0.07957747154594767,
+      "reverse_orientation_density": 0.07957747154594767,
+      "proposal_measure_contract": {
+        "schema_kind": "prismos_ncmc_proposal_measure_contract",
+        "schema_version": 2,
+        "selection_measure": "DISCRETE_PROBABILITY",
+        "placement_measure": "PROBABILITY_DENSITY_ANGSTROM^-3",
+        "orientation_measure": "NORMALIZED_ORIENTATION_PROBABILITY_DENSITY",
+        "ratio_convention": "LOG_REVERSE_OVER_FORWARD_PRODUCT"
+      },
+      "accepted_state_commit": {
+        "schema_kind": "prismos_lambda_fragment_state_commit",
+        "schema_version": 1,
+        "stream_id": 3,
+        "step": 18,
+        "ncmc_move_receipt_sha256": "637681b159af4251d56b60152e2c307fc867566ede99fda9e44bb788a0c2171a",
+        "event_sequence": 6,
+        "parent_receipt_sha256": "24e16ceb010a20b8b7eb32c63a7383aaee08b4b0fd2ba76b9ff53904688a0d94",
+        "slot_id": 9,
+        "species_id": 7,
+        "chemical_state_id": 0,
+        "occupancy": "OCCUPIED",
+        "phase_protocol_sha256": "0744d6219a685a7b0e467ebb4da25bc53418341cff0b20fc95f472d110b06598",
+        "prismcode_opcode": "MD.LAMBDA_STATE_COMMIT",
+        "prismcode_opcode_id": 1830,
+        "qnanl_artifact_family": "LAMBDA_FRAGMENT_STATE_COMMIT"
+      },
+      "rollback_no_change": null,
+      "complete_exact_key_event_lineage": [
+        {
+          "event_kind": "FORCE",
+          "event_sequence": 0,
+          "parent_receipt_sha256": null,
+          "emission_receipt_sha256": "82fa0a7c0d9b46135766938a862dd848958adb1afd524e33f25aa770c452cda0",
+          "raw_event_sha256": "e2d7cb3b3286c1498684f164162de679a97c7f2541a03481f20bb4e5cf688e48",
+          "segment_manifest_sha256": "a75203341682f4ae8fade1bf787b6a90e85a846ba7875fd09ed0d23a26017e05",
+          "segment_sha256": "0852561fa1f0e1ee4b21abd08f255ba99fd5dd0906a27fc3922533dca88fa52a",
+          "segment_file": "lambda_journal_stream_0003_segment_000000000000.jsonl",
+          "byte_offset": 0,
+          "byte_length": 845
+        },
+        {
+          "event_kind": "FORCE",
+          "event_sequence": 1,
+          "parent_receipt_sha256": "82fa0a7c0d9b46135766938a862dd848958adb1afd524e33f25aa770c452cda0",
+          "emission_receipt_sha256": "b424330c97fb717c0388e6ed98ccd0e0309a0fdc30c42ffe8ece0fc1d40726fb",
+          "raw_event_sha256": "6a9f62c63b4d0a00d37ef2b8afc93bcc44ecc2fa1935ed5fd39523e04c3c1b5f",
+          "segment_manifest_sha256": "dd1bbe645d646a11b773de96ba5a30e19658cf78f74f1ec540e77fe743d370c7",
+          "segment_sha256": "ee1eba9e18539be6a9ea138496accf2e3ce7f6d9875cea3837ec2a7014319318",
+          "segment_file": "lambda_journal_stream_0003_segment_000000000001.jsonl",
+          "byte_offset": 0,
+          "byte_length": 907
+        },
+        {
+          "event_kind": "FORCE",
+          "event_sequence": 2,
+          "parent_receipt_sha256": "b424330c97fb717c0388e6ed98ccd0e0309a0fdc30c42ffe8ece0fc1d40726fb",
+          "emission_receipt_sha256": "4499d12143f7aa50ff2cc69174b1f72e02ec7c1b4e8c69e51a2c56c68413fe8e",
+          "raw_event_sha256": "b1f32f7e7aaa014e32d805b35ab22e3a310ed5926424b05c7cf8a07c2096c410",
+          "segment_manifest_sha256": "8d237ba82793cc613d9ff5e380882f88aabe379234a6a8bfd7e60832eb09ea33",
+          "segment_sha256": "4fe50d4cd1b5133fcdf49578694e02e1471bd2ec140612f6c98a641338e5dd3e",
+          "segment_file": "lambda_journal_stream_0003_segment_000000000002.jsonl",
+          "byte_offset": 0,
+          "byte_length": 907
+        },
+        {
+          "event_kind": "FORCE",
+          "event_sequence": 3,
+          "parent_receipt_sha256": "4499d12143f7aa50ff2cc69174b1f72e02ec7c1b4e8c69e51a2c56c68413fe8e",
+          "emission_receipt_sha256": "ff2f0382ef485b2ac7885742c588c35901556349bedfe571522336b58900de2c",
+          "raw_event_sha256": "bfcd6527355de434f8560523582e4f4b564351f6b270e7febc48f58d50edd2c2",
+          "segment_manifest_sha256": "dbe8181d5b185282a0916d4a6274a077882e98a1a6af81d336e849de0a6df935",
+          "segment_sha256": "be10fa38639f7e04d139fa1cc21bfbd6f14c2c826f460fc7e15e65e6f80536cb",
+          "segment_file": "lambda_journal_stream_0003_segment_000000000003.jsonl",
+          "byte_offset": 0,
+          "byte_length": 907
+        },
+        {
+          "event_kind": "NCMC_MOVE",
+          "event_sequence": 4,
+          "parent_receipt_sha256": "ff2f0382ef485b2ac7885742c588c35901556349bedfe571522336b58900de2c",
+          "emission_receipt_sha256": "d8dee95bc47d56411b728c4e7f2731cb4211a437711725b7fc0b410f183d2361",
+          "raw_event_sha256": "1c9a98cbd89803dfb0624c4300a4e060b4351330e69672d75510194ddb992768",
+          "segment_manifest_sha256": "cf3cada57649b08c99b07efc5b2c1c43d87645f9521e041ff014d9805e6f7a5d",
+          "segment_sha256": "28ee7c8ce009d5d23c4846b42634619cece9ea754f85d957cd798d2bca48e6a0",
+          "segment_file": "ncmc_resolution_stream_0003_step_000000000018_move_000000000000/lambda_journal_stream_0003_segment_000000000004.jsonl",
+          "byte_offset": 0,
+          "byte_length": 923
+        },
+        {
+          "event_kind": "ENDPOINT",
+          "event_sequence": 5,
+          "parent_receipt_sha256": "d8dee95bc47d56411b728c4e7f2731cb4211a437711725b7fc0b410f183d2361",
+          "emission_receipt_sha256": "24e16ceb010a20b8b7eb32c63a7383aaee08b4b0fd2ba76b9ff53904688a0d94",
+          "raw_event_sha256": "d13264fc69fd4c567eb95771542b0cff2dfdd94127d6c7a247c4555965f2408f",
+          "segment_manifest_sha256": "be19169a698c14de8eb2940f5390406eede0b7b7af24d5e6b38dc3c5e0662935",
+          "segment_sha256": "db209ac2a789802800c0453e45b4ac765a7a737942e5388e593cfc4600ecaa76",
+          "segment_file": "ncmc_resolution_stream_0003_step_000000000018_move_000000000000/lambda_journal_stream_0003_segment_000000000005.jsonl",
+          "byte_offset": 0,
+          "byte_length": 928
+        },
+        {
+          "event_kind": "STATE_COMMIT",
+          "event_sequence": 6,
+          "parent_receipt_sha256": "24e16ceb010a20b8b7eb32c63a7383aaee08b4b0fd2ba76b9ff53904688a0d94",
+          "emission_receipt_sha256": "0ff7f3561f9606cdd45e526bcac6d19fbd756566c96e079162ea3694ad6911f8",
+          "raw_event_sha256": "7958d988e91681106203e6328e4f95d11ad0c328d0996aa4bdc5bf0ae2b1285c",
+          "segment_manifest_sha256": "3c4b910a7c7d3c009b962dc75257b6e1e858cbe006fbb5aafcc3a6bd79eaa8bf",
+          "segment_sha256": "787d7c2086773cca704074f2a95f520c991ab19abddaaea36db5f15b0c9be169",
+          "segment_file": "ncmc_resolution_stream_0003_step_000000000018_move_000000000000/lambda_journal_stream_0003_segment_000000000006.jsonl",
+          "byte_offset": 0,
+          "byte_length": 915
+        }
+      ],
+      "source_journal_population_receipt_sha256": "9cfb9256c859c62695b1dae943a1906ddc45beeecff94fb94f2a417a06523305",
+      "row_sha256": "23ae6ca51ac7781ee821f790129c1d7f3bd228e0b4b0c5dff9dbdd10fdbadf8d"
+    }
+  ],
+  "artifact_sha256": "59e96fe3c0d89a3b69fda18fb36ffe1dace454f23eb3fe7a767c11e0540a9d56"
+}

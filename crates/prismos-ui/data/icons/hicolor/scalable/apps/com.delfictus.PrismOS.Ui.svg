@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- PrismOS app icon. Brand palette: light field, cyan accents (NOT green). -->
+  <defs>
+    <linearGradient id="ray1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00b8e6"/>
+      <stop offset="1" stop-color="#00b8e6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ray2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0078b8"/>
+      <stop offset="1" stop-color="#0078b8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ray3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b9bbf"/>
+      <stop offset="1" stop-color="#5b9bbf" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="8" width="240" height="240" rx="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- incoming beam -->
+  <rect x="26" y="125" width="58" height="6" rx="3" fill="#7c8aa0"/>
+
+  <!-- dispersed beams -->
+  <rect x="150" y="92"  width="86" height="6" rx="3" fill="url(#ray1)"/>
+  <rect x="150" y="125" width="86" height="6" rx="3" fill="url(#ray2)"/>
+  <rect x="150" y="158" width="86" height="6" rx="3" fill="url(#ray3)"/>
+
+  <!-- the prism -->
+  <path d="M 92 178 L 128 78 L 164 178 Z"
+        fill="#0078b8" fill-opacity="0.10"
+        stroke="#0f1722" stroke-width="6" stroke-linejoin="round"/>
+</svg>

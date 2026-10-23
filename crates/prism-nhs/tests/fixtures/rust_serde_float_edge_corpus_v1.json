@@ -1,0 +1,30 @@
+{
+  "schema_kind": "prism_rust_serde_float_edge_corpus",
+  "schema_version": 1,
+  "payload": {
+    "literal_text": "preserve 1e-08 inside JSON string",
+    "values": [
+      1e-10,
+      -1e-8,
+      1e-7,
+      1e-6,
+      0.00001,
+      0.0001,
+      0.001,
+      1000000000000000.0,
+      1e+16,
+      1e+17,
+      1e+20,
+      1e+21,
+      -0.0,
+      0.0,
+      1.0,
+      -2.0,
+      5e-324,
+      1.7976931348623157e+308,
+      2.2250738585072014e-308
+    ]
+  },
+  "rust_compact_json": "{\"literal_text\":\"preserve 1e-08 inside JSON string\",\"values\":[1e-10,-1e-8,1e-7,1e-6,0.00001,0.0001,0.001,1000000000000000.0,1e+16,1e+17,1e+20,1e+21,-0.0,0.0,1.0,-2.0,5e-324,1.7976931348623157e+308,2.2250738585072014e-308]}",
+  "rust_compact_sha256": "aa4be21d7b9ae9f103daef05f8473f5020a6d576d4e7cc88d0866eb08faf4e2a"
+}

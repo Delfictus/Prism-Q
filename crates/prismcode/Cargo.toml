@@ -1,0 +1,139 @@
+[package]
+name = "prismcode"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PRISM ISA / PRISMCODE Rust contract scaffold"
+build = "build.rs"
+
+[features]
+default = ["cuda"]
+cuda = []
+# Enables the live Rust->Python champion bridge (spawn/health/proxy of the
+# devbox serve.py). OFF by default so the standard build stays hermetic and
+# needs no Python at check/test time. See model_runtime_champion.rs / ADR-0016.
+champion_bridge = []
+
+[lib]
+name = "prismcode"
+path = "src/lib.rs"
+
+[dependencies]
+libc = "0.2"
+blake3 = "1.5"
+clap = { workspace = true }
+chrono = { workspace = true }
+csv = "1.4"
+ring = "0.17.14"
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+zstd = "0.13"
+
+[build-dependencies]
+cc = "1"
+
+[dev-dependencies]
+tempfile = "3.10"
+
+[[bin]]
+name = "prismcode-registry"
+path = "src/bin/prismcode_registry.rs"
+
+[[bin]]
+name = "prismcode_build"
+path = "src/bin/prismcode_build.rs"
+
+[[bin]]
+name = "prismcode-validate"
+path = "src/bin/prismcode_validate.rs"
+
+[[bin]]
+name = "prismcode-disasm"
+path = "src/bin/prismcode_disasm.rs"
+
+[[bin]]
+name = "prismcode_disassemble"
+path = "src/bin/prismcode_disassemble.rs"
+
+[[bin]]
+name = "prismc"
+path = "src/bin/prismc.rs"
+
+[[bin]]
+name = "prismdis"
+path = "src/bin/prismdis.rs"
+
+[[bin]]
+name = "prismval"
+path = "src/bin/prismval.rs"
+
+[[bin]]
+name = "prismrun"
+path = "src/bin/prismrun.rs"
+
+[[bin]]
+name = "prismreplay"
+path = "src/bin/prismreplay.rs"
+
+[[bin]]
+name = "prismbench"
+path = "src/bin/prismbench.rs"
+
+[[bin]]
+name = "prismqnanl"
+path = "src/bin/prismqnanl.rs"
+
+[[bin]]
+name = "prismhw"
+path = "src/bin/prismhw.rs"
+
+[[bin]]
+name = "prismui"
+path = "src/bin/prismui.rs"
+
+[[bin]]
+name = "prismseal"
+path = "src/bin/prismseal.rs"
+
+[[bin]]
+name = "prismsec"
+path = "src/bin/prismsec.rs"
+
+[[bin]]
+name = "prismattest"
+path = "src/bin/prismattest.rs"
+
+[[bin]]
+name = "prismredact"
+path = "src/bin/prismredact.rs"
+
+[[bin]]
+name = "prismkey"
+path = "src/bin/prismkey.rs"
+
+[[bin]]
+name = "prismctl"
+path = "src/bin/prismctl.rs"
+
+[[bin]]
+name = "prismfw"
+path = "src/bin/prismfw.rs"
+
+[[bin]]
+name = "prismos"
+path = "src/bin/prismos.rs"
+
+[[bin]]
+name = "prism-acceptance"
+path = "src/bin/prism_acceptance.rs"
+
+[[bin]]
+name = "prism-modeld"
+path = "src/bin/prism_modeld.rs"
+
+[[bin]]
+name = "prismcode-packet-policy"
+path = "src/bin/prismcode_packet_policy.rs"

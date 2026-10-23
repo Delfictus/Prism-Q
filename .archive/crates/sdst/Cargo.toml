@@ -1,0 +1,10 @@
+[package]
+name = "sdst"
+version = "0.1.0"
+edition = "2021"
+description = "SDST – Spike-Driven Sparse Temporal Hash for PRISM-Therm thermodynamic analysis"
+license = "MIT"
+
+# lib.rs is the crate root (Cargo default: src/lib.rs).
+# sdst_ffi.rs is the original documentation/integration guide file — kept intact
+# as reference material. src/lib.rs contains the actual compilable API.

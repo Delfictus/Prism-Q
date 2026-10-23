@@ -1,0 +1,5 @@
+error: field `field_1` (of `PoisonedTuple`) has FeatureRole::ReportingOnly which is forbidden from ML training tensors (Pillar 5 firewall: §5 of the PRISM-4D Entangled Transform Blueprint)
+  --> tests/mlfeature_compile_fail/fail_tuple_reportingonly.rs:11:5
+   |
+11 |     #[role(ReportingOnly)] pub &'static str,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
