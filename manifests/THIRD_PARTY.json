@@ -1,0 +1,299 @@
+{
+  "schema": "prism-q.third_party.v1",
+  "status": "REVIEWED_20261023",
+  "policy": "Every vendored, copied or embedded third-party file is listed with its license and a redistribution verdict before any public push. Verdicts: ALLOWED_WITH_NOTICE (third party, redistributable, credited in NOTICE), FIRST_PARTY (Delfictus-owned, all rights reserved, see LICENSE), EXCLUDED (not in this repository; hash recorded so builds stay reproducible) or REVIEW_REQUIRED. An entry left at REVIEW_REQUIRED blocks the public release gate.",
+  "generated_from": "engine tree after the P0.3 move (paths relative to the engine root); reviewed by the publish lane 2026-10-23 under operator decisions of the same date",
+  "entries": [
+    {
+      "path": "crates/prismos-ui/assets/fonts/JetBrainsMono-Regular.ttf",
+      "sha256": "b6b1ff4ddefe36d7f2a6174e1d001cab374e594519ee9049af028d577b64c5f5",
+      "component": "JetBrains Mono",
+      "origin": "https://github.com/JetBrains/JetBrainsMono",
+      "license": "OFL-1.1",
+      "license_file": "crates/prismos-ui/assets/fonts/JetBrainsMono-OFL.txt",
+      "verdict": "ALLOWED_WITH_NOTICE"
+    },
+    {
+      "path": "crates/prismos-ui/assets/fonts/JetBrainsMono-Bold.ttf",
+      "sha256": "a2349098b9e45419e7bf0e2958d6c4937a049dded37387b08be725be4c7615f3",
+      "component": "JetBrains Mono",
+      "origin": "https://github.com/JetBrains/JetBrainsMono",
+      "license": "OFL-1.1",
+      "license_file": "crates/prismos-ui/assets/fonts/JetBrainsMono-OFL.txt",
+      "verdict": "ALLOWED_WITH_NOTICE"
+    },
+    {
+      "path": "crates/prismos-ui/assets/fonts/IBMPlexSans-Regular.otf",
+      "sha256": "fb0736ca3746092c21301da211f379a9c37cb2ae1ef2ec0208c710cbd9c127e0",
+      "component": "IBM Plex Sans",
+      "origin": "https://github.com/IBM/plex",
+      "license": "OFL-1.1",
+      "license_file": "crates/prismos-ui/assets/fonts/IBMPlexSans-OFL.txt",
+      "verdict": "ALLOWED_WITH_NOTICE",
+      "license_file_sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+      "note": "OFL-1.1 text copied verbatim from github.com/IBM/plex LICENSE.txt (\"Copyright (c) 2017 IBM Corp. with Reserved Font Name \\\"Plex\\\"\"). Credited in NOTICE."
+    },
+    {
+      "path": "crates/prismos-ui/assets/fonts/IBMPlexSans-Bold.otf",
+      "sha256": "2734f1cafa0a6be9efa4fae8473075262992526a8491b250f9fc75022df49c6e",
+      "component": "IBM Plex Sans",
+      "origin": "https://github.com/IBM/plex",
+      "license": "OFL-1.1",
+      "license_file": "crates/prismos-ui/assets/fonts/IBMPlexSans-OFL.txt",
+      "verdict": "ALLOWED_WITH_NOTICE",
+      "license_file_sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+      "note": "OFL-1.1 text copied verbatim from github.com/IBM/plex LICENSE.txt (\"Copyright (c) 2017 IBM Corp. with Reserved Font Name \\\"Plex\\\"\"). Credited in NOTICE."
+    },
+    {
+      "path": "(embedded constants) AMBER ff14SB parameter values and 1-4 scaling factors in engine sources",
+      "sha256": null,
+      "component": "AMBER ff14SB force-field parameters",
+      "origin": "AmberTools 24.8 (conda-forge build ambertools-24.8): dat/leap/parm/parm10.dat (sha256 dc0c02d28fb7ee4f04d0a5edee3cd62968ba5e9bdb69e0f728bf01d242d7d062) + dat/leap/parm/frcmod.ff14SB (sha256 d7240947ca454e49fa2419343cff0090c1e9c02f39618e826d99fc5f1b29dc73). Reference: Maier et al., J. Chem. Theory Comput. 11, 3696-3713 (2015)",
+      "license": "Public domain (AmberTools 24.8 LICENSE, sha256 0b6851083326f7a65b52050b7ef4359ce3a06bb220eeb3ec0eb61810dffa5f34: 'The force field parameter files in the \"../dat/leap\" subdirectory have been placed in the public domain by their authors.')",
+      "verdict": "ALLOWED_WITH_NOTICE",
+      "note": "No AMBER parameter files (.dat/.frcmod/.lib/.off) are in the tree (searched by extension and name). Only transcribed ff14SB values are embedded. ff19SB values are not embedded. Production topologies are prepared at run time from the user's own AmberTools. Credited in NOTICE.",
+      "embedded_in": [
+        ".archive/crates/prism-physics/src/amber_ff14sb.rs",
+        "crates/prism-gpu/src/amber_mega_fused.rs",
+        "crates/prism-gpu/src/amber_forces.rs",
+        "crates/prism-nhs/src/dstw_dispatch/sidechain_tables.rs",
+        "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+      ]
+    },
+    {
+      "path": "crates/prism-nhs/assets/xgb_ranker_v3.onnx",
+      "sha256": "77cf7dad4ed9e858c7d90ee2a61a96892275d81b69696b989f58da2578d61caa",
+      "component": "first-party trained ranker model (include_bytes!)",
+      "origin": "First-party. Trained by Prism4D-bio scripts/training/xgboost_ranker_v3.py (XGBRanker rank:ndcg, depth 6, 500 estimators, lr 0.05; LOTO over 345 targets) on PRISM engine spike outputs (own 10k-run parquets) with graded labels 1/(1+min distance to the ligand centroid) from per-target ground-truth files. The model is embedded via include_bytes!.",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY",
+      "note": "Operator lead decision 2026-10-23: keep as first-party trained weights with provenance PARTIAL. README states that the training receipts are missing.",
+      "provenance": "PARTIAL",
+      "provenance_gaps": [
+        "Training receipts (model.json, evaluation.json, features.json, model.onnx) were written to a spike-audit/ranker-xgb-v3 directory that no longer exists anywhere searched (home directories, the storage volume, the installed appliance, the governed runtime roots and removable media; searched 2026-10-23), so these bytes cannot be bound to a training run.",
+        "The asset first appears in Prism4D-bio commit fa0c6997 (2026-04-21)."
+      ]
+    },
+    {
+      "path": "crates/prism-nhs/assets/tokenized_ranker_v4.bin",
+      "sha256": "0fa7c6c579b7383ad9507eb0a6156444a590e19b2ed324e3dc19d07dbbf8a71b",
+      "component": "first-party tokenized ranker weights (include_bytes!)",
+      "origin": "First-party. A 256-bin learned lookup (version 7, method LOTO_v4_non_naive; evaluation n_targets 302, SR@1 36.42%) whose metadata is in crates/prism-nhs/assets/tokenized_ranker_v4.json. Embedded via include_bytes!.",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY",
+      "note": "Operator lead decision 2026-10-23: keep as first-party trained weights with provenance PARTIAL. README states that the training receipts are missing.",
+      "provenance": "PARTIAL",
+      "provenance_gaps": [
+        "No v4 training script was found in Prism4D-bio or PrismOS trees.",
+        "The training receipt directory ranker-loto-v4 no longer exists."
+      ]
+    },
+    {
+      "path": "crates/prismos-ui/assets/branding/prismos-splash.png",
+      "sha256": "28e99546f51b130499a48250d57a0070763fa9cf99149122418f5d39431f9432",
+      "component": "first-party branding",
+      "origin": "first-party",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY",
+      "note": "Keep. prismos-ui is the engine workbench and part of the P0.6 capability manifest, so it belongs in the engine repository with its branding (operator decision 2026-10-23)."
+    },
+    {
+      "path": "crates/prism-nhs/assets/tokenized_ranker_v4.json",
+      "sha256": "6d422781cd5315e60f0e76b188a0ae86705ca4ae30119142796030cd7e3bbb80",
+      "component": "first-party tokenized ranker metadata and lookup table",
+      "origin": "first-party (see tokenized_ranker_v4.bin)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY",
+      "provenance": "PARTIAL"
+    },
+    {
+      "path": "crates/prismos-ui/data/applications/com.delfictus.PrismOS.Ui.desktop",
+      "sha256": "6f8236fc8e19693583e8ebb3585209ab4513db578f69c3e25fe1fe574bb19e5b",
+      "component": "first-party prismos-ui desktop integration",
+      "origin": "first-party",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "crates/prismos-ui/data/icons/hicolor/scalable/apps/com.delfictus.PrismOS.Ui.svg",
+      "sha256": "667ba96e7b23c0797f2bb9dc6b80d4d03ec2db4eed68eb8a4f2ff9e44e1466ce",
+      "component": "first-party prismos-ui desktop integration",
+      "origin": "first-party",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "BUILD_INPUTS/GHOST_TOPOLOGY_POLICY.json",
+      "sha256": "75183a61df6ff6b36d1145336cc9476d1a8cb86150e85ef166fe3ae4fb656ce6",
+      "component": "first-party ghost topology build policy",
+      "origin": "first-party",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY",
+      "note": "Own artifact; committed and bound by path and sha256 through PRISM_GHOST_TOPOLOGY_POLICY_PATH/_SHA256 (operator decision 2026-10-23). The release gate found no host paths in it."
+    },
+    {
+      "path": "configs/security/release_key_policy.toml",
+      "sha256": "b54e6bd23256d6aa49e5b594ac6200e458e73d408f816952d71d4ae4ad4ce37c",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:configs/security/release_key_policy.toml (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/compression_heavy_nanl_bin.pcsrc.json",
+      "sha256": "87ea5238035437bab928e057a19b65e7bbd99191d7cbefd3b200af2863dabdca",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/compression_heavy_nanl_bin.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/compression_heavy_nanl_q4.pcsrc.json",
+      "sha256": "4e52495510b05193f7e4780a84508dfa65cde81d3b45ad8ee9d4c3b9fc7ded47",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/compression_heavy_nanl_q4.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/derived_drf_reconstruction.pcsrc.json",
+      "sha256": "b64e8feacad305d56e916be616f22388d89e4448c8fe89b2a7061059b9d7ea6a",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/derived_drf_reconstruction.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/drf_graph.pcsrc.json",
+      "sha256": "eade1479728c8af495e987cd70193563055b616ef9faa75d606e1efb8b814a46",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/drf_graph.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/malformed_drf_tensor.pcsrc.json",
+      "sha256": "6c4360ac8109730bad40b83713154bf35c8d2ebc606909659b58b89a751acad6",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/malformed_drf_tensor.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/malformed_nanl_q4.pcsrc.json",
+      "sha256": "d84c4e3a9e78b6f14f36cf596040117617f8fbe947fcac74000bb2fed9976a0c",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/malformed_nanl_q4.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/malformed_nrf_frame.pcsrc.json",
+      "sha256": "7b98d1bb283a8fb0282cb8428b1cfee6074813415d16aba46259d2686fee736b",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/malformed_nrf_frame.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/malformed_untyped_domain.pcsrc.json",
+      "sha256": "1ba2213ed204a1f8bdc5a49514726ffa2cba5d7d1fe63ab4a865b10c48ac23d6",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/malformed_untyped_domain.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/nrf_event_frames.pcsrc.json",
+      "sha256": "f8f8440b21ea3af885a5a170970397accaa6f85fea6cdea8dcfe3f8d02f77016",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/nrf_event_frames.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/protein_water_variant.pcsrc.json",
+      "sha256": "37a6bf1b2d2e26e0b541d8d01d6f4911a66440b10433e58c4a72bdabba019b95",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/protein_water_variant.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/reference.pcsrc.json",
+      "sha256": "3c9b0608e5fc81dc2c0cde12ef3964e4a25b6550e683ec4e27cdea5d93f8151a",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/reference.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/reference_expected.pcasm",
+      "sha256": "bad3376995206ecdc8b019fa10cb40edbaca4793851897814cf0de3f9f8bfe4d",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/reference_expected.pcasm (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/replay_heavy_canonical.pcsrc.json",
+      "sha256": "e8971fa798a07d28987dcd4a4b9fc039592669c7c52067ae1efde66ca652895e",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/replay_heavy_canonical.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/corpus/cse_hd/tiny_cse_state.pcsrc.json",
+      "sha256": "84b55abe3a87a9fe3b02ae0626b72c6005613fcea1105da41829da56cdb505d9",
+      "component": "first-party PRISM prismcode test fixture (include_str!)",
+      "origin": "first-party; operator-authorized targeted import from Prism4D-bio 7d58ae8a:examples/corpus/cse_hd/tiny_cse_state.pcsrc.json (examples/PROVENANCE.json)",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    },
+    {
+      "path": "examples/PROVENANCE.json",
+      "sha256": "6bef152ed67dc12e4ea3af0f6b03158a9e422dbb5cbcbf4aae3f56e822dd5df5",
+      "component": "import provenance record for the fixtures above",
+      "origin": "first-party",
+      "license": "first-party, all rights reserved (LICENSE)",
+      "verdict": "FIRST_PARTY"
+    }
+  ],
+  "excluded_build_inputs": [
+    {
+      "path": "BUILD_INPUTS/sdst/lib/libsdst.so (not in repository)",
+      "sha256": "83d0e71e9da31b99bc2ef29bfa1845f265466a975f57d654417dc22333e00854",
+      "reason": "prebuilt binary, relocated outside the public subtree before the engine/ move (P0.3 step 1, da91aca; PrismOS store engine_build_inputs/sdst/lib). The build reads it through SDST_LIB_DIR, pinned by PRISM_SDST_LIB_SHA256. Sources are under .archive/crates/sdst",
+      "verdict": "EXCLUDED"
+    },
+    {
+      "path": "vendor/crates-io/",
+      "sha256": null,
+      "reason": "vendored crates.io sources (533 MB). Each crate keeps its own license; they are published separately as a reproducible tarball, never in git.",
+      "verdict": "EXCLUDED"
+    },
+    {
+      "path": "crates/prism-gpu/src/kernels.zip",
+      "sha256": "0558f0469aa95608fcc72aa206f5f60e533a14baf045f1c94999fa678f669866",
+      "reason": "archive of an older kernel tree; not a build input and not reviewable",
+      "verdict": "EXCLUDED",
+      "note": "Removed from the engine tree before the move (P0.3 step 1, da91aca); retained privately in the PrismOS store under engine_evidence/archives. Never in the public split history."
+    },
+    {
+      "path": "crates/prismcode/src.zip",
+      "sha256": "9461da52bbf703f7b9349aba4dc06094133eec11a15ffb2b3dda469408c48fec",
+      "reason": "archive of an older prismcode source tree",
+      "verdict": "EXCLUDED",
+      "note": "Removed from the engine tree before the move (P0.3 step 1, da91aca); retained privately in the PrismOS store under engine_evidence/archives. Never in the public split history."
+    }
+  ],
+  "decisions_for_operator": [],
+  "decisions_resolved": [
+    "License: all rights reserved (operator 2026-10-23). Every Cargo.toml carries license = \"LicenseRef-Proprietary\", publish = false, repository = https://github.com/Delfictus/Prism-Q. See LICENSE and NOTICE.",
+    "Company contact emails were removed from tptp.cu and dr_whcr_ultra.cu (comment only, P0.3 step 2 9e1ed22). The originals remain in private store history only.",
+    "prismos-ui and its branding are kept as the engine workbench (P0.6 capability manifest).",
+    "Rankers are kept as first-party with provenance PARTIAL (lead 2026-10-23).",
+    "AMBER ff14SB values: ALLOWED_WITH_NOTICE (public domain per the AmberTools 24.8 LICENSE)."
+  ]
+}

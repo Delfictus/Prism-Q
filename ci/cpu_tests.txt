@@ -1,0 +1,3 @@
+# CPU-only tests that run on a clean checkout without a GPU, host evidence paths or vendored crates.
+# One unittest target per line (module path or file), e.g. scripts/tests/test_foo.py
+# Empty means NOT_BUILT: CI reports it and does not pretend tests ran.

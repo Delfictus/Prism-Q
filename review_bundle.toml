@@ -1,0 +1,992 @@
+# Prism-Q review bundle specification.
+#
+# scripts/build_review_bundle.py reads this file, pulls verbatim source excerpts
+# from the engine root, hashes every included file and renders REVIEW_BUNDLE.md.
+# REVIEW_BUNDLE.md is generated: never edit it by hand, edit this file or the source.
+#
+# Paths are relative to the engine root (the repository root of Prism-Q).
+#
+# Excerpt selectors (exactly one per excerpt):
+#   symbol = '<python regex>'  first matching line; the excerpt runs to the end of the
+#                              brace-balanced body (C/C++/CUDA/Rust), capped at max_lines.
+#                              occurrence = N picks the N-th match (1-based, default 1).
+#   anchor = '<python regex>'  first matching line, with `before` / `after` context lines.
+#   lines  = [start, end]      fixed 1-based inclusive range (use only for stable files).
+#
+# Anchor outcomes:
+#   file missing             -> the excerpt renders NOT_BUILT (never skipped).
+#   file present, no match   -> ANCHOR_BROKEN; `--check` fails until this file is updated.
+#
+# Layer status vocabulary: QUALIFIED | EXECUTED_UNQUALIFIED | NOT_BUILT.
+# Defect status vocabulary: OPEN | FIX_IN_REVIEW | FIXED | WONTFIX_DOCUMENTED.
+# A section may list `planned` components that do not exist yet; they render as NOT_BUILT rows.
+
+[bundle]
+title = "Prism-Q engine review bundle"
+schema_version = 1
+max_bytes = 2_200_000
+default_max_lines = 140
+claim_scope = """
+Computational evidence only. Nothing in this repository or bundle is wet-lab, clinical,
+regulatory, synthesis, safety or ADMET validation. The BIPRISM electronic layer is a
+phenomenological quantum analogue with uncalibrated parameters (label: analogue_uncalibrated)
+until the tight-binding grounding package passes its gates."""
+hazards = [
+  "PTX resolution: generated PTX is never committed. The nhs_rt_full path resolves PTX through prism_gpu::ptx_authority (env dir, beside the executable, then this build's OUT_DIR/ptx) and records kernel_set_sha256 (e6d7c4f). Still open: the nhs-analyze-* binaries and 6 prism-gpu modules resolve PTX outside the authority, and the baked OUT_DIR fallback can bind a mutable build tree for an installed binary that has no env and no ptx/ beside it (review findings S2-F1..F10).",
+  "The v10/v9 adjudicator include now resolves to the real crates/prism-nhs/src/cuda/adjudicator.cuh, and a missing header is an #error (67d6730; PTX byte-identical). Builds before 67d6730 compiled an opaque 256-byte stand-in struct. Open: prism-gpu build.rs does not list that header as rerun-if-changed (S1-F1).",
+  "Workspace .cargo/config.toml replaces crates-io with vendor/crates-io, which is not published; a public build needs `cargo vendor` or removal of the source replacement.",
+  "The SDST library is a prebuilt binary kept outside this repository; the build reads it through SDST_LIB_DIR pinned by PRISM_SDST_LIB_SHA256 and fails closed when missing or mismatched.",
+]
+
+[[section]]
+id = "S01"
+title = "Topology and preparation (HMR, residue identity)"
+stage = "input"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Reads a prepared AMBER-parameterised topology (ff14SB/ff19SB style prmtop/JSON), builds per-atom
+masses, charges, LJ parameters, bonded terms, exclusions and residue identity. Hydrogen mass
+repartitioning (HMR) moves mass from heavy atoms to bonded hydrogens. Residue identity is carried
+as residue index plus name and chain; insertion codes and PDB numbering are not carried end to end."""
+equations = '''
+HMR: for each H bonded to heavy atom X, \(m_H' = f\,m_H\), \(m_X' = m_X - (f-1)\,m_H\), total mass conserved: \(\sum_i m_i' = \sum_i m_i\).
+'''
+units = [
+  ["mass", "amu (g/mol)"],
+  ["charge", "e"],
+  ["length", "Angstrom"],
+  ["LJ epsilon", "kcal/mol"],
+  ["LJ sigma", "Angstrom"],
+]
+invariants = [
+  "Total mass is unchanged by HMR (to FP64 round-off).",
+  "No hydrogen mass exceeds its declared target; no heavy atom mass becomes non-positive.",
+  "Each atom maps to exactly one (chain, residue index, residue name); this map is the spatial anchor for every downstream datum.",
+]
+gate = "Topology round trip against the prep tool output: per-atom mass/charge/type identity, residue identity (chain, PDB number, insertion code) preserved, HMR total-mass check."
+questions = [
+  "Derive the heavy-atom mass after apply_hmr for a CH3 group with factor f and show the total-mass invariant holds in the excerpt (cite path:line).",
+  "Where is the PDB residue number and insertion code carried? If it is not carried, list every downstream consumer that converts residue index to residue number and show the conversion (path:line).",
+  "Does the historical-May HMR path (apply_hmr_historical_may_execution) apply HMR a second time to an already repartitioned topology? Show the guard.",
+  "gb_radii is emitted by prep: find any reader in the engine. If there is none, state it as a finding.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/input.rs"
+  symbol = 'pub fn apply_hmr\('
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/input.rs"
+  symbol = 'fn apply_hmr_with_historical_repeat'
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/input.rs"
+  anchor = 'pub residue_ids: Vec<usize>'
+  before = 6
+  after = 14
+  [[section.defect]]
+  id = "D-RESID-OFFSET"
+  title = "Residue index converted with lr.resid - 1 in site lining / phase-manifold features"
+  where = "crates/prism-nhs/src/bin/nhs_rt_full.rs (lr.resid - 1, four sites)"
+  status = "OPEN"
+  fix_package = "P3"
+  [[section.defect]]
+  id = "D-GB-RADII-UNREAD"
+  title = "gb_radii emitted by prep and read by nothing"
+  where = "prep output; no engine consumer"
+  status = "OPEN"
+  fix_package = "P9"
+
+[[section]]
+id = "S02"
+title = "Bonded and nonbonded forces"
+stage = "forces"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Production nonbonded is plain Coulomb with epsilon_r = 1 (vacuum) plus 12-6 LJ, cut at 10 Angstrom
+with a potential shift on the ordinary (non-exception) pairs. This is vacuum, not implicit solvent.
+1-4 pairs use ff14SB fudge factors or exact prmtop exceptions. A second kernel,
+compute_nonbonded_neighborlist, carries a distance-dependent dielectric (epsilon = 4r); which kernel
+the production route launches must be established from the host launch sites (reviewer question 5)."""
+equations = '''
+\(F_{ij} = \left[24\,\varepsilon_{ij}\,r^{-2}\left(2(\sigma/r)^{12}-(\sigma/r)^{6}\right) + k_C\,q_iq_j\,r^{-3}\right]\mathbf r_{ij}\), \(k_C = 332.0636\) kcal mol\(^{-1}\) Å e\(^{-2}\)
+
+Shifted potential for \(r<r_c\): \(V(r) = V_{LJ}(r)+V_C(r) - [V_{LJ}(r_c)+V_C(r_c)]\); force is not shifted (discontinuous force derivative at \(r_c\)).
+
+Lorentz-Berthelot: \(\sigma_{ij}=\tfrac12(\sigma_i+\sigma_j)\), \(\varepsilon_{ij}=\sqrt{\varepsilon_i\varepsilon_j}\).
+'''
+units = [
+  ["r, sigma, cutoff", "Angstrom"],
+  ["epsilon, V", "kcal/mol"],
+  ["q", "e"],
+  ["k_C (COULOMB_CONSTANT)", "kcal mol^-1 Angstrom e^-2"],
+  ["F", "kcal mol^-1 Angstrom^-1"],
+]
+invariants = [
+  "Newton's third law per pair: fi -= f, fj += f.",
+  "The potential offset applies to ordinary pairs only; exact exception pairs are never shifted and stay active beyond the cutoff.",
+  "Net force on an isolated system with no external field is zero to round-off.",
+]
+gate = "Per-term energy and force agreement against an independent reference (OpenMM 8.6.1 with identical cutoff/shift settings) on frozen snapshots; finite-difference force check of the composed potential."
+questions = [
+  "Show the units of each factor in elec_force and confirm the result is kcal mol^-1 Angstrom^-2 before multiplication by r_ij (path:line).",
+  "ordinary_cutoff_potential_offset_v1 shifts the potential but not the force. Quantify the energy-conservation consequence at r_c = 10 Angstrom for a +1/-1 pair.",
+  "Which value of the Coulomb constant does the engine use, and how does it compare with AMBER (332.0522173), CHARMM (332.0716) and the CODATA 2022 value? (See the unit_conversions check.)",
+  "Is there any dielectric, reaction-field or GB term on the production path? Cite the line where it would be applied or state that it is absent.",
+  "compute_nonbonded_neighborlist uses epsilon = 4r while compute_nonbonded_force uses epsilon = 1. Find every host launch of each kernel (fused_engine.rs) and state which one the production route executes.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = '#define COULOMB_CONSTANT'
+  before = 0
+  after = 0
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = '#define NB_CUTOFF 10'
+  before = 0
+  after = 1
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = '__device__ __forceinline__ double ordinary_cutoff_potential_offset_v1'
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = '__device__ __forceinline__ void compute_nonbonded_force\('
+  max_lines = 90
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = 'Coulomb with implicit solvent \(ε = 4r\)'
+  before = 6
+  after = 10
+  [[section.defect]]
+  id = "D-VACUUM"
+  title = "Production electrostatics are vacuum (epsilon_r = 1, 10 Angstrom potential-shift cutoff); temperature-dependent dielectric is computed and unused"
+  where = "nhs_amber_fused.cu COULOMB_CONSTANT / compute_nonbonded_force; fused_engine.rs compute_cryo_dielectric (_effective_dielectric unused)"
+  status = "OPEN"
+  fix_package = "P9 (MVS-DS solvent)"
+
+[[section]]
+id = "S03"
+title = "Integrator (BAOAB/OVRVO phases, SHAKE/RATTLE/SETTLE, dt, MTS)"
+stage = "integrator"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Langevin splitting executed as separate phase kernels (OU half, kick, drift, SHAKE position,
+RATTLE velocity) inside a captured step graph. Gears are 0.5 / 2 / 4 fs. There is no 5 or 6 fs gear
+and no multiple-time-step (MTS) integrator. X-H bonds are constrained (SHAKE/RATTLE); SETTLE exists
+for rigid water but is used only on the lambda path and a self-test."""
+equations = '''
+OVRVO / BAOAB-type splitting with \(c_1 = e^{-\gamma\,\Delta t/2}\): \(v \leftarrow c_1 v + \sqrt{(1-c_1^2)k_BT/m}\,\xi\); \(v \leftarrow v + \tfrac{\Delta t}{2} F/m\); \(x \leftarrow x + \Delta t\,v\); constraints; force; kick; OU.
+
+Linear stability of velocity Verlet for the fastest mode: \(\omega\Delta t < 2\). Nonlinear \(n{:}1\) resonance: \(\omega\Delta t = 2\sin(\pi/n)\) (\(n=3\): \(\sqrt3\); \(n=4\): \(\sqrt2\)).
+Effective frequency: \(\omega_{\rm eff} = \tfrac{2}{\Delta t}\arcsin(\omega\Delta t/2)\).
+'''
+units = [
+  ["dt", "ps (gears 0.0005 / 0.002 / 0.004)"],
+  ["gamma", "ps^-1"],
+  ["v", "Angstrom/ps"],
+  ["F/m conversion", "AMBER_KCAL_TO_AMU_A2_PS2 (kcal/mol -> amu Angstrom^2 ps^-2)"],
+]
+invariants = [
+  "Constraint residuals below tolerance after every SHAKE/RATTLE phase.",
+  "Each phase kernel runs in the declared order; the post-UV historical second half (exact_nonbonded_exceptions_enabled < 0) is admitted only for the historical caller and traps otherwise.",
+  "Gear dt is read from one table (gearbox.cuh); no other dt source.",
+]
+gate = "Measured omega_max resonance scan, NVE drift per gear, dt-convergence of dihedral distributions; 4 fs single-rate only after the gates pass; 5/6 fs only as MTS (inner <= 2.5 / 2 fs)."
+questions = [
+  "Using omega_max = 354.1 ps^-1, compute omega*dt at 4 fs and identify which n:1 resonance it sits on. Compare with the omega_dt_resonance check output.",
+  "In the KICK_NP1 branch with exact_nonbonded_exceptions_enabled < 0, is the force recomputed before the second half kick? Explain the consequence for any '6 fs holds' claim (path:line).",
+  "Show where the constraint tolerance is set and whether SHAKE iterations are bounded; what happens on non-convergence?",
+  "List the gear dt values from gearbox.cuh and confirm no 5 or 6 fs gear exists.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/cuda/gearbox.cuh"
+  anchor = '#define PRISM_GEAR_DEFAULT_DT_FS_G0'
+  before = 3
+  after = 3
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = 'Post-UV original second half: same unrecomputed, unclamped force'
+  before = 13
+  after = 14
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/settle.cu"
+  symbol = '__global__ void settle_constraints\('
+  max_lines = 80
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = '__device__ bool shake_cluster_positions\('
+  before = 1
+  max_lines = 90
+  [[section.defect]]
+  id = "D-RESONANCE-4FS"
+  title = "4 fs single-rate sits on the 4:1 nonlinear resonance (omega*dt = 1.4164, ~11% blue shift of the fastest mode); the existing 'qualified' level 1.4272 is circular"
+  where = "gearbox.cuh gear 2"
+  status = "OPEN"
+  fix_package = "Package G / MTS"
+  [[section.defect]]
+  id = "D-6FS-REUSE"
+  title = "May '6 fs holds' reuse an unrecomputed second-half force"
+  where = "nhs_amber_fused.cu KICK_NP1 historical branch"
+  status = "OPEN"
+  fix_package = "contradiction graph; historical only"
+  [[section.defect]]
+  id = "D-NO-MTS"
+  title = "No 5/6 fs gear and no MTS integrator"
+  where = "gearbox.cuh"
+  status = "OPEN"
+  fix_package = "Package G"
+  [[section.planned]]
+  name = "MTS integrator (inner <= 2.5 fs for 5 fs outer, <= 2 fs for 6 fs outer)"
+  package = "Package G"
+
+[[section]]
+id = "S04"
+title = "Thermostat, RNG and the friction ramp"
+stage = "thermostat"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Langevin OU half-steps use cuRAND XORWOW per-atom states (not counter-based Philox). Friction starts
+at 1000 ps^-1 and decays exponentially over the first 10,000 steps to gamma_base, then switches
+discontinuously. The UV vibrational-transfer kick uses an in-kernel LCG seeded only by
+(timestep, aromatic index), so every stream draws identical kick directions."""
+equations = '''
+\(c_1 = e^{-\gamma\Delta t}\); \(\gamma(t) = \gamma_{eq}e^{-3s} + \gamma_0(1-e^{-3s})\), \(s = \text{step}/10^4\) for step \(<10^4\), then \(\gamma_0\).
+At \(s\to1^-\): \(\gamma = 1000e^{-3} + \gamma_0(1-e^{-3}) \approx 49.8 + 0.95\gamma_0\) ps\(^{-1}\); at \(s=1\): \(\gamma_0\) (jump).
+LCG: \(r_{k+1} = 1103515245\,r_k + 12345 \pmod{2^{32}}\).
+'''
+units = [
+  ["gamma", "ps^-1"],
+  ["T", "K"],
+  ["k_B T / m", "Angstrom^2 ps^-2"],
+  ["Q_bath (heat)", "kcal/mol (separate owner from intervention work)"],
+]
+invariants = [
+  "Fluctuation-dissipation: OU noise amplitude matches c1 for the same gamma and dt.",
+  "RNG state is part of the restart closure and restored exactly.",
+  "Thermostat heat (Q_bath) is never booked into intervention work (W_uv, W_lif).",
+]
+gate = "H0: two capture-off launches are bitwise identical over 10k steps including Chronicle leaf hashes; until then every on/off comparison is STATISTICAL_ONLY. Kinetic/causal windows exclude the overdamped first ~40 ps."
+questions = [
+  "Compute gamma just before and at step 10,000 for gamma_base = 10 ps^-1 from compute_cryo_friction and state the size of the discontinuity.",
+  "Show that the LCG seed in apply_vibrational_transfer contains no stream or replica identifier, and state the consequence for 8 concurrent streams.",
+  "Is the LCG kick momentum-conserving? Show whether centre-of-mass momentum is removed after the kick (path:line).",
+  "Where is the per-atom curandState saved and restored for restart, and is the restore bitwise?",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = '__device__ void langevin_thermostat\('
+  max_lines = 60
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/fused_engine.rs"
+  symbol = 'fn compute_cryo_friction\('
+  max_lines = 60
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_excited_state.cuh"
+  symbol = '__device__ __forceinline__ void apply_vibrational_transfer\('
+  max_lines = 110
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = 'timestep \* n_aromatics \+ arom_idx'
+  before = 14
+  after = 4
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = 'extern "C" __global__ void init_rng_states\('
+  max_lines = 20
+  [[section.defect]]
+  id = "D-FRICTION-RAMP"
+  title = "Friction ramp discontinuous at step 10,000 (~59 -> 10 ps^-1 for gamma_base=10); first ~40 ps overdamped"
+  where = "fused_engine.rs compute_cryo_friction"
+  status = "OPEN"
+  fix_package = "P1/P2 protocol phases"
+  [[section.defect]]
+  id = "D-RNG-UV-LCG-STREAM"
+  title = "UV LCG seeded by (timestep*n_aromatics + arom_idx): all streams receive identical kick directions"
+  where = "nhs_amber_fused.cu UV loop; nhs_excited_state.cuh apply_vibrational_transfer"
+  status = "OPEN"
+  fix_package = "H0 (counter-based Philox4x32-10)"
+  [[section.defect]]
+  id = "D-XORWOW"
+  title = "Engine RNG is cuRAND XORWOW (stateful), not counter-based; determinism gate not passed"
+  where = "nhs_amber_fused.cu curandState"
+  status = "OPEN"
+  fix_package = "H0"
+
+[[section]]
+id = "S05"
+title = "Neighbour list"
+stage = "neighbour_list"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Warp-cooperative cell list, non-periodic, rebuilt every 20 steps with no displacement trigger.
+Atoms outside the grid are clamped to face cells, and pairs between 10 and 12 Angstrom that are two
+cells apart can be missed."""
+equations = '''
+Verlet-buffer requirement: a fixed rebuild interval \(N\) is safe only if \(2\,\max_i|\Delta x_i| < r_{list} - r_c\) over \(N\) steps.
+'''
+units = [
+  ["cell size, cutoff, skin", "Angstrom"],
+  ["rebuild interval", "steps (should be physical time or displacement)"],
+]
+invariants = [
+  "Every pair with r < r_c at any step between rebuilds is in the list.",
+  "No atom is silently clamped; out-of-grid atoms fault.",
+]
+gate = "Brute-force O(N^2) pair-set comparison at every step of a recorded trajectory segment; zero missed pairs with r < r_c."
+questions = [
+  "From nhs_build_neighbor_list_warp, derive which cell offsets are searched and show the geometric case in which a pair at 10-12 Angstrom is missed.",
+  "Show how atom_cell is computed for an atom outside the grid bounds (clamp vs fault).",
+  "Is there any displacement-based rebuild trigger? Cite the rebuild-interval source.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_neighbor_warp.cuh"
+  symbol = 'nhs_build_neighbor_list_warp\('
+  max_lines = 110
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/fused_engine.rs"
+  anchor = 'neighbor_list_rebuild_interval: 20'
+  before = 2
+  after = 2
+  [[section.defect]]
+  id = "D-NBL-MISS-10-12"
+  title = "Non-periodic list clamps atoms at grid faces and can miss 10-12 Angstrom pairs two cells apart; fixed 20-step rebuild, no displacement trigger"
+  where = "nhs_neighbor_warp.cuh; fused_engine.rs neighbor_list_rebuild_interval"
+  status = "OPEN"
+  fix_package = "P3 / Package G"
+
+[[section]]
+id = "S06"
+title = "Solvent (MVS-DS)"
+stage = "solvent"
+status = "NOT_BUILT"
+summary = """
+The planned implicit/mesh solvent (MVS-DS) does not exist. Today the engine runs in vacuum.
+SolventMode::Explicit appends oxygen-only -0.834 e pseudo-waters, which must never satisfy a solvent
+claim. The explicit-water reference (SETTLE + periodic list + PME) is not on the production path;
+the reference for qualification comes from an external explicit-water engine run."""
+equations = '''
+(design target, not implemented) \(\Delta G_{solv} = \Delta G_{polar}[\text{mesh DEC Poisson}] + \Delta G_{np} + \text{bounded learned correction}\); conservative force \(F = -\nabla(\ldots)\).
+'''
+units = [["(not built)", "-"]]
+invariants = [
+  "No solvent claim is made for any observable that has not passed the explicit-water qualification panel.",
+  "Pseudo-water (oxygen-only) mode never satisfies a solvent claim.",
+]
+gate = "Frozen observable panel vs explicit-water reference: dihedral distributions, RMSF, contacts, salt bridges, pocket opening probability and volume, pocket water occupancy, hydration free energies, kinetics."
+questions = [
+  "Confirm from input.rs that the explicit mode adds oxygen-only point charges with no hydrogens and no water model geometry.",
+  "Which code path, if any, would apply a dielectric or solvent field to the production nonbonded kernel today?",
+  "State which observables could be claimed under the current vacuum model and which cannot.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/input.rs"
+  anchor = 'topology\.charges\.push\(-0\.834\)'
+  before = 14
+  after = 12
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/solvent/mvs_ds.rs"
+  anchor = 'MVS-DS'
+  note = "Planned location of the MVS-DS solvent module."
+  [[section.planned]]
+  name = "MVS-DS mesh solvent backbone (S0-S7)"
+  package = "P9"
+  [[section.planned]]
+  name = "Learned bounded solvent corrector (W_solv_learned plane)"
+  package = "P9 / D3"
+  [[section.defect]]
+  id = "D-PSEUDO-WATER"
+  title = "SolventMode::Explicit appends oxygen-only -0.834 e pseudo-waters"
+  where = "crates/prism-nhs/src/input.rs"
+  status = "OPEN"
+  fix_package = "P9"
+
+[[section]]
+id = "S07"
+title = "UV excited state and the W_uv[lambda] ledger"
+stage = "uv"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Per-aromatic excited-state model (Trp/Tyr/Phe/His chromophores) with a prescribed excitation rate,
+Franck-Condon progress, vibrational energy transfer to ring neighbours and a charge-state rescale.
+Intervention work is published into a mixed d_external_work scalar plane today; the per-wavelength
+W_uv[lambda] plane is planned. UV excitations are protocol inputs, not discoveries."""
+equations = '''
+\(E_{photon}(\lambda) = hc/\lambda\); at 280 nm: 4.428 eV = 102.1 kcal/mol.
+Charge-neutral rescale: \(q_i' = \bar q + s\,(q_i - \bar q)\) over the chromophore set, so \(\sum q' = \sum q\).
+Work of a parameter switch at fixed coordinates: \(W = \sum_{pairs} k_C (q_i'q_j' - q_iq_j)/r_{ij}\).
+'''
+units = [
+  ["lambda", "nm"],
+  ["E_photon, W_uv", "kcal/mol"],
+  ["velocity kick", "Angstrom/ps"],
+]
+invariants = [
+  "Energy deposited by the kick equals the booked W_uv for that event (first-law closure).",
+  "The excited-state charge rescale conserves total charge.",
+  "Only declared chromophore atoms change state under a UV burst.",
+]
+gate = "First-law balance per UV event (deposited vs booked), charge conservation <= 1e-12 e, non-chromophore invariance under a 280 nm burst, per-wavelength ledger separation."
+questions = [
+  "Show the units of each term in the energy deposited by apply_vibrational_transfer (E_dep) and where it is added to d_external_work.",
+  "Is the deposited kinetic energy computed from the actual velocity change (1/2 m (v'^2 - v^2)) or from the requested energy? Cite the line.",
+  "Derive the charge-neutral rescale and confirm sum(q') = sum(q) in uv_excited_charge / uv_charge_for_state.",
+  "How would the ledger distinguish two wavelengths applied in the same run today?",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_excited_state.cuh"
+  symbol = '__device__ __forceinline__ void update_excited_state_inline\('
+  max_lines = 130
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = 'P5 Step 1 .{1,3}charge-neutral excited-state charge rescale'
+  before = 0
+  after = 24
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = '__device__ __forceinline__ float uv_charge_for_state\('
+  max_lines = 40
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = 'extern "C" __global__ void nhs_uv_charge_parameter_work\('
+  max_lines = 20
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  symbol = 'extern "C" __global__ void nhs_reduce_external_work_components\('
+  before = 8
+  max_lines = 45
+  [[section.planned]]
+  name = "Typed W_uv[lambda] work plane (per wavelength, per chromophore) replacing the mixed d_external_work scalar"
+  package = "P7.5"
+  [[section.defect]]
+  id = "D-UV-MIXED-LEDGER"
+  title = "UV work booked into the mixed d_external_work scalar; no per-wavelength plane"
+  where = "nhs_amber_fused.cu / nhs_excited_state.cuh"
+  status = "OPEN"
+  fix_package = "P7.5"
+  [[section.defect]]
+  id = "D-UV-PRESCRIBED"
+  title = "UV excitations come from a prescribed rate model (inputs, not discoveries); 280 nm can couple to the analogue carbon s->p gap"
+  where = "nhs_excited_state.cuh"
+  status = "OPEN"
+  fix_package = "H3"
+
+[[section]]
+id = "S08"
+title = "BIPRISM mesh and DEC operator (simplicial tile edge weights, PCG)"
+stage = "mesh_dec"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Per-tile Bowyer-Watson Delaunay seed (<= 256 atoms per tile, <= 8 leaves, cold seeding), peeling
+by circumradius, exact Rust re-admission of the mesh, then a P1-FEM / DEC cotangent Laplacian with
+regularised volume and a PCG solve. CRITICAL: the diagonal DEC edge weights are assigned to the
+opposite edge (01<->23, 02<->13, 03<->12). Every DEC, Phase-2, LIF and v10 result used that
+operator. The dual is barycentric, not Voronoi."""
+equations = '''
+Face area normals of tetrahedron \(T=(p_0,p_1,p_2,p_3)\): \(N_i\) is the inward area normal (\(|N_i| = 2A_i\)) of the face opposite \(p_i\); \(\sum_i N_i = 0\).
+P1 basis gradients: \(\nabla\phi_i = N_i/(6V)\). Stiffness: \(K_{ij} = V\,\nabla\phi_i\cdot\nabla\phi_j = N_i\cdot N_j/(36V)\).
+Edge weight (cotangent form): \(w_{ij} = -K_{ij} = -\dfrac{N_i\cdot N_j}{36V} = \tfrac16\,\ell_{kl}\cot\theta_{kl}\), where \(\{k,l\}\) is the opposite edge and \(\theta_{kl}\) the dihedral angle there.
+Correct mapping: \(w_{01}\leftarrow N_0\cdot N_1,\ w_{02}\leftarrow N_0\cdot N_2,\ w_{03}\leftarrow N_0\cdot N_3,\ w_{12}\leftarrow N_1\cdot N_2,\ w_{13}\leftarrow N_1\cdot N_3,\ w_{23}\leftarrow N_2\cdot N_3\).
+Regularisation in source: \(1/(36V) \to V/(V^2+\sigma^2\ell_{rms}^6)/36 \cdot J\), with Piola ratio \(J = \mathrm{clamp}(V/V_{ref}, 0.05, 20)\) and floor \(w \ge 10^{-3}\ell_{rms}\).
+'''
+units = [
+  ["coordinates, edge length", "Angstrom (bohr in v10 working planes)"],
+  ["V", "Angstrom^3"],
+  ["w_ij", "Angstrom (length; dual-area / primal-length)"],
+  ["PCG potential phi", "no physical scale today (no 4 pi, vacuum)"],
+]
+invariants = [
+  "Row sums of the assembled Laplacian are zero before the SPD floor and gauge are applied.",
+  "Each edge weight uses the two face normals whose faces share that edge.",
+  "Mesh admission is exact (1536-bit Rust re-admission) and refuses negative controls.",
+]
+gate = "Independent exact star0/star1 recompute on non-regular tetrahedra (dec_p1fem_edge_weight_mapping check) under change control; requalification of every DEC/LIF/v10 receipt on the corrected operator; observables invariant across three mesh resolutions."
+questions = [
+  "Derive w01 from the face normals N0..N3 as defined in evaluate_diagonal_dec_tet_weights and compare it with the out_w01 assignment line. Which edge does dot_N2_N3 belong to?",
+  "Show that the faces opposite vertices 2 and 3 share edge 01 or not, and conclude which edge's dihedral angle dot_N2_N3 measures.",
+  "Confirm that the FP32 and the compensated (FP64) variants carry the same mapping, and list every other kernel that consumes out_w01..out_w23.",
+  "State the units of inv_36V_reg and of the spd_floor; are they the same?",
+  "What does the circumradius peel in bp_bw_peel remove, and what does that imply for cavity (pocket) tetrahedra?",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_simplicial_tile.cuh"
+  symbol = '__device__ __forceinline__ void evaluate_diagonal_dec_tet_weights\('
+  max_lines = 80
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_simplicial_tile.cuh"
+  symbol = '__device__ __forceinline__ void evaluate_diagonal_dec_tet_weights_compensated\('
+  max_lines = 80
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_bowyer_watson_seed.cuh"
+  symbol = 'BPBW_HD uint32_t bp_bw_peel\('
+  max_lines = 40
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_dec_pcg.cuh"
+  symbol = '__device__ __forceinline__ bool biprism_dec_pcg_256_traversal\('
+  max_lines = 110
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/biprism_mesh.rs"
+  symbol = 'pub fn validate_tile_geometry_compensated\('
+  max_lines = 60
+  [[section.defect]]
+  id = "D-DEC-OPP-EDGE"
+  title = "CRITICAL: DEC edge weight assigned to the opposite edge (01<->23, 02<->13, 03<->12)"
+  where = "nhs_biprism_simplicial_tile.cuh evaluate_diagonal_dec_tet_weights (FP32 and compensated): out_w01..out_w23 assignments"
+  status = "OPEN"
+  fix_package = "P3 (first, under change control)"
+  check = "dec_p1fem_edge_weight_mapping"
+  [[section.defect]]
+  id = "D-DEC-NO-SCALE"
+  title = "PCG solves the permuted operator with no physical scale (no 4 pi, vacuum, halo q/4pi carries units of charge)"
+  where = "nhs_biprism_dec_pcg.cuh"
+  status = "OPEN"
+  fix_package = "P3 / P9"
+  [[section.defect]]
+  id = "D-BW-PEEL-CAVITY"
+  title = "BW mesh is not a whole-protein lattice: 256-atom single-thread tiles, <= 8 leaves, <= 1024 exported tets; the peel removes large-circumradius cavity tets"
+  where = "nhs_biprism_bowyer_watson_seed.cuh bp_bw_peel"
+  status = "OPEN"
+  fix_package = "P7.3"
+  [[section.defect]]
+  id = "D-DUAL-NAMING"
+  title = "The dual is barycentric, not Voronoi; naming is wrong"
+  where = "nhs_biprism_simplicial_tile.cuh"
+  status = "OPEN"
+  fix_package = "P3"
+
+[[section]]
+id = "S09"
+title = "Electronic propagator (Cayley/Magnus) and the tight-binding coupling"
+stage = "electronic"
+status = "NOT_BUILT"
+summary = """
+The in-loop hybrid electronic layer (H1-H3) is NOT BUILT on the run-once path. A two-level s/p
+pseudo-spin per atom propagated by a Cayley map exists only inside the v10 192-atom replicated tile
+(about 7 days/ns; stalls at epoch 5; refuted as the run-once integrator). The Cayley map with 4
+substeps at 4 fs compresses a 0.38 Ha onsite gap to an effective ~0.070 Ha. Parameters have no
+provenance and onsite/edge terms mix Hartree*bohr^3 with Hartree. The tight-binding (GFN2-xTB form)
+parameter and validation source (P8/H4) and the charge-conserving coupling (H2) are not built."""
+equations = '''
+Cayley step (source): \((\omega I + \tfrac{i h}{2}H)\psi_1 = (\omega I - \tfrac{i h}{2}H)\psi_0\). For \(\omega=1\) this is unitary with eigenphase \(\theta = 2\arctan(Eh/2)\) instead of the exact \(Eh\).
+Effective gap after \(n\) substeps of \(h=\Delta t/n\): \(\Delta_{eff} = \tfrac{2}{h}\arctan(\Delta h/2)\).
+At \(\Delta=0.38\) Ha, \(\Delta t = 4\) fs \(=165.36\) a.u., \(n=4\): \(\Delta_{eff}\approx 0.070\) Ha.
+Unit bridge: Angstrom -> bohr \(=1/a_0\); ps -> a.u. time \(=10^{-12}/t_{au}\).
+'''
+units = [
+  ["H, onsite, couplings", "Hartree (onsite currently Hartree*bohr^3: unit defect)"],
+  ["h (electronic substep)", "atomic time units (1 ps = 41341.37 a.u.)"],
+  ["psi", "dimensionless, normalised"],
+]
+invariants = [
+  "Norm conservation |psi_1| = |psi_0| (unitarity) to FP64 round-off.",
+  "Electronic substeps are decoupled from nuclear dt (interaction picture) once H1 lands; until then dt changes the effective Hamiltonian.",
+  "Total charge is conserved by the coupling (dq_u = -dq_v).",
+]
+gate = "H1: Rabi phase <= 1e-3 rad/ps and Landau-Zener populations <= 1e-4 at 0.5/2/4 fs (FP64 analytic controls); observe mode bitwise-identical nuclear trajectory analogue on/off. H2: charge conserved <= 1e-12 e over 1e5 steps; coupled NVE drift no worse than MM-only. H4/P8: force RMSE and energy MAE vs GFN2-xTB (tblite) on a non-target panel."
+questions = [
+  "From bp_ed_hermitian_cayley, derive the eigenphase of the update for a diagonal H with omega = 1 and compare it with the exact phase at h = 41.34 a.u. (cayley_vs_su2_phase check).",
+  "What value is passed as omega in the v10 call sites, and what are its units? Is the map still unitary when omega != 1?",
+  "Check BIPRISM_ANGSTROM_TO_BOHR and BIPRISM_PS_TO_ATOMIC_TIME against CODATA 2022 (unit_conversions check). Which CODATA vintage do they match?",
+  "Show the line that forms q = q_amber + 0.15*rho11 (or its successor) and state whether total charge is conserved.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_electronic_discrete.cuh"
+  symbol = 'bp_ed_hermitian_cayley\(BiprismElectronicSpinor'
+  before = 6
+  max_lines = 60
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_unit_bridge.cuh"
+  lines = [1, 18]
+  [[section.planned]]
+  name = "H1 in-loop analogue node in the AMBER BpNativeGeometry<true> step graph (closed-form SU(2), commutator-free Magnus, interaction picture)"
+  package = "H1"
+  [[section.planned]]
+  name = "H2 charge-conserving electronic coupling contract (observe default; W_electronic planes)"
+  package = "H2"
+  [[section.planned]]
+  name = "H3 physical electronic event ontology"
+  package = "H3"
+  [[section.planned]]
+  name = "P8/H4 GPU SCC tight-binding (GFN2-xTB form) with tblite reference"
+  package = "P8 / H4"
+  [[section.defect]]
+  id = "D-ELEC-CAYLEY-GAP"
+  title = "Cayley with 4 substeps compresses the 0.38 Ha gap to ~0.070 Ha at 4 fs (5.4x, ~29x inflated off-resonant mixing); dt changes the effective Hamiltonian"
+  where = "nhs_biprism_electronic_discrete.cuh bp_ed_hermitian_cayley (v10 callers)"
+  status = "OPEN"
+  fix_package = "H1 (interaction-picture Cayley, decoupled microsteps)"
+  check = "cayley_vs_su2_phase"
+  [[section.defect]]
+  id = "D-ANALOGUE-UNITS"
+  title = "Analogue parameters have no provenance; onsite energy in Hartree*bohr^3 against edge terms in Hartree"
+  where = "nhs_biprism_unit_bridge.cuh; nhs_biprism_variational_so3g_v10.cuh"
+  status = "OPEN"
+  fix_package = "P8 / H1"
+  [[section.defect]]
+  id = "D-CHARGE-CREATE"
+  title = "Charge is created (q = q_amber + 0.15*rho11), not moved; electrostatics double-counted against AMBER"
+  where = "v10 / native coupling"
+  status = "OPEN"
+  fix_package = "H2"
+  check = "coupling_charge_conservation"
+  [[section.defect]]
+  id = "D-CHARGE-UV-NULL-FALLBACK"
+  title = "uv_excited_charge falls back silently when the excited-charge set is null instead of refusing"
+  where = "nhs_amber_fused.cu uv_excited_charge / uv_charge_for_state"
+  status = "OPEN"
+  fix_package = "H2"
+  check = "charge.uv_excited_charge_null_fallback"
+  [[section.defect]]
+  id = "D-PME-BYPASS"
+  title = "The PME/Ewald path deliberately bypasses the electronic charge rescale; any Ewald solvent decouples the electronics until a charge-plane writer with Hamiltonian-work accounting exists"
+  where = "nhs_amber_fused.cu (lambda_v2_ewald_enabled branches)"
+  status = "OPEN"
+  fix_package = "H2 / P8"
+  [[section.defect]]
+  id = "D-V10-NONDET"
+  title = "v10 H assembly uses nondeterministic FP64 atomicAdd; identical replicas diverge in epoch 1"
+  where = "nhs_biprism_variational_so3g_v10.cuh"
+  status = "OPEN"
+  fix_package = "H0 / P4"
+
+[[section]]
+id = "S10"
+title = "LIF / Voronoi detector and event extraction"
+stage = "events"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Leaky integrate-and-fire neurons on mesh vertices driven by DEC edge flux; spikes are the event
+substrate. Flux accumulation uses FP32 shared-memory atomicAdd (order nondeterministic), the leaf
+count is hard-coded to 8 (r < 8u), and it consumes the DEC weights from S08 (opposite-edge defect).
+Refractory period and UV LIF window are counted in steps, so causal windows change with dt."""
+equations = '''
+\(\tau\,\dot V_u = -(V_u - V_{rest}) + \sum_{v\sim u} w_{uv}(V_v - V_u) + I_u\); spike when \(V_u \ge \theta\), reset, refractory \(t_{ref}\).
+Edge flux: \(f_{uv} = w_{uv}(V_v - V_u)\), antisymmetric: \(f_{vu} = -f_{uv}\).
+'''
+units = [
+  ["V (membrane)", "model units (dimensionless)"],
+  ["w_uv", "Angstrom (from S08)"],
+  ["refractory", "steps today (must be ps)"],
+]
+invariants = [
+  "Flux antisymmetry: the sum of flux over all core vertices is zero (closed tile).",
+  "Spikes are invariant when solver tolerance is tightened 10x.",
+  "Observer mode (lif_kick = 0) leaves the nuclear trajectory bitwise unchanged.",
+]
+gate = "LIF 10k steps with zero fault latches; deterministic scan-ordered flux; spikes invariant under 10x tolerance tightening and across dt = 4/2/0.5 fs (physical-time windows); BY-FDR against surrogates."
+questions = [
+  "Show that the flux accumulation order is nondeterministic and state which spike outcomes can therefore differ between identical runs.",
+  "Where is the 8-leaf limit (r < 8u) and what happens for a protein that needs more than 8 tiles?",
+  "Express REFRACTORY_STEPS in ps at 2 fs and at 4 fs and state the effect on causal lag windows.",
+  "Which DEC weight function feeds biprism_live_diagonal_edge, and does it inherit D-DEC-OPP-EDGE?",
+]
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_voronoi_lif.cuh"
+  symbol = '__device__ __forceinline__ float biprism_live_diagonal_edge\('
+  max_lines = 50
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_biprism_voronoi_lif.cuh"
+  anchor = 'const float flux = w_live \* \(s_v_mem\[v\] - s_v_mem\[u\]\);'
+  before = 5
+  after = 5
+  [[section.excerpt]]
+  path = "crates/prism-gpu/src/kernels/nhs_amber_fused.cu"
+  anchor = '#define REFRACTORY_STEPS'
+  before = 0
+  after = 0
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/sdst_bridge.rs"
+  symbol = 'pub fn select_native_percentile_indices\('
+  max_lines = 40
+  [[section.defect]]
+  id = "D-LIF-ATOMIC"
+  title = "FP32 atomicAdd flux accumulation (nondeterministic order)"
+  where = "nhs_biprism_voronoi_lif.cuh"
+  status = "OPEN"
+  fix_package = "H0 / P4"
+  [[section.defect]]
+  id = "D-LIF-8-LEAVES"
+  title = "Leaf count hard-coded to 8 (r < 8u)"
+  where = "nhs_biprism_voronoi_lif.cuh; nhs_biprism_unit_bridge.cuh; v10"
+  status = "OPEN"
+  fix_package = "H1"
+  [[section.defect]]
+  id = "D-STEP-WINDOWS"
+  title = "REFRACTORY_STEPS and UV_LIF_WINDOW in steps; causal windows change with dt"
+  where = "nhs_amber_fused.cu"
+  status = "OPEN"
+  fix_package = "P7.2"
+  [[section.defect]]
+  id = "D-SDST-FOLD"
+  title = "Unknown spike sources are folded into the LIF channel"
+  where = "sdst_bridge.rs select_native_percentile_indices (`_ => 1`)"
+  status = "OPEN"
+  fix_package = "P11"
+
+[[section]]
+id = "S11"
+title = "Chronicle: CLOCK, leaves and restart closure"
+stage = "chronicle"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+Raw Chronicle (L0) writes spike bytes with exact clocks; the coupled chronology record (L1, CCR)
+stamps step, time, dt, gear and emitter on the GPU; scientific checkpoints carry excited-state,
+RNG, protocol and LIF state. A fresh-process resume has never completed end to end, coordinates
+are not captured on qualified routes, and restart equivalence has never been run."""
+equations = '''
+Clock key: (run, stream_id, replica_id, global_md_step, cumulative_simulated_time_ps, gear_epoch_id, protocol phase, segment).
+\(t_{k+1} = t_k + \Delta t_{gear(k)}\) exactly (no nominal-dt reconstruction).
+'''
+units = [
+  ["global_md_step", "steps"],
+  ["cumulative_simulated_time", "ps (exact sum of applied dt)"],
+  ["leaf hash", "sha256"],
+]
+invariants = [
+  "Every leaf carries a clock key; ordinals per (stream, field) are gap-free or the gap is explicit.",
+  "Restart closure: resumed run reproduces the uninterrupted run's subsequent output sequence (bitwise after H0).",
+  "Publish is atomic and durable (fsync file + parent directory) before acknowledgement.",
+]
+gate = "P2: native run -> stop -> fresh-process resume -> complete -> offline materialize -> DSTW, reproduced from the immutable record; omission, corruption, stale-head refusal and kill-at-every-boundary tests."
+questions = [
+  "List every field in the restart closure and identify any engine state that is NOT serialized (thermostat, adaptive-dt controller, BOCPD, CUDA graph phase).",
+  "How does chronicle_raw.rs bind the CLOCK field to RAW leaves, and what happens if a CLOCK ordinal is missing?",
+  "Show the fsync/rename sequence for a committed generation and identify any window in which a crash leaves an acknowledged but unpublished leaf.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full/chronicle_raw.rs"
+  anchor = '^const CLOCK: u32 = 1;'
+  before = 3
+  after = 8
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full/chronicle_raw.rs"
+  symbol = 'fn read_physical_clock'
+  max_lines = 20
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/coupled_chronology.rs"
+  symbol = 'pub struct CoupledChronologyRecord'
+  max_lines = 80
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/scientific_checkpoint/restart_transaction.rs"
+  symbol = 'pub fn publish_branch_metadata\('
+  max_lines = 40
+  [[section.planned]]
+  name = "L3 coordinate frame datum (observer-only, per-frame step/time bits/hash, fsync)"
+  package = "P2.4"
+  [[section.planned]]
+  name = "Offline reader prism_chronicle_sdst_replay"
+  package = "P2.5"
+  [[section.defect]]
+  id = "D-RESUME-NEVER"
+  title = "Fresh-process resume has never completed once ('Bounded JSON owner exceeded' on the reservation-retirement record)"
+  where = "scientific_checkpoint/restart_transaction.rs"
+  status = "OPEN"
+  fix_package = "P2.1"
+  [[section.defect]]
+  id = "D-FRAMES-NOT-CAPTURED"
+  title = "Coordinates never captured on qualified routes; frames.bin single-dt header, no fsync; snapshot time hard-coded 2 fs"
+  where = "fused_engine.rs; chronicle_raw.rs"
+  status = "OPEN"
+  fix_package = "P2.4"
+  [[section.defect]]
+  id = "D-NOMINAL-DT"
+  title = "Nominal dt written to ghost_time_map.json"
+  where = "nhs_rt_full.rs"
+  status = "OPEN"
+  fix_package = "P3"
+
+[[section]]
+id = "S12"
+title = "QNANL encode / seal / decode"
+stage = "qnanl"
+status = "QUALIFIED"
+status_note = "Packet codec (PRSQNB01) qualified as a post-run seal (253 round-trip receipts). In-loop sealing, families 52-59 and the out-of-process decoder are NOT_BUILT."
+summary = """
+PRSQNB01 packet codec: fixed header, section payloads (SectionZstd only in use), seal over header
+material, durable publish with lock, staging, fsync and recovery. Delta-time, event dictionary,
+event RLE and tensor-chunked codecs are registered but never selected."""
+equations = '''
+\(\text{decode}(\text{encode}(x)) = x\) byte-exact; \(\text{seal} = \mathrm{SHA256}(\text{header material})\); a single flipped bit is refused.
+'''
+units = [["sizes", "bytes"], ["hashes", "sha256 hex"]]
+invariants = [
+  "Round trip is byte-exact for every family.",
+  "A tampered packet (bit flip in header or body) is refused, never repaired.",
+  "RUNTIME_INLINE is stamped only on seals made in the MD loop at the producing step.",
+]
+gate = "G-Q1..G-Q8: in-process round trip; independent out-of-process decoder; crash matrix over publish steps; bit-flip refusal; tokenizer decode with hashes; ratio/throughput receipts per family; RUNTIME_INLINE honesty; consumer ack carries packet hash."
+questions = [
+  "Trace encode_bytes -> parse_packet -> decode_packet_bytes and list every integrity check that runs on decode.",
+  "In publish_immutable_artifact, show the fsync of the file and of the parent directory and the rename order.",
+  "Where is RUNTIME_INLINE asserted, and can a post-run seal ever be stamped RUNTIME_INLINE (record_qnanl_inline_seal_verify)?",
+]
+  [[section.excerpt]]
+  path = "crates/prismcode/src/qnanl_artifact.rs"
+  symbol = 'pub fn encode_bytes\('
+  max_lines = 90
+  [[section.excerpt]]
+  path = "crates/prismcode/src/qnanl_artifact.rs"
+  symbol = 'pub fn decode_packet_bytes\('
+  max_lines = 40
+  [[section.excerpt]]
+  path = "crates/prismcode/src/qnanl_artifact.rs"
+  symbol = 'pub fn publish_immutable_artifact\('
+  max_lines = 50
+  [[section.excerpt]]
+  path = "crates/prismcode/src/md_native_runtime.rs"
+  symbol = 'pub fn record_qnanl_inline_seal_verify\('
+  max_lines = 50
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full.rs"
+  symbol = 'fn write_qnanl_md_evidence_artifact'
+  max_lines = 40
+  [[section.planned]]
+  name = "In-loop QNANL seal per chunk; families 52-59 (ElectronicEventStream ... LearnedSolventCorrectorWeights)"
+  package = "P11"
+  [[section.planned]]
+  name = "Independent out-of-process decoder (G-Q2)"
+  package = "P11"
+  [[section.defect]]
+  id = "D-QNANL-POSTRUN"
+  title = "Packet is a post-run seal only; the source of truth requires pre-run run authority; a post-run sweep is stamped RUNTIME_INLINE"
+  where = "qnanl_artifact.rs; prismos.rs sweep (not in this repo)"
+  status = "OPEN"
+  fix_package = "P11"
+  check = "qnanl_roundtrip"
+
+[[section]]
+id = "S13"
+title = "md_evidence_manifest"
+stage = "manifest"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+md_evidence_manifest.json enumerates every artifact a run wrote (spikes, Chronicle, checkpoints,
+telemetry) with hashes; it is the Path B replay contract. Several protocol profiles refuse to write
+it, and some status fields are literals rather than computed values."""
+equations = '''
+Manifest completeness: \(\{\text{artifacts on disk}\} = \{\text{artifacts in manifest}\}\), each with \(\mathrm{sha256}\) and byte length.
+'''
+units = [["hash", "sha256"], ["size", "bytes"]]
+invariants = [
+  "Every artifact listed exists with the recorded hash; no unlisted artifact is consumed downstream.",
+  "path_b_required with no evidence plan is refused before launch (planned, P1).",
+]
+gate = "P1 contract test (md_evidence_manifest_contract) shared by writer and every reader; recorder enforced before GPU work."
+questions = [
+  "Find where md_evidence_manifest.json is written and list the fields that are literals rather than computed (e.g. path_b_required, streams_completed).",
+  "Which run profiles refuse to write the manifest, and where is that refusal?",
+  "Does any reader accept an artifact missing from the manifest?",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full.rs"
+  anchor = 'md_evidence_manifest.json. enumerates every artifact'
+  before = 6
+  after = 14
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full.rs"
+  symbol = 'fn md_evidence_write_header'
+  max_lines = 30
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full.rs"
+  anchor = 'let expected_manifest_path = args.output.join\("md_evidence_manifest.json"\);'
+  before = 4
+  after = 16
+  [[section.planned]]
+  name = "Shared manifest structs crates/prism-nhs/src/pathb_manifest.rs + contract test"
+  package = "P1"
+  [[section.defect]]
+  id = "D-MANIFEST-LITERALS"
+  title = "streams_completed:0 scopes V2 instantiation; path_b_required is a literal; static 'Accepted' audit stamps"
+  where = "nhs_rt_full.rs"
+  status = "OPEN"
+  fix_package = "P1 / P3"
+
+[[section]]
+id = "S14"
+title = "Path B materialization"
+stage = "pathb"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+prism_materialize_sites is offline: it consumes the manifest and the persisted spikes/KCC artifacts
+(no MD rerun), validates envelopes and hashes, and materializes candidate sites. Known output
+defects: stale pre-consensus site views, residue offset (lr.resid - 1), uncertainty defaulting to
+0, NaN lag mapped to 0, 'raw_spikes' meaning filtered spikes."""
+equations = '''
+Adaptive time axis: \(t_k = \sum_{j<k}\Delta t_j\) (not \(k\,\Delta t_{nominal}\)).
+'''
+units = [["time", "ps"], ["lag", "ps (NaN must stay null with reason)"], ["site coordinates", "Angstrom"]]
+invariants = [
+  "Materialization reads only manifest-listed artifacts and verifies their hashes.",
+  "Missing values are null with a reason, never 0.",
+  "Site views are generated after the final rerank.",
+]
+gate = "P3 offline validator validate_output_integrity.py; P2 milestone (offline materialize from the immutable record)."
+questions = [
+  "In validate_artifact, list every check performed on an input artifact before it is consumed.",
+  "Show adaptive_dt_time_axis and confirm it does not reconstruct time from a nominal dt.",
+  "Find where uncertainty defaults to 0 or NaN lag becomes 0 and cite the lines.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/prism_materialize_sites.rs"
+  symbol = 'fn validate_artifact\('
+  max_lines = 120
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/prism_materialize_sites.rs"
+  symbol = 'fn adaptive_dt_time_axis\('
+  max_lines = 30
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/nhs_rt_full.rs"
+  anchor = 'let topo_idx = \(lr\.resid - 1\)\.max\(0\) as usize;'
+  before = 8
+  after = 4
+  [[section.defect]]
+  id = "D-STALE-SITE-VIEWS"
+  title = "PDB/PML/CXC/MD site views are a stale pre-consensus stage (10 sites vs 18)"
+  where = "nhs_rt_full.rs site view writers"
+  status = "OPEN"
+  fix_package = "P3"
+  [[section.defect]]
+  id = "D-NULL-AS-ZERO"
+  title = "Uncertainty defaults to 0; NaN lag -> 0; raw_spikes means filtered spikes; ClusterToCausome instantiated but never applied"
+  where = "nhs_rt_full.rs; prism_materialize_sites.rs"
+  status = "OPEN"
+  fix_package = "P3"
+
+[[section]]
+id = "S15"
+title = "DSTW export"
+stage = "dstw"
+status = "EXECUTED_UNQUALIFIED"
+summary = """
+dstw_export_wt_pathb aggregates materialized Path B output into the WT physical-profile response
+(JSON plus physics/contact Parquet). The DSTW pre-stage uses nominal dt and a shared baseline
+across streams; contact features are proxies."""
+equations = '''
+Per-residue aggregation over streams \(s\): \(x_r = f(\{x_{r,s}\})\) with per-stream baselines \(b_s\) (planned; shared baseline today).
+'''
+units = [["distances", "Angstrom"], ["time", "ps"], ["residue id", "PDB number + chain (via residue map)"]]
+invariants = [
+  "Every exported row maps to a residue through the residue map (chain + PDB number).",
+  "No MD propagation is invoked.",
+  "Proxy features are named *_proxy.",
+]
+gate = "P2 milestone: DSTW result reproduced offline from the immutable record; per-stream baselines; adaptive dt."
+questions = [
+  "In aggregate_pathb, show how per-stream values are combined and whether baselines are per stream.",
+  "In convert_topology_indices / load_residue_map, show the index-to-residue mapping and compare it with the lr.resid - 1 convention in S14.",
+  "List the columns written by write_contact_parquet that are proxies and whether they are named as such.",
+]
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/dstw_export_wt_pathb.rs"
+  symbol = 'fn load_residue_map\('
+  max_lines = 40
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/dstw_export_wt_pathb.rs"
+  symbol = 'fn convert_topology_indices\('
+  max_lines = 20
+  [[section.excerpt]]
+  path = "crates/prism-nhs/src/bin/dstw_export_wt_pathb.rs"
+  symbol = 'fn aggregate_pathb\('
+  max_lines = 140
+  [[section.defect]]
+  id = "D-DSTW-PRESTAGE"
+  title = "DSTW pre-stage: shared baseline across streams, nominal dt, *_contact_proxy naming"
+  where = "dstw_export_wt_pathb.rs"
+  status = "OPEN"
+  fix_package = "P2.5"

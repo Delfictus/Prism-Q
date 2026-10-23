@@ -1,0 +1,11 @@
+# gitleaks configuration for Prism-Q: default rules plus narrow, reviewed allowlists.
+# Every allowlist entry names the exact false-positive shape it suppresses. Never allowlist by path.
+title = "prism-q"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Physical-law identity keys asserted in unit tests are identifiers, not credentials (e.g. LAW_M1_CONSERVATION_OF_MASS.key)"
+regexTarget = "line"
+regexes = ['''assert_eq!\(LAW_[A-Z0-9_]+\.key,\s*"[a-z0-9_]+"\)''']

@@ -1,0 +1,31 @@
+# Reviewed public-release-gate exceptions: category<TAB>path<TAB>reason (reason required). Whole-file scope; keep minimal.
+# Every entry is re-reviewed whenever its file changes.
+token_generic_assign	crates/prism-nhs/src/capability_admission.rs	capability-layer identifiers (token: "interferometric-twin" etc.), not credentials
+ip_private	crates/prismcode/tests/model_runtime_champion.rs	negative test: 10.0.0.5 is a synthetic non-loopback address that must be rejected
+# --- path_host_specific (G3w): reviewed 2026-10-23 by the publish lane. These are NOT workstation paths. ---
+# Appliance install layout contract: /opt/prismos/{bin,lib,share,packets,scripts,...} and /var/lib/prismos/{runs,status,engine-releases,...}
+path_host_specific	crates/prismcode/src/bin/prismos.rs	appliance install layout (/opt/prismos, /var/lib/prismos governed roots): CLI defaults, resolver search order and test fixtures of the prismos CLI
+path_host_specific	crates/prismos-ui/src/adapters.rs	appliance install layout: the workbench launches installed /opt/prismos binaries and profiles
+path_host_specific	crates/prismos-ui/src/panels/dashboard.rs	appliance governed status root /var/lib/prismos/status
+path_host_specific	crates/prismos-ui/src/panels/run_engine.rs	appliance layout message: PRISM_ENGINE_BIN must resolve to the installed engine
+path_host_specific	crates/prismos-ui/src/app.rs	appliance governed run roots /var/lib/prismos/runs
+path_host_specific	crates/prismos-ui/packaging/install-prismos-ui.sh	install script usage example PREFIX=/opt/prismos
+path_host_specific	crates/prism-nhs/build.rs	comment documenting the appliance layout /opt/prismos/{bin,lib}
+path_host_specific	.archive/crates/sdst/build.rs	comment documenting the appliance layout /opt/prismos/{bin,lib}
+path_host_specific	crates/prismcode/src/hyper_runtime_request.rs	canonical ACTIVE engine-release pointer of the appliance (/var/lib/prismos/engine-releases/ACTIVE)
+path_host_specific	crates/prismcode/src/cuda_manifest.rs	installed CUDA manifest locations under /opt/prismos/share
+path_host_specific	crates/prism-nhs/src/input.rs	producer identity string of the installed appliance prep tool
+path_host_specific	crates/prism-nhs/src/fused_engine.rs	comment citing the installed appliance PTX path
+path_host_specific	crates/prism-nhs/src/bin/prism_native_pathb_aggregate.rs	executable identity of the installed appliance binary
+path_host_specific	crates/prism-nhs/src/bin/nhs_rt_full.rs	argv[0] of the installed engine in a CLI parse test
+path_host_specific	crates/prism-tokenizer/src/codec/prspk001.rs	doc comment naming the governed /var/lib/prismos run root
+path_host_specific	crates/prismcode/tests/fixtures/gui_standard_native_intent_v1.json	recorded GUI intent fixture whose argv names installed appliance paths
+path_host_specific	README.md	documents the appliance install layout
+# Deny-list / guard prefixes: mount points that model artifacts and outputs must NOT use (policy, not defaults that are read)
+path_host_specific	crates/prismcode/src/model_runtime.rs	NAS mount prefixes in the portable-model deny list
+path_host_specific	crates/prismcode/src/model_runtime_hermeticity.rs	NAS mount prefixes for the bounded-tmp check
+path_host_specific	crates/prismcode/src/model_governance.rs	NAS mount prefixes classifying remote model paths
+path_host_specific	crates/prismcode/tests/model_runtime_negative.rs	negative test: a NAS model path must be rejected
+path_host_specific	xtask/src/main.rs	BOUNDED_NAS_ROOTS guard prefixes (the bounded lane itself comes from PRISM_BOUNDED_NAS)
+# Pinned QC reader: editing it would break the fixed-domain reader sha256 pin in cuda/tests/run_biprism_v10_coupled_qc.py
+path_host_specific	cuda/tests/check_biprism_phase2_work_native.py	sha256-pinned fixed-domain reader (001697f6...); its evidence-root literal is retained unchanged so the qualification pin holds

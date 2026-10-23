@@ -156,3 +156,6 @@ crates/prismcode/build/
 
 # ---- Workstation-only reference-check defaults (host paths); never published ----
 scripts/physics_refs/_site.py
+
+# ---- Local example inputs (crates/prism-nhs/examples read engine/data/ via CARGO_MANIFEST_DIR) ----
+/data/
