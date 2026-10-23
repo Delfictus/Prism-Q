@@ -1,0 +1,220 @@
+{
+ "schema": "prism.platform_capability_manifest.v1",
+ "generated": "2026-10-23 (rebuild lane, P0.6)",
+ "engine_commit": "9bfdfbf87fbe652cad4585f589d3af028b3a6b71",
+ "locator_conventions": {
+  "engine/...": "path in this repository",
+  "engine_store:<sha8>": "immutable engine store entry (nhs_rt_full + ptx/ + lib/ + ENGINE.json, sha256-pinned); root is site configuration",
+  "appliance:<path>": "path under the installed PrismOS appliance root",
+  "prismos_store:<path>": "path in the private PrismOS repository outside engine/",
+  "prism4d_bio:<path>": "path in the Prism4D-bio repository (separate project)"
+ },
+ "capability_tool": "appliance:bin/prismos-engine-capabilities --engine <bin> --pretty (exit 2 for every engine here = equality_validation against the installed expectation fails; the inventory itself is complete)",
+ "engines": {
+  "7e0f5eb0": {
+   "engine_sha256": "7e0f5eb00b9180199cc6db698b1e556b9044d0a78102920331aa92380190591a",
+   "locator": "engine_store:7e0f5eb0",
+   "aliases": [
+    "may",
+    "MAY_FROZEN",
+    "1010_MAY_FROZEN_20261016"
+   ],
+   "registration": "REGISTERED_HISTORICAL_BASELINE",
+   "capability_inventory_schema": "prismos.nhs_rt_full.capability_inventory.v1",
+   "capability_fingerprint_sha256": "55ebff1f0a0b18f8ed598f5096e1a2c027dc768374efda9bad954bcdb6b3d8fa",
+   "long_option_count": 96,
+   "commands": [
+    "ensemble-finalize",
+    "help"
+   ],
+   "kernel_set_sha256": "e80e196be7130281ae25c473fb1d00e03147a8cca23cfceddcb2c8ec8ab7ea88",
+   "ptx_count": 50,
+   "source_lineage": "UNRESOLVED_SOURCE_LINEAGE"
+  },
+  "cac70ea6": {
+   "engine_sha256": "cac70ea618f0254cacf6af86cbb296bb0590e41138cb51d4fdb0a12e0f21c61d",
+   "locator": "engine_store:cac70ea6",
+   "aliases": [
+    "1010",
+    "PRISMOS_NATIVE_1010_CAC70EA6_20261016_SUCCESSOR"
+   ],
+   "registration": "REGISTERED_RELEASE",
+   "capability_inventory_schema": "prismos.nhs_rt_full.capability_inventory.v1",
+   "capability_fingerprint_sha256": "5a8d48b8d9d9d42bb91b7d3f67c8d3f45fdcb6d809318ba268842bfca18ba55e",
+   "long_option_count": 206,
+   "commands": [
+    "calibration-admission",
+    "calibration-admission-verify",
+    "ensemble-finalize",
+    "ghost-input-preflight",
+    "help",
+    "qnanl-cuda-manifest",
+    "successor-authority-manifests",
+    "validate-run-intent",
+    "wp4-native-physics-self-test"
+   ],
+   "kernel_set_sha256": "e2b94861ee5cf2cd93fc1a2b0e35ef880737f1fa524a67ed039098ee7a50af59",
+   "ptx_count": 94,
+   "source_lineage": "2d0dfc5e2fbf63acf296361c0d1125d2365dec31"
+  },
+  "5722a4d5": {
+   "engine_sha256": "5722a4d59a3b5267eac273b84baaf7c9bc62f853beef8677a80d3b1cd95436ff",
+   "locator": "engine_store:5722a4d5",
+   "aliases": [
+    "5722",
+    "MAY_AUTONOMOUS_FULLCAPS_001",
+    "accepted_KRAS_ORIGINAL_WHILE_003"
+   ],
+   "registration": "REGISTERED_ACCEPTED_RUNTIME",
+   "capability_inventory_schema": "prismos.nhs_rt_full.capability_inventory.v1",
+   "capability_fingerprint_sha256": "557cb54d343614d9066541a9c6164a5cd4220928930f48551414d594f834471d",
+   "long_option_count": 207,
+   "commands": [
+    "calibration-admission",
+    "calibration-admission-verify",
+    "ensemble-finalize",
+    "ghost-input-preflight",
+    "help",
+    "qnanl-cuda-manifest",
+    "successor-authority-manifests",
+    "validate-run-intent",
+    "wp4-native-physics-self-test"
+   ],
+   "kernel_set_sha256": "e27486f9ef7e37ea86bcb1dff1cc7e84033fb7e45de7b18de318d2a28b722609",
+   "ptx_count": 94,
+   "source_lineage": "2d0dfc5e2fbf63acf296361c0d1125d2365dec31:native_source/prism_platform_cfe5ea89/crates placed at roles/engine/crates + SOURCE_SNAPSHOT overlay (46 files)"
+  },
+  "a16db8e6": {
+   "engine_sha256": "a16db8e6e4b64528f32720bac0c320216ccf8aaf167ddc2a180c807ba8a2f1c0",
+   "locator": "engine_store:a16db8e6",
+   "aliases": [
+    "canon-20261023",
+    "ENGINE_CANON_20261023_e6d7c4f"
+   ],
+   "registration": "REGISTERED_CANONICAL_DEVELOPMENT_ENGINE (not an installed/ACTIVE release; gates V1-V4 in rebuild/results.json)",
+   "capability_inventory_schema": "prismos.nhs_rt_full.capability_inventory.v1",
+   "capability_fingerprint_sha256": "e759a0d8f2fd6b9d9cfbc0468db169c29df56a21d62f264a64f01819aaee34c9",
+   "long_option_count": 207,
+   "commands": [
+    "biprism-run",
+    "calibration-admission",
+    "calibration-admission-verify",
+    "ensemble-finalize",
+    "ghost-input-preflight",
+    "help",
+    "qnanl-cuda-manifest",
+    "successor-authority-manifests",
+    "validate-run-intent",
+    "wp4-native-physics-self-test"
+   ],
+   "kernel_set_sha256": "2fc35bf59d1b06cac9523603e38eb555f392b7c8212727e98d076d4e2c3f34c6",
+   "ptx_count": 95,
+   "source_lineage": "e6d7c4f687fa42b56cba86c7c80c2d78b5f174aa"
+  }
+ },
+ "engine_option_deltas": {
+  "canon(a16db8e6) vs 5722a4d5": {
+   "added": [],
+   "removed": []
+  },
+  "canon vs 1010(cac70ea6)": {
+   "added": [
+    "--autonomous-chunk-while"
+   ],
+   "removed": [],
+   "commands_added": [
+    "biprism-run"
+   ]
+  },
+  "canon vs may(7e0f5eb0)": {
+   "added_count": 112,
+   "removed": [
+    "--use-xgb-ranker"
+   ],
+   "note": "--use-xgb-ranker exists only in the May engine (Prism4D-bio lineage); not present in 1010, 5722 or canon"
+  }
+ },
+ "surfaces": {
+  "engine": {
+   "binary": "nhs_rt_full",
+   "source": "engine/crates/prism-nhs/src/bin/nhs_rt_full.rs",
+   "canonical_engine": "engine_store:a16db8e6",
+   "batch_manifest_option": "--manifest (engine CLI; also --run-manifest/--run-manifest-sha256)"
+  },
+  "workbench": {
+   "binary": "prismos-ui",
+   "source": "engine/crates/prismos-ui (bin prismos-ui, src/main.rs)",
+   "installed": "appliance:bin/prismos-ui",
+   "installed_sha256": "e17c5d1ae8493ed0142cad01bc05c4b582282a38a48f703a3f105c144afa4342"
+  },
+  "batch": {
+   "script": "prism_replicate.py",
+   "locations": [
+    "prism4d_bio:scripts/prism_replicate.py",
+    "appliance:source/copilot_executor_cfe5ea89/scripts/prism_replicate.py"
+   ],
+   "sha256": {
+    "prism4d_bio": "e66ae65a38ca399e48ccbb426e8bf89f65dabe256e4e4fb825ad4c4ed5b12e6c",
+    "appliance": "d50bebe41e0d5156f01d058d143c4605b8cfd923b7874d79b79a17099a33daa4"
+   },
+   "note": "the two copies differ; neither is in engine/. It writes replicate_run_manifest.json and has no --manifest flag; the engine-side batch entry is nhs_rt_full --manifest"
+  },
+  "path_b": {
+   "binary": "prism-materialize-sites",
+   "source": "engine/crates/prism-nhs/src/bin/prism_materialize_sites.rs",
+   "installed": "appliance:bin/prism-materialize-sites",
+   "installed_sha256": "19fe2389da36d5d28264a03ef85f7c656e40eba5a3087e3aceee8c9bac4f38cc",
+   "note": "offline; consumes md_evidence_manifest / canonical QNANL packets (May md-only evidence needs the legacy adapter, see pathb-il2 lane)"
+  },
+  "dstw": {
+   "binaries": {
+    "dstw_export_wt_pathb": {
+     "source": "engine/crates/prism-nhs/src/bin/dstw_export_wt_pathb.rs",
+     "installed": "appliance:bin/dstw_export_wt_pathb",
+     "installed_sha256": "05891aff7887dcd6fb5d024dc7674a0d1ddb5f6d163db79e664c59c058015f91"
+    },
+    "dstw-export-wt": {
+     "source": "engine/crates/prism-nhs/src/bin/dstw_export_wt.rs",
+     "installed": "appliance:bin/dstw-export-wt",
+     "installed_sha256": "6660d4e7dd3dd48ce04ae0f81071e86808beb1f6c75d041d0f54ce3c8ad5d65a"
+    }
+   },
+   "gpu_kernel": "dstw_propagation.ptx (governed; loaded via prism_gpu::ptx_authority or DSTW_PROPAGATION_PTX)"
+  },
+  "teacher": {
+   "binary": "prism_teacher_pipeline",
+   "source": "engine/crates/prism-nhs/src/bin/prism_teacher_pipeline.rs",
+   "also": "prism4d_bio:crates/prism-nhs/src/bin/prism_teacher_pipeline.rs"
+  },
+  "student": {
+   "locations": [
+    "prism4d_bio:prism_postmd_superresolution/multihead_student_active (train_prism_multihead_student.py, build_prism_multihead_student_registry.py)",
+    "prism4d_bio:prism_postmd_superresolution/super_student_gflownet_export_v2_active",
+    "prism4d_bio:prism_postmd_superresolution/multihead_student_gflownet_export_active"
+   ],
+   "in_engine": false
+  },
+  "gflownet": {
+   "locations": [
+    "prismos_store:appliance_payload_reference/gflownet_v5/release (scripts/prismos_gflownet_v5_runner.py, train_gflownet_policy.py, sample_gflownet_candidates.py, stage_prism_meta_reward_gflownet_run.py)",
+    "prismos_store:appliance_payload_reference/gflownet_runtime/release",
+    "prismos_store:appliance_payload_reference/source/gflownet_pipeline",
+    "prism4d_bio:src/prism_dstw/gflownet"
+   ],
+   "engine_touchpoints": "engine/crates/prismcode and engine/crates/prism-tokenizer (GflownetTrajectory family routing)",
+   "in_engine": "tokenizer/prismcode routing only"
+  },
+  "admet": {
+   "locations": [
+    "prism4d_bio:scripts/build_gflownet_admet_stage.py",
+    "prism4d_bio:scripts/build_admet_aware_distillation_table.py",
+    "prism4d_bio:scripts/build_prism_admet_surrogate_panel_v2.py",
+    "prismos_store:appliance_payload_reference/gflownet_v5/release/scripts/stage_prism_meta_reward_gflownet_run.py",
+    "engine/crates/prismcode/src/bin/prismrun.rs (references)"
+   ],
+   "claim_scope": "ADMET items are computational surrogates/staging; no ADMET validation is claimed"
+  }
+ },
+ "search_method": "rg -il 'gflownet|admet|teacher_pipeline' over engine/, PrismOS appliance_payload_reference/ + native_source/, and Prism4D-bio (excluding vendor/, target/, .claude/worktrees/); plus find for named binaries in engine/, appliance bin/scripts and the installed appliance",
+ "evidence_boundary": "inventory of executable surfaces and their identities; not runtime validation of each surface"
+}
